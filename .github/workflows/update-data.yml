@@ -1,0 +1,37 @@
+name: Update Data
+
+on:
+  schedule:
+    # Run at 7 PM ET (midnight UTC) on weekdays — after markets close
+    - cron: '0 0 * * 2-6'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch latest data from FRED
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/fetch_treasury.py
+
+      - name: Copy data to site directory
+        run: |
+          mkdir -p site/data
+          cp data/dgs10.json site/data/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          cname: joemirza.com

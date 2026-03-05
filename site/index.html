@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joe Mirza — Economic & Financial Data</title>
+    <script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        header h1 span {
+            color: var(--accent);
+        }
+
+        nav {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        nav button:hover {
+            color: var(--text);
+        }
+
+        nav button.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .card .subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        #chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 640px) {
+            header { padding: 1rem; }
+            main { padding: 1rem; }
+            .stats { gap: 1rem; }
+            #chart { height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><span>joemirza.com</span> — Economic & Financial Data</h1>
+    </header>
+    <nav>
+        <button class="active" data-tab="treasury">10Y Treasury</button>
+        <!-- Future tabs go here -->
+    </nav>
+    <main>
+        <div id="treasury-tab">
+            <div class="card">
+                <h2>10-Year Treasury Constant Maturity Rate</h2>
+                <p class="subtitle">Daily series from FRED · <span id="last-updated"></span></p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="label">Latest</span>
+                        <span class="value" id="stat-latest">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">1-Year High</span>
+                        <span class="value" id="stat-high">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">1-Year Low</span>
+                        <span class="value" id="stat-low">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">1-Year Change</span>
+                        <span class="value" id="stat-change">—</span>
+                    </div>
+                </div>
+                <div id="chart"><div class="loading">Loading chart...</div></div>
+            </div>
+            <div class="card">
+                <h2>Recent Observations</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Rate (%)</th>
+                            <th>Daily Change</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr><td colspan="3" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <footer>
+        Data sourced from <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank">FRED (Federal Reserve Bank of St. Louis)</a>.
+        Updated daily via automated pipeline.
+    </footer>
+
+    <script>
+        // Tab switching (ready for future tabs)
+        document.querySelectorAll('nav button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        async function loadData() {
+            try {
+                const resp = await fetch('data/dgs10.json');
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                renderChart(data);
+                renderStats(data);
+                renderTable(data);
+                document.getElementById('last-updated').textContent = `Last updated: ${data.last_updated}`;
+            } catch (err) {
+                document.getElementById('chart').innerHTML =
+                    `<div class="loading">Failed to load data. ${err.message}</div>`;
+            }
+        }
+
+        function renderChart(data) {
+            const obs = data.observations;
+            const trace = {
+                x: obs.map(o => o.date),
+                y: obs.map(o => o.value),
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: '#38bdf8', width: 1.5 },
+                hovertemplate: '%{x}<br>%{y:.2f}%<extra></extra>',
+            };
+
+            const layout = {
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#94a3b8', size: 12 },
+                margin: { t: 10, r: 20, b: 40, l: 50 },
+                xaxis: {
+                    gridcolor: '#1e293b',
+                    linecolor: '#334155',
+                    rangeslider: { visible: true, bgcolor: '#1e293b', thickness: 0.08 },
+                    rangeselector: {
+                        buttons: [
+                            { count: 1, label: '1M', step: 'month', stepmode: 'backward' },
+                            { count: 6, label: '6M', step: 'month', stepmode: 'backward' },
+                            { count: 1, label: '1Y', step: 'year', stepmode: 'backward' },
+                            { count: 5, label: '5Y', step: 'year', stepmode: 'backward' },
+                            { step: 'all', label: 'All' },
+                        ],
+                        bgcolor: '#1e293b',
+                        activecolor: '#334155',
+                        font: { color: '#94a3b8' },
+                    },
+                },
+                yaxis: {
+                    gridcolor: '#1e293b',
+                    linecolor: '#334155',
+                    ticksuffix: '%',
+                },
+            };
+
+            Plotly.newPlot('chart', [trace], layout, {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+            });
+        }
+
+        function renderStats(data) {
+            const obs = data.observations;
+            const latest = obs[obs.length - 1];
+
+            // Last ~252 trading days
+            const oneYearAgo = obs.slice(-252);
+            const high = Math.max(...oneYearAgo.map(o => o.value));
+            const low = Math.min(...oneYearAgo.map(o => o.value));
+            const yearAgoVal = oneYearAgo[0].value;
+            const change = latest.value - yearAgoVal;
+
+            document.getElementById('stat-latest').textContent = `${latest.value.toFixed(2)}%`;
+            document.getElementById('stat-high').textContent = `${high.toFixed(2)}%`;
+            document.getElementById('stat-low').textContent = `${low.toFixed(2)}%`;
+
+            const changeEl = document.getElementById('stat-change');
+            const sign = change >= 0 ? '+' : '';
+            changeEl.textContent = `${sign}${change.toFixed(2)}%`;
+            changeEl.style.color = change >= 0 ? '#f87171' : '#4ade80';
+        }
+
+        function renderTable(data) {
+            const obs = data.observations;
+            const recent = obs.slice(-30).reverse(); // Last 30 days, newest first
+            const tbody = document.getElementById('table-body');
+
+            tbody.innerHTML = recent.map((o, i) => {
+                const prev = i < recent.length - 1 ? recent[i + 1] : null;
+                let changeStr = '—';
+                let changeClass = '';
+                if (prev) {
+                    const diff = o.value - prev.value;
+                    const sign = diff >= 0 ? '+' : '';
+                    changeStr = `${sign}${diff.toFixed(3)}`;
+                    changeClass = diff >= 0 ? 'color: #f87171' : 'color: #4ade80';
+                }
+                return `<tr>
+                    <td>${o.date}</td>
+                    <td>${o.value.toFixed(2)}%</td>
+                    <td style="${changeClass}">${changeStr}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
