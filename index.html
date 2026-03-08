@@ -116,9 +116,14 @@
             color: var(--accent);
         }
 
-        #chart {
+        #chart, #pe-chart {
             width: 100%;
             height: 400px;
+        }
+
+        .est-badge {
+            font-size: 0.75rem;
+            color: #fb923c;
         }
 
         table {
@@ -169,7 +174,7 @@
             header { padding: 1rem; }
             main { padding: 1rem; }
             .stats { gap: 1rem; }
-            #chart { height: 300px; }
+            #chart, #pe-chart { height: 300px; }
         }
     </style>
 </head>
@@ -179,10 +184,10 @@
     </header>
     <nav>
         <button class="active" data-tab="treasury">10Y Treasury</button>
-        <!-- Future tabs go here -->
+        <button data-tab="pe">S&amp;P 500 P/E</button>
     </nav>
     <main>
-        <div id="treasury-tab">
+        <div id="treasury-tab" class="tab-content">
             <div class="card">
                 <h2>10-Year Treasury Constant Maturity Rate</h2>
                 <p class="subtitle">Daily series from FRED · <span id="last-updated"></span></p>
@@ -222,18 +227,67 @@
                 </table>
             </div>
         </div>
+
+        <div id="pe-tab" class="tab-content" style="display:none">
+            <div class="card">
+                <h2>S&amp;P 500 P/E Ratio (Trailing Twelve Months)</h2>
+                <p class="subtitle">Monthly series · Shiller/Yale data back to 1871 · <span id="pe-last-updated"></span></p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="label">Latest P/E</span>
+                        <span class="value" id="pe-stat-latest">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Long-term Avg</span>
+                        <span class="value" id="pe-stat-avg">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">10Y High</span>
+                        <span class="value" id="pe-stat-10y-high">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">10Y Low</span>
+                        <span class="value" id="pe-stat-10y-low">—</span>
+                    </div>
+                </div>
+                <div id="pe-chart"><div class="loading">Loading chart...</div></div>
+            </div>
+            <div class="card">
+                <h2>Recent Observations</h2>
+                <p class="subtitle">
+                    <span class="est-badge">†</span> Estimated — latest TTM earnings not yet reported by S&amp;P Global
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>P/E Ratio</th>
+                            <th>S&amp;P 500 Price</th>
+                            <th>TTM Earnings</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pe-table-body">
+                        <tr><td colspan="4" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
     <footer>
-        Data sourced from <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank">FRED (Federal Reserve Bank of St. Louis)</a>.
+        Data sourced from <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank">FRED (Federal Reserve Bank of St. Louis)</a>
+        and <a href="http://www.econ.yale.edu/~shiller/data.htm" target="_blank">Robert Shiller / Yale University</a>.
         Updated daily via automated pipeline.
     </footer>
 
     <script>
-        // Tab switching (ready for future tabs)
+        // Tab switching
         document.querySelectorAll('nav button').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                const tab = btn.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+                document.getElementById(`${tab}-tab`).style.display = 'block';
             });
         });
 
@@ -343,7 +397,137 @@
             }).join('');
         }
 
+        // ── S&P 500 P/E ──────────────────────────────────────────────
+
+        async function loadPEData() {
+            try {
+                const resp = await fetch('data/sp500_pe.json');
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                renderPEChart(data);
+                renderPEStats(data);
+                renderPETable(data);
+                document.getElementById('pe-last-updated').textContent = `Last updated: ${data.last_updated}`;
+            } catch (err) {
+                document.getElementById('pe-chart').innerHTML =
+                    `<div class="loading">Failed to load data. ${err.message}</div>`;
+            }
+        }
+
+        function renderPEChart(data) {
+            const obs = data.observations;
+            const confirmed = obs.filter(o => !o.estimated);
+            const estimated = obs.filter(o => o.estimated);
+            const lastConfirmed = confirmed[confirmed.length - 1];
+
+            const trace1 = {
+                x: confirmed.map(o => o.date),
+                y: confirmed.map(o => o.pe),
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Trailing P/E',
+                line: { color: '#a78bfa', width: 1.5 },
+                hovertemplate: '%{x|%b %Y}<br>P/E: %{y:.1f}x<extra></extra>',
+            };
+
+            const traces = [trace1];
+
+            if (estimated.length > 0) {
+                // Prepend last confirmed point so the estimated segment visually connects
+                const estX = [lastConfirmed.date, ...estimated.map(o => o.date)];
+                const estY = [lastConfirmed.pe, ...estimated.map(o => o.pe)];
+                traces.push({
+                    x: estX,
+                    y: estY,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Estimated (†)',
+                    line: { color: '#fb923c', width: 1.5, dash: 'dash' },
+                    marker: { color: '#fb923c', size: 4 },
+                    hovertemplate: '%{x|%b %Y}<br>P/E: %{y:.1f}x (est.)<extra></extra>',
+                });
+            }
+
+            const layout = {
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#94a3b8', size: 12 },
+                margin: { t: 10, r: 20, b: 40, l: 50 },
+                legend: { font: { color: '#94a3b8' }, bgcolor: 'transparent' },
+                xaxis: {
+                    gridcolor: '#1e293b',
+                    linecolor: '#334155',
+                    rangeslider: { visible: true, bgcolor: '#1e293b', thickness: 0.08 },
+                    rangeselector: {
+                        buttons: [
+                            { count: 1,  label: '1Y',  step: 'year', stepmode: 'backward' },
+                            { count: 10, label: '10Y', step: 'year', stepmode: 'backward' },
+                            { count: 25, label: '25Y', step: 'year', stepmode: 'backward' },
+                            { count: 50, label: '50Y', step: 'year', stepmode: 'backward' },
+                            { step: 'all', label: 'All' },
+                        ],
+                        bgcolor: '#1e293b',
+                        activecolor: '#334155',
+                        font: { color: '#94a3b8' },
+                    },
+                },
+                yaxis: {
+                    gridcolor: '#1e293b',
+                    linecolor: '#334155',
+                    ticksuffix: 'x',
+                },
+            };
+
+            Plotly.newPlot('pe-chart', traces, layout, {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+            });
+        }
+
+        function renderPEStats(data) {
+            const obs = data.observations;
+            const latest = obs[obs.length - 1];
+
+            // Long-term average over all confirmed observations
+            const confirmed = obs.filter(o => !o.estimated);
+            const avgPE = confirmed.reduce((s, o) => s + o.pe, 0) / confirmed.length;
+
+            // 10-year range (~120 monthly observations)
+            const tenYear = obs.slice(-120);
+            const high10 = Math.max(...tenYear.map(o => o.pe));
+            const low10  = Math.min(...tenYear.map(o => o.pe));
+
+            document.getElementById('pe-stat-latest').textContent   = `${latest.pe.toFixed(1)}x`;
+            document.getElementById('pe-stat-avg').textContent       = `${avgPE.toFixed(1)}x`;
+            document.getElementById('pe-stat-10y-high').textContent  = `${high10.toFixed(1)}x`;
+            document.getElementById('pe-stat-10y-low').textContent   = `${low10.toFixed(1)}x`;
+        }
+
+        function renderPETable(data) {
+            const obs = data.observations;
+            const recent = obs.slice(-24).reverse(); // Last 24 months, newest first
+            const tbody = document.getElementById('pe-table-body');
+
+            tbody.innerHTML = recent.map(o => {
+                const d = new Date(o.date);
+                const dateStr = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', timeZone: 'UTC' });
+                const estMark = o.estimated
+                    ? '<span class="est-badge" title="Estimated — TTM earnings not yet reported">† </span>'
+                    : '';
+                return `<tr>
+                    <td>${estMark}${dateStr}</td>
+                    <td>${o.pe.toFixed(1)}x</td>
+                    <td>${o.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${o.earnings.toFixed(2)}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ─────────────────────────────────────────────────────────────
+
         loadData();
+        loadPEData();
     </script>
 </body>
 </html>
