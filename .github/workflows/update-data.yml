@@ -19,15 +19,22 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install Python dependencies
+        run: pip install pandas xlrd openpyxl
+
       - name: Fetch latest data from FRED
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_treasury.py
 
+      - name: Fetch S&P 500 P/E ratio from Shiller/Yale
+        run: python scripts/fetch_sp500_pe.py
+
       - name: Copy data to site directory
         run: |
           mkdir -p site/data
           cp data/dgs10.json site/data/
+          cp data/sp500_pe.json site/data/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
