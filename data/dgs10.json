@@ -4,12 +4,8 @@
   "units": "Percent",
   "frequency": "Daily",
   "source": "Federal Reserve Bank of St. Louis (FRED)",
-  "last_updated": "2026-03-17 02:09 UTC",
+  "last_updated": "2026-03-18 02:13 UTC",
   "observations": [
-    {
-      "date": "2016-07-18",
-      "value": 1.59
-    },
     {
       "date": "2016-07-19",
       "value": 1.56
@@ -9657,6 +9653,10 @@
     {
       "date": "2026-03-13",
       "value": 4.28
+    },
+    {
+      "date": "2026-03-16",
+      "value": 4.23
     }
   ]
 }
