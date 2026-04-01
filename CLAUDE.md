@@ -125,6 +125,11 @@ The user wants to grow this into a multi-series financial/economic data dashboar
 - **Better visualizations**: More chart types, comparisons, derived metrics
 - **More series from FRED**: Unemployment, CPI, yield curve, etc.
 
+**See `ARCHITECTURE.md`** for the detailed build-out roadmap — planned charts
+(stack ranked), anticipated architectural changes, and when each refactor should
+be triggered. Also see `reference_resources/fixed-income-charts-conversation.md`
+for the full data source and presentation planning.
+
 ## Development Patterns
 
 When adding a new data series:
