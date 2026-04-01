@@ -12,9 +12,10 @@ Built 2026-03-05.
   check and enable "Enforce HTTPS" in repo Settings → Pages if not yet done)
 - **GitHub repo**: https://github.com/FuriousGeorge19/fin-econ-data
 - **Local path**: `~/Library/Mobile Documents/com~apple~CloudDocs/projects/fin-econ-data/`
-- **Two data series active**:
+- **Three data series active**:
   - 10-Year Treasury Constant Maturity Rate (DGS10) from FRED
   - S&P 500 Trailing P/E Ratio (1871–present, Shiller + S&P Global + FRED)
+  - Treasury Yield Curve Snapshot (all 11 tenors, 1mo–30yr, from FRED)
 - **Daily automation working**: GitHub Actions cron runs weekday evenings, fetches fresh
   data, and redeploys to GitHub Pages
 
@@ -42,11 +43,13 @@ site/              Static site served by GitHub Pages
 |------|---------|
 | `scripts/fetch_treasury.py` | Fetches DGS10 from FRED API, outputs `data/dgs10.json` |
 | `scripts/fetch_sp500_pe.py` | Fetches S&P 500 P/E ratio (Shiller + overrides + FRED), outputs `data/sp500_pe.json` |
+| `scripts/fetch_yield_curve.py` | Fetches all 11 Treasury tenors (DGS1MO–DGS30) from FRED, outputs `data/yield_curve.json` |
 | `data/earnings_overrides.json` | **Manually maintained** — quarterly as-reported EPS from S&P Global (see below) |
-| `site/index.html` | Full site — dark theme, two-tab Plotly dashboard |
-| `.github/workflows/update-data.yml` | Daily cron + manual trigger, runs both fetches then deploys |
+| `site/index.html` | Full site — dark theme, three-tab Plotly dashboard |
+| `.github/workflows/update-data.yml` | Daily cron + manual trigger, runs all fetches then deploys |
 | `data/dgs10.json` | ~2400 daily observations, updated by the workflow |
 | `data/sp500_pe.json` | ~1862 monthly observations (1871–present), updated by the workflow |
+| `data/yield_curve.json` | ~6000 daily observations across 11 tenors (2002–present), updated by the workflow |
 | `reference_resources/sp-500-eps-est.xlsx` | Source file for quarterly EPS (S&P Global, not auto-fetchable) |
 
 ## S&P 500 P/E — Quarterly Earnings Update (4x/year)
@@ -157,6 +160,18 @@ cp data/sp500_pe.json site/data/
 cd site && python3 -m http.server 8888
 # Then open http://localhost:8888
 ```
+
+## Changelog (recent work, newest first)
+
+- **2026-04-01**: Added yield curve snapshot tab — fetches all 11 DGS tenors from FRED,
+  interactive Plotly chart with categorical x-axis (evenly spaced tenors, Bloomberg-style),
+  toggle overlays for 1w/1m/1y/5y ago, custom date picker, and yields table with period
+  changes. New script `scripts/fetch_yield_curve.py`, workflow updated.
+- **2026-03-05**: Added S&P 500 trailing P/E ratio tab — Shiller/Yale data back to 1871,
+  S&P Global quarterly earnings overrides, FRED for recent price data. Estimated periods
+  shown with dashed line. New script `scripts/fetch_sp500_pe.py`.
+- **2026-03-05**: Initial build — 10Y Treasury rate dashboard with daily FRED updates,
+  GitHub Actions automation, GitHub Pages deploy, custom domain setup.
 
 ## Model Recommendation
 
