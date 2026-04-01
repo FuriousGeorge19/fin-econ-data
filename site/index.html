@@ -116,9 +116,60 @@
             color: var(--accent);
         }
 
-        #chart, #pe-chart {
+        #chart, #pe-chart, #yc-chart {
             width: 100%;
             height: 400px;
+        }
+
+        .yc-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .yc-controls label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 0.5rem;
+        }
+
+        .yc-toggle {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        .yc-toggle:hover {
+            color: var(--text);
+            border-color: var(--text-muted);
+        }
+
+        .yc-toggle.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg);
+        }
+
+        .yc-date-input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.35rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.8rem;
+        }
+
+        .yc-date-input::-webkit-calendar-picker-indicator {
+            filter: invert(0.7);
         }
 
         .est-badge {
@@ -185,6 +236,7 @@
     <nav>
         <button class="active" data-tab="treasury">10Y Treasury</button>
         <button data-tab="pe">S&amp;P 500 P/E</button>
+        <button data-tab="yieldcurve">Yield Curve</button>
     </nav>
     <main>
         <div id="treasury-tab" class="tab-content">
@@ -223,6 +275,40 @@
                     </thead>
                     <tbody id="table-body">
                         <tr><td colspan="3" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="yieldcurve-tab" class="tab-content" style="display:none">
+            <div class="card">
+                <h2>U.S. Treasury Yield Curve</h2>
+                <p class="subtitle">Daily rates across all tenors from FRED · <span id="yc-last-updated"></span></p>
+                <div class="yc-controls">
+                    <label>Compare:</label>
+                    <button class="yc-toggle active" data-period="1w">1 Week Ago</button>
+                    <button class="yc-toggle" data-period="1m">1 Month Ago</button>
+                    <button class="yc-toggle" data-period="1y">1 Year Ago</button>
+                    <button class="yc-toggle" data-period="5y">5 Years Ago</button>
+                    <label style="margin-left: 0.75rem;">Custom:</label>
+                    <input type="date" class="yc-date-input" id="yc-custom-date">
+                </div>
+                <div id="yc-chart"><div class="loading">Loading chart...</div></div>
+            </div>
+            <div class="card">
+                <h2>Current Yields</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tenor</th>
+                            <th>Yield (%)</th>
+                            <th>1-Week Change</th>
+                            <th>1-Month Change</th>
+                            <th>1-Year Change</th>
+                        </tr>
+                    </thead>
+                    <tbody id="yc-table-body">
+                        <tr><td colspan="5" class="loading">Loading data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -524,10 +610,200 @@
             }).join('');
         }
 
+        // ── Yield Curve ──────────────────────────────────────────────
+
+        let ycData = null;
+        let ycDates = [];
+
+        async function loadYCData() {
+            try {
+                const resp = await fetch('data/yield_curve.json');
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                ycData = await resp.json();
+                ycDates = Object.keys(ycData.observations).sort();
+                document.getElementById('yc-last-updated').textContent = `Last updated: ${ycData.last_updated}`;
+
+                // Set date input bounds
+                const dateInput = document.getElementById('yc-custom-date');
+                dateInput.min = ycDates[0];
+                dateInput.max = ycDates[ycDates.length - 1];
+
+                renderYieldCurve();
+                renderYCTable();
+            } catch (err) {
+                document.getElementById('yc-chart').innerHTML =
+                    `<div class="loading">Failed to load data. ${err.message}</div>`;
+            }
+        }
+
+        function findNearestDate(targetDate) {
+            // Find the nearest trading day on or before the target date
+            for (let i = ycDates.length - 1; i >= 0; i--) {
+                if (ycDates[i] <= targetDate) return ycDates[i];
+            }
+            return ycDates[0];
+        }
+
+        function getComparisonDate(period) {
+            const latest = ycDates[ycDates.length - 1];
+            const d = new Date(latest + 'T00:00:00');
+            if (period === '1w') d.setDate(d.getDate() - 7);
+            else if (period === '1m') d.setMonth(d.getMonth() - 1);
+            else if (period === '1y') d.setFullYear(d.getFullYear() - 1);
+            else if (period === '5y') d.setFullYear(d.getFullYear() - 5);
+            const iso = d.toISOString().slice(0, 10);
+            return findNearestDate(iso);
+        }
+
+        function buildCurveTrace(date, name, color, opts = {}) {
+            const obs = ycData.observations[date];
+            if (!obs) return null;
+            const tenors = ycData.tenors;
+            const x = [], y = [];
+            for (const t of tenors) {
+                if (obs[t] !== undefined) {
+                    x.push(t);
+                    y.push(obs[t]);
+                }
+            }
+            return {
+                x, y,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: name,
+                line: { color, width: opts.width || 2, dash: opts.dash || 'solid' },
+                marker: { color, size: opts.markerSize || 6 },
+                hovertemplate: '%{x}<br>%{y:.2f}%<extra>' + name + '</extra>',
+            };
+        }
+
+        function formatDateLabel(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        const OVERLAY_COLORS = {
+            '1w': '#94a3b8',
+            '1m': '#a78bfa',
+            '1y': '#fb923c',
+            '5y': '#4ade80',
+            'custom': '#f472b6',
+        };
+
+        function renderYieldCurve() {
+            if (!ycData) return;
+
+            const latestDate = ycDates[ycDates.length - 1];
+            const traces = [];
+
+            // Current curve — bold and bright
+            const current = buildCurveTrace(latestDate, formatDateLabel(latestDate), '#38bdf8', { width: 3, markerSize: 8 });
+            if (current) traces.push(current);
+
+            // Overlay curves from active toggles
+            document.querySelectorAll('.yc-toggle.active').forEach(btn => {
+                const period = btn.dataset.period;
+                const compDate = getComparisonDate(period);
+                const trace = buildCurveTrace(compDate, formatDateLabel(compDate), OVERLAY_COLORS[period], { width: 1.5, dash: 'dash', markerSize: 4 });
+                if (trace) traces.push(trace);
+            });
+
+            // Custom date overlay
+            const customDate = document.getElementById('yc-custom-date').value;
+            if (customDate) {
+                const nearestCustom = findNearestDate(customDate);
+                const trace = buildCurveTrace(nearestCustom, formatDateLabel(nearestCustom), OVERLAY_COLORS.custom, { width: 1.5, dash: 'dot', markerSize: 4 });
+                if (trace) traces.push(trace);
+            }
+
+            const layout = {
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#94a3b8', size: 12 },
+                margin: { t: 30, r: 20, b: 50, l: 50 },
+                legend: {
+                    font: { color: '#94a3b8', size: 11 },
+                    bgcolor: 'rgba(30,41,59,0.8)',
+                    bordercolor: '#334155',
+                    borderwidth: 1,
+                },
+                xaxis: {
+                    title: 'Maturity',
+                    gridcolor: '#1e293b',
+                    linecolor: '#334155',
+                    type: 'category',
+                    categoryorder: 'array',
+                    categoryarray: ycData.tenors,
+                },
+                yaxis: {
+                    title: 'Yield',
+                    gridcolor: '#1e293b',
+                    linecolor: '#334155',
+                    ticksuffix: '%',
+                },
+            };
+
+            Plotly.newPlot('yc-chart', traces, layout, {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+            });
+        }
+
+        // Toggle overlay buttons
+        document.querySelectorAll('.yc-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                renderYieldCurve();
+            });
+        });
+
+        // Custom date picker
+        document.getElementById('yc-custom-date').addEventListener('change', () => {
+            renderYieldCurve();
+        });
+
+        function renderYCTable() {
+            if (!ycData) return;
+            const tenors = ycData.tenors;
+            const latestDate = ycDates[ycDates.length - 1];
+            const latestObs = ycData.observations[latestDate];
+
+            const weekDate = getComparisonDate('1w');
+            const monthDate = getComparisonDate('1m');
+            const yearDate = getComparisonDate('1y');
+            const weekObs = ycData.observations[weekDate] || {};
+            const monthObs = ycData.observations[monthDate] || {};
+            const yearObs = ycData.observations[yearDate] || {};
+
+            const tbody = document.getElementById('yc-table-body');
+            tbody.innerHTML = tenors.map(t => {
+                const val = latestObs[t];
+                if (val === undefined) return '';
+
+                function fmtChange(prev) {
+                    if (prev === undefined) return '<td>—</td>';
+                    const diff = val - prev;
+                    const sign = diff >= 0 ? '+' : '';
+                    const color = diff >= 0 ? '#f87171' : '#4ade80';
+                    return `<td style="color: ${color}">${sign}${diff.toFixed(2)}</td>`;
+                }
+
+                return `<tr>
+                    <td><strong>${t}</strong></td>
+                    <td>${val.toFixed(2)}%</td>
+                    ${fmtChange(weekObs[t])}
+                    ${fmtChange(monthObs[t])}
+                    ${fmtChange(yearObs[t])}
+                </tr>`;
+            }).filter(Boolean).join('');
+        }
+
         // ─────────────────────────────────────────────────────────────
 
         loadData();
         loadPEData();
+        loadYCData();
     </script>
 </body>
 </html>

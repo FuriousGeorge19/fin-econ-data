@@ -30,11 +30,17 @@ jobs:
       - name: Fetch S&P 500 P/E ratio from Shiller/Yale
         run: python scripts/fetch_sp500_pe.py
 
+      - name: Fetch yield curve data from FRED
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/fetch_yield_curve.py
+
       - name: Copy data to site directory
         run: |
           mkdir -p site/data
           cp data/dgs10.json site/data/
           cp data/sp500_pe.json site/data/
+          cp data/yield_curve.json site/data/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
