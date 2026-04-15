@@ -3,7 +3,7 @@
   "units": "Percent",
   "frequency": "Daily",
   "source": "Federal Reserve Bank of St. Louis (FRED)",
-  "last_updated": "2026-04-14 02:37 UTC",
+  "last_updated": "2026-04-15 02:35 UTC",
   "tenors": [
     "1mo",
     "3mo",
@@ -78550,6 +78550,19 @@
       "10yr": 4.31,
       "20yr": 4.89,
       "30yr": 4.91
+    },
+    "2026-04-13": {
+      "1mo": 3.69,
+      "3mo": 3.71,
+      "6mo": 3.74,
+      "1yr": 3.7,
+      "2yr": 3.78,
+      "3yr": 3.79,
+      "5yr": 3.92,
+      "7yr": 4.1,
+      "10yr": 4.3,
+      "20yr": 4.88,
+      "30yr": 4.9
     }
   }
 }
