@@ -187,6 +187,75 @@ seconds for that step alone.
 concurrently with `concurrent.futures`. GitHub Actions has a 6-hour timeout so
 this isn't urgent, but faster runs mean faster deploys after manual triggers.
 
+### 9. The 100+ Series Regime (Scale Tipping Point)
+
+**When:** If the catalog ever grows from a handful of charts toward ~100–200
+series. This is a different regime from everything above — Sections 1–8 are
+tuned for the ~10-chart roadmap, where each trigger is a modest convenience.
+Past ~50 series, three of those conveniences become *mandatory* and one new
+constraint appears that doesn't exist at small scale.
+
+Importantly, **update latency is not the bottleneck here.** The daily run is
+dominated by fixed costs (runner spin-up, Python setup, Pages rebuild — ~1 min
+total) that don't scale with series count. Going from 3 to 200 series moves the
+total run from ~1–2 min to maybe ~3–6 min. The 6-hour Actions limit is never in
+sight. The real walls are correctness (rate limits) and authoring effort
+(hand-written code), not speed.
+
+**What changes, and why:**
+
+1. **Config-driven becomes mandatory, not optional.** Section 1 frames a
+   config-dict fetcher as something to "also consider," and leans toward
+   per-chart-group scripts instead. That trade-off flips past ~50 series:
+   maintaining 150 near-identical `fetch_*.py` files is untenable. The series
+   list becomes pure data —
+   ```python
+   SERIES = [
+       {"id": "DGS10",    "title": "10-Year Treasury", "limit": 2520},
+       {"id": "UNRATE",   "title": "Unemployment Rate", "limit": 900},
+       # ...one row per series...
+   ]
+   ```
+   — and a single generic fetcher loops over it. Adding series #150 is a
+   one-line edit, not a new file. (Series with bespoke logic — e.g.
+   `fetch_sp500_pe.py` with its Excel earnings overrides — stay separate; the
+   config-driven path is only for series fetched the *same* way.)
+
+2. **Rate-limit-awareness becomes a real requirement.** At small scale this is
+   irrelevant — the current ~13 calls are far under any ceiling, which is why
+   Section 1 only mentions "rate limiting" in passing. But FRED caps requests at
+   roughly **120 per minute**. A "series" is not one call: the yield curve tab
+   alone is 11 tenors, so 150–200 series can mean **300–500+ API calls**. Fired
+   naively in parallel, FRED starts returning `429 Too Many Requests` and
+   fetches fail. The fetcher must:
+   - pace requests to stay under ~120/min (a throttle / token bucket), and
+   - on a `429`, **back off and retry** rather than crash.
+
+3. **Parallel and rate-limiting are in tension — balance them.** Section 8
+   treats parallelism as a pure speed win, which it is at small scale. At 100+
+   series it collides with the rate limit: parallelism wants maximum
+   concurrency, rate-limiting says "but not faster than 120/min." The target is
+   not max parallelism — it's "several requests in flight at once, *throttled*
+   to stay under the ceiling." These two are a single design problem, not two
+   independent optimizations.
+
+4. **The frontend must become generated, not hand-authored.** Sections 5–6
+   assume each chart is hand-written and the work is *organizing* that code.
+   Past ~50 tabs that assumption breaks: nobody hand-writes 150 tabs. The
+   frontend would instead **generate** tabs and charts from a manifest (the same
+   config that drives fetching, or a sibling of it), rendering a standard
+   chart/table per series and only special-casing the genuinely custom ones.
+   This is the step from "split the hand-written code into files" to "stop
+   hand-writing each chart." Lazy-loading per tab (Section 7) is a hard
+   requirement in this regime — never fetch 150 JSON files on page open.
+
+**Net:** if this scale ever arrives, the first thing to change is the *fetch
+layer* — move to a config-driven, rate-limit-aware, throttled-parallel fetcher —
+for reasons of FRED's limits and authoring effort, not latency. The frontend
+follows by becoming manifest-driven. None of this is worth doing below a few
+dozen series; the current "one script each, run in a row" approach is correct
+until the numbers force the change.
+
 ---
 
 ## Decision Log
