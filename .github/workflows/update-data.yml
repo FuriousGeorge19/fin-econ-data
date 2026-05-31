@@ -28,6 +28,8 @@ jobs:
         run: python scripts/fetch_treasury.py
 
       - name: Fetch S&P 500 P/E ratio from Shiller/Yale
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_sp500_pe.py
 
       - name: Fetch yield curve data from FRED

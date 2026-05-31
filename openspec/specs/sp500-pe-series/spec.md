@@ -58,26 +58,26 @@ is absent the fetcher SHALL warn and continue with Shiller-only data rather than
 - **WHEN** `fetch_sp500_pe.py` runs and `data/earnings_overrides.json` does not exist
 - **THEN** the script prints a warning to stderr and produces output from Shiller history alone
 
-### Requirement: Daily refresh produces Shiller-only P/E in CI
+### Requirement: Daily refresh produces full P/E in CI
 
-The daily GitHub Actions workflow SHALL run `scripts/fetch_sp500_pe.py` and
-publish `data/sp500_pe.json`. As of this baseline, the workflow step does not
-pass `FRED_API_KEY` to the script's env, so the FRED-based price extension and
-forward-fill paths are inactive in CI — only Shiller's confirmed history is
-republished on each run.
+The daily GitHub Actions workflow SHALL run `scripts/fetch_sp500_pe.py` with
+`FRED_API_KEY` present in the step's environment so that the FRED-based price
+extension runs in CI. The published `data/sp500_pe.json` SHALL therefore include
+the post-Shiller monthly extension (FRED-priced months with overrides-based and
+forward-filled TTM earnings), matching what a local run with the key produces.
 
-**Known gap:** Unlike the Treasury and yield-curve workflow steps (which do
-pass `FRED_API_KEY`), the P/E step does not. The post-Shiller price extension
-is therefore inactive in CI until the key is wired in. The next change
-(`fix-fred-key-on-pe-step`) is planned to close this gap.
-
-#### Scenario: P/E refresh in CI
+#### Scenario: P/E refresh in CI with the key wired in
 
 - **WHEN** the daily workflow runs the S&P 500 P/E step
-- **THEN** the script runs to completion, the FRED price fetch warns to stderr
-  and returns no prices, and the published `sp500_pe.json` contains observations
-  through Shiller's last confirmed month with no post-Shiller extension from
-  that run
+- **THEN** the FRED SP500 price fetch succeeds and the published `sp500_pe.json`
+  contains observations through the current month, including post-Shiller months
+  marked `estimated=true` where earnings are forward-filled
+
+#### Scenario: Secret absent falls back safely
+
+- **WHEN** the S&P 500 P/E step runs but `FRED_API_KEY` is missing or invalid
+- **THEN** the script warns to stderr, returns no FRED prices, and still completes
+  with Shiller-only output rather than failing the build
 
 ### Requirement: Tab label for the S&P 500 P/E series
 
