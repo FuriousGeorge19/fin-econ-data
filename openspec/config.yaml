@@ -1,0 +1,25 @@
+schema: spec-driven
+
+context: |
+  Static financial/economic data site deployed to GitHub Pages at joemirza.com.
+  Stack: Python stdlib + pandas (no requirements.txt yet), vanilla JS, Plotly.js,
+  GitHub Actions for daily data refresh. No build step. No framework. No backend.
+
+  Data flow per source: scripts/fetch_<name>.py → data/<name>.json → site/data/<name>.json
+  → site/index.html (single file, all tabs and charts inline).
+
+  Strong convictions:
+  - Keep the stack minimal — vanilla JS, no framework, no build step, no backend.
+  - JSON files in data/ are the contract between fetchers and the site.
+  - Derived series (spreads, real rates) compute in Python at fetch time, not in JS.
+  - All data on a daily timeline; monthly historical data assigned to 1st-of-month;
+    gaps communicate frequency naturally (no upsampling).
+
+rules:
+  proposal:
+    - Keep proposals skimmable in 2 minutes
+    - Include rollback plan if the change touches the GitHub Actions workflow
+  design:
+    - Document tradeoffs explicitly when introducing new patterns
+  tasks:
+    - Tasks independently verifiable; mark which require manual browser check
