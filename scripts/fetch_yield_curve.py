@@ -4,10 +4,9 @@ import json
 import os
 import sys
 from datetime import datetime, timezone
-from urllib.request import urlopen, Request
-from urllib.error import URLError
 
-FRED_API_KEY = os.environ.get("FRED_API_KEY", "")
+from fred_utils import fetch_series, get_api_key
+
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "yield_curve.json")
 
 # All standard tenors on the Treasury yield curve
@@ -26,30 +25,13 @@ TENORS = [
 ]
 
 
-def fetch_series(series_id, limit=6300):
-    """Fetch a single series from FRED. ~6300 = ~25 years of trading days."""
-    url = (
-        f"https://api.stlouisfed.org/fred/series/observations"
-        f"?series_id={series_id}"
-        f"&api_key={FRED_API_KEY}"
-        f"&file_type=json"
-        f"&sort_order=desc"
-        f"&limit={limit}"
-    )
-    req = Request(url, headers={"User-Agent": "joemirza-site/1.0"})
-    with urlopen(req, timeout=30) as resp:
-        raw = json.loads(resp.read().decode())
-
-    # Return dict of date -> value, skipping missing (".") entries
-    out = {}
-    for obs in raw.get("observations", []):
-        if obs["value"] != ".":
-            out[obs["date"]] = float(obs["value"])
-    return out
+def fetch_tenor(series_id, limit=6300):
+    """Return {date: value} for one tenor series. ~6300 = ~25 years of trading days."""
+    return {o["date"]: o["value"] for o in fetch_series(series_id, limit=limit)}
 
 
 def main():
-    if not FRED_API_KEY:
+    if not get_api_key():
         print("ERROR: FRED_API_KEY environment variable not set", file=sys.stderr)
         sys.exit(1)
 
@@ -57,12 +39,8 @@ def main():
     tenor_data = {}
     for tenor in TENORS:
         print(f"  Fetching {tenor['id']}...", end=" ", flush=True)
-        try:
-            tenor_data[tenor["label"]] = fetch_series(tenor["id"])
-            print(f"{len(tenor_data[tenor['label']])} observations")
-        except URLError as e:
-            print(f"FAILED: {e}", file=sys.stderr)
-            sys.exit(1)
+        tenor_data[tenor["label"]] = fetch_tenor(tenor["id"])
+        print(f"{len(tenor_data[tenor['label']])} observations")
 
     # Collect all unique dates across all tenors, sorted
     all_dates = sorted(set().union(*tenor_data.values()))

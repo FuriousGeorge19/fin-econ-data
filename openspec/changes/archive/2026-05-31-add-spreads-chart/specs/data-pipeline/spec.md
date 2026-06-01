@@ -1,13 +1,4 @@
-# data-pipeline Specification
-
-## Purpose
-
-The shared fetch → `data/<name>.json` → `site/data/<name>.json` contract: per-series
-Python fetch scripts, the FRED access pattern, JSON output schema conventions,
-missing-value handling, and the daily-timeline / 1st-of-month date rules that let
-every series render on a common time axis without rework.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Per-series fetch script
 
@@ -67,53 +58,3 @@ P/E price extension) MAY instead degrade gracefully without exiting.
 - **WHEN** a fetcher needs a FRED series
 - **THEN** it obtains it through `fred_utils` rather than reimplementing the URL,
   headers, or `"."` filtering inline
-
-### Requirement: Missing-value handling
-
-FRED observations with the sentinel value `"."` SHALL be dropped during fetch. Numeric
-values SHALL be parsed to floats. No missing values are forward-filled or interpolated
-at the pipeline level (series-specific forward-fill, where it exists, is defined in that
-series' spec).
-
-#### Scenario: FRED returns gaps
-
-- **WHEN** a FRED response contains observations with value `"."`
-- **THEN** those observations are excluded from the output JSON and only real numeric
-  observations remain
-
-### Requirement: JSON output schema conventions
-
-Each output JSON SHALL include descriptive metadata (`title`, `units`, `frequency`,
-`source`) and a UTC `last_updated` timestamp formatted `YYYY-MM-DD HH:MM UTC`, alongside
-the observations payload. Observations SHALL be ordered chronologically (oldest first)
-or keyed by date such that the site can render them on a time axis without re-sorting.
-
-#### Scenario: Output carries metadata and timestamp
-
-- **WHEN** any fetcher writes its JSON file
-- **THEN** the file contains `title`, `units`, `frequency`, `source`, and a
-  `last_updated` field in `YYYY-MM-DD HH:MM UTC` form
-
-### Requirement: Daily timeline and date conventions
-
-All series SHALL be presented on a daily timeline. Monthly historical data SHALL be
-assigned to the first of the month (`YYYY-MM-01`). Frequency differences SHALL be
-communicated by natural gaps in the data rather than by upsampling lower-frequency
-series to daily points.
-
-#### Scenario: Monthly data placed on first-of-month
-
-- **WHEN** a monthly observation for a given month is emitted (e.g. an S&P 500 P/E month)
-- **THEN** its date is `YYYY-MM-01` and no synthetic intra-month points are generated
-
-### Requirement: JSON files are the fetcher/site contract
-
-The JSON files in `data/` SHALL be the sole interface between fetchers and the site.
-The fetcher's output JSON is what the corresponding tab consumes — there is no other
-data path between Python and the browser.
-
-#### Scenario: Site consumes only JSON
-
-- **WHEN** the site renders a series
-- **THEN** it reads the corresponding `site/data/<name>.json` and renders the chart
-  and any tables from that file alone

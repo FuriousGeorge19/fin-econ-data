@@ -1,12 +1,4 @@
-# daily-automation Specification
-
-## Purpose
-
-The GitHub Actions weekday cron (`.github/workflows/update-data.yml`) that refreshes
-all data series, copies the resulting JSON into `site/data/`, and deploys the static
-site to GitHub Pages under the custom domain `joemirza.com`.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Scheduled weekday data refresh
 

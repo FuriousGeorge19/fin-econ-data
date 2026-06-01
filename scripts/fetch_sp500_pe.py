@@ -31,17 +31,9 @@ from datetime import datetime, timezone
 from urllib.request import urlopen, Request
 from urllib.error import URLError
 
+from fred_utils import fetch_series
+
 SHILLER_URL   = "http://www.econ.yale.edu/~shiller/data/ie_data.xls"
-FRED_API_KEY  = os.environ.get("FRED_API_KEY", "")
-FRED_SP500_URL = (
-    "https://api.stlouisfed.org/fred/series/observations"
-    "?series_id=SP500"
-    "&api_key={key}"
-    "&file_type=json"
-    "&frequency=m"
-    "&aggregation_method=avg"
-    "&observation_start={start}"
-)
 OVERRIDES_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "earnings_overrides.json")
 OUTPUT_PATH    = os.path.join(os.path.dirname(__file__), "..", "data", "sp500_pe.json")
 
@@ -207,29 +199,29 @@ def get_ttm_for_month(date_str, overrides):
 # ── Source 3: FRED SP500 monthly prices ──────────────────────────────────────
 
 def fetch_fred_prices(start_date):
-    """Fetch FRED SP500 monthly average prices from start_date onward."""
-    if not FRED_API_KEY:
-        print("WARNING: FRED_API_KEY not set — no price extension.", file=sys.stderr)
-        return {}
+    """Fetch FRED SP500 monthly average prices from start_date onward.
 
-    url = FRED_SP500_URL.format(key=FRED_API_KEY, start=start_date)
-    req = Request(url, headers={"User-Agent": "joemirza-site/1.0"})
-    try:
-        with urlopen(req, timeout=30) as resp:
-            raw = json.loads(resp.read().decode())
-    except URLError as e:
-        print(f"WARNING: FRED SP500 fetch failed: {e}", file=sys.stderr)
-        return {}
+    FRED is a secondary source here (the primary is Shiller), so this degrades
+    gracefully via fetch_series(required=False): a missing key or failed request
+    yields no prices and the series falls back to Shiller-only.
+    """
+    obs = fetch_series(
+        "SP500",
+        sort_order=None,
+        extra_params={
+            "frequency": "m",
+            "aggregation_method": "avg",
+            "observation_start": start_date,
+        },
+        required=False,
+    )
 
     prices = {}
-    for obs in raw.get("observations", []):
-        if obs["value"] == ".":
-            continue
-        y, m, _ = obs["date"].split("-")
-        month_key = f"{y}-{m}-01"
-        prices[month_key] = float(obs["value"])
+    for o in obs:
+        y, m, _ = o["date"].split("-")
+        prices[f"{y}-{m}-01"] = o["value"]  # {month_str: avg_price}
 
-    return prices  # {month_str: avg_price}
+    return prices
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
