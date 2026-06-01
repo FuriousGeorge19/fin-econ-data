@@ -11,7 +11,7 @@ Built 2026-03-05.
 - **Live at**: http://joemirza.com (HTTPS certificate was pending as of initial deploy;
   check and enable "Enforce HTTPS" in repo Settings → Pages if not yet done)
 - **GitHub repo**: https://github.com/FuriousGeorge19/fin-econ-data
-- **Local path**: `~/Library/Mobile Documents/com~apple~CloudDocs/projects/fin-econ-data/`
+- **Local path**: `~/projects/fin-econ-data`
 - **Three data series active**:
   - 10-Year Treasury Constant Maturity Rate (DGS10) from FRED
   - S&P 500 Trailing P/E Ratio (1871–present, Shiller + S&P Global + FRED)
@@ -62,7 +62,7 @@ The `data/earnings_overrides.json` file must be manually updated each earnings s
 2. Run this snippet to regenerate `data/earnings_overrides.json`:
 
 ```bash
-cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/projects/fin-econ-data
+cd ~/projects/fin-econ-data
 python3 - <<'EOF'
 import pandas as pd, json
 from datetime import datetime

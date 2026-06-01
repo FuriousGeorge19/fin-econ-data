@@ -28,6 +28,8 @@ jobs:
         run: python scripts/fetch_treasury.py
 
       - name: Fetch S&P 500 P/E ratio from Shiller/Yale
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_sp500_pe.py
 
       - name: Fetch yield curve data from FRED
@@ -35,12 +37,24 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_yield_curve.py
 
+      - name: Fetch NBER recession indicator from FRED
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/fetch_usrec.py
+
+      - name: Fetch Treasury yield spreads from FRED
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/fetch_spreads.py
+
       - name: Copy data to site directory
         run: |
           mkdir -p site/data
           cp data/dgs10.json site/data/
           cp data/sp500_pe.json site/data/
           cp data/yield_curve.json site/data/
+          cp data/usrec.json site/data/
+          cp data/spreads.json site/data/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
