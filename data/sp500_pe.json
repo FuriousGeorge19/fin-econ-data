@@ -5,8 +5,8 @@
   "frequency": "Monthly",
   "source": "Robert Shiller / Yale (ie_data.xls) + S&P Global quarterly EPS + FRED SP500",
   "methodology": "P/E = monthly average S&P 500 price / trailing 12-month as-reported (GAAP) EPS. Historical data from Shiller/Yale (confirmed). Recent months use S&P Global quarterly earnings (data/earnings_overrides.json) with FRED SP500 monthly-average prices. Months after the last confirmed quarterly report use forward-filled earnings and are marked estimated=true.",
-  "last_updated": "2026-05-30 03:28 UTC",
-  "last_ttm_earnings": 181.17,
+  "last_updated": "2026-06-01 00:21 UTC",
+  "last_ttm_earnings": 222.53,
   "observations": [
     {
       "date": "1871-01-01",
@@ -12817,6 +12817,251 @@
       "earnings": 181.17,
       "pe": 23.99,
       "estimated": false
+    },
+    {
+      "date": "2023-07-01",
+      "price": 4508.08,
+      "earnings": 181.01,
+      "pe": 24.91,
+      "estimated": false
+    },
+    {
+      "date": "2023-08-01",
+      "price": 4457.36,
+      "earnings": 181.01,
+      "pe": 24.62,
+      "estimated": false
+    },
+    {
+      "date": "2023-09-01",
+      "price": 4409.1,
+      "earnings": 181.01,
+      "pe": 24.36,
+      "estimated": false
+    },
+    {
+      "date": "2023-10-01",
+      "price": 4269.4,
+      "earnings": 184.25,
+      "pe": 23.17,
+      "estimated": false
+    },
+    {
+      "date": "2023-11-01",
+      "price": 4460.06,
+      "earnings": 184.25,
+      "pe": 24.21,
+      "estimated": false
+    },
+    {
+      "date": "2023-12-01",
+      "price": 4685.05,
+      "earnings": 184.25,
+      "pe": 25.43,
+      "estimated": false
+    },
+    {
+      "date": "2024-01-01",
+      "price": 4804.49,
+      "earnings": 192.43,
+      "pe": 24.97,
+      "estimated": false
+    },
+    {
+      "date": "2024-02-01",
+      "price": 5011.96,
+      "earnings": 192.43,
+      "pe": 26.05,
+      "estimated": false
+    },
+    {
+      "date": "2024-03-01",
+      "price": 5170.57,
+      "earnings": 192.43,
+      "pe": 26.87,
+      "estimated": false
+    },
+    {
+      "date": "2024-04-01",
+      "price": 5112.49,
+      "earnings": 191.39,
+      "pe": 26.71,
+      "estimated": false
+    },
+    {
+      "date": "2024-05-01",
+      "price": 5235.23,
+      "earnings": 191.39,
+      "pe": 27.35,
+      "estimated": false
+    },
+    {
+      "date": "2024-06-01",
+      "price": 5415.14,
+      "earnings": 191.39,
+      "pe": 28.29,
+      "estimated": false
+    },
+    {
+      "date": "2024-07-01",
+      "price": 5538.0,
+      "earnings": 195.93,
+      "pe": 28.27,
+      "estimated": false
+    },
+    {
+      "date": "2024-08-01",
+      "price": 5478.21,
+      "earnings": 195.93,
+      "pe": 27.96,
+      "estimated": false
+    },
+    {
+      "date": "2024-09-01",
+      "price": 5621.26,
+      "earnings": 195.93,
+      "pe": 28.69,
+      "estimated": false
+    },
+    {
+      "date": "2024-10-01",
+      "price": 5792.32,
+      "earnings": 200.27,
+      "pe": 28.92,
+      "estimated": false
+    },
+    {
+      "date": "2024-11-01",
+      "price": 5929.92,
+      "earnings": 200.27,
+      "pe": 29.61,
+      "estimated": false
+    },
+    {
+      "date": "2024-12-01",
+      "price": 6010.91,
+      "earnings": 200.27,
+      "pe": 30.01,
+      "estimated": false
+    },
+    {
+      "date": "2025-01-01",
+      "price": 5979.52,
+      "earnings": 210.17,
+      "pe": 28.45,
+      "estimated": false
+    },
+    {
+      "date": "2025-02-01",
+      "price": 6038.69,
+      "earnings": 210.17,
+      "pe": 28.73,
+      "estimated": false
+    },
+    {
+      "date": "2025-03-01",
+      "price": 5683.98,
+      "earnings": 210.17,
+      "pe": 27.04,
+      "estimated": false
+    },
+    {
+      "date": "2025-04-01",
+      "price": 5369.5,
+      "earnings": 216.69,
+      "pe": 24.78,
+      "estimated": false
+    },
+    {
+      "date": "2025-05-01",
+      "price": 5810.92,
+      "earnings": 216.69,
+      "pe": 26.82,
+      "estimated": false
+    },
+    {
+      "date": "2025-06-01",
+      "price": 6029.95,
+      "earnings": 216.69,
+      "pe": 27.83,
+      "estimated": false
+    },
+    {
+      "date": "2025-07-01",
+      "price": 6296.5,
+      "earnings": 222.53,
+      "pe": 28.3,
+      "estimated": false
+    },
+    {
+      "date": "2025-08-01",
+      "price": 6408.95,
+      "earnings": 222.53,
+      "pe": 28.8,
+      "estimated": false
+    },
+    {
+      "date": "2025-09-01",
+      "price": 6584.02,
+      "earnings": 222.53,
+      "pe": 29.59,
+      "estimated": false
+    },
+    {
+      "date": "2025-10-01",
+      "price": 6735.69,
+      "earnings": 234.06,
+      "pe": 28.78,
+      "estimated": true
+    },
+    {
+      "date": "2025-11-01",
+      "price": 6740.89,
+      "earnings": 234.06,
+      "pe": 28.8,
+      "estimated": true
+    },
+    {
+      "date": "2025-12-01",
+      "price": 6853.03,
+      "earnings": 234.06,
+      "pe": 29.28,
+      "estimated": true
+    },
+    {
+      "date": "2026-01-01",
+      "price": 6929.12,
+      "earnings": 234.06,
+      "pe": 29.6,
+      "estimated": true
+    },
+    {
+      "date": "2026-02-01",
+      "price": 6893.81,
+      "earnings": 234.06,
+      "pe": 29.45,
+      "estimated": true
+    },
+    {
+      "date": "2026-03-01",
+      "price": 6654.42,
+      "earnings": 234.06,
+      "pe": 28.43,
+      "estimated": true
+    },
+    {
+      "date": "2026-04-01",
+      "price": 6957.01,
+      "earnings": 234.06,
+      "pe": 29.72,
+      "estimated": true
+    },
+    {
+      "date": "2026-05-01",
+      "price": 7412.55,
+      "earnings": 234.06,
+      "pe": 31.67,
+      "estimated": true
     }
   ]
 }

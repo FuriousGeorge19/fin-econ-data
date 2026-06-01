@@ -1,0 +1,151 @@
+{
+  "title": "NBER-based U.S. Recession Indicators",
+  "series_id": "USREC",
+  "units": "Recession interval (start/end month)",
+  "frequency": "Monthly",
+  "source": "Federal Reserve Bank of St. Louis (FRED) / NBER",
+  "description": "Recession intervals derived from the monthly USREC indicator (1 = recession). Reflects only officially NBER-dated recessions, which are announced with a lag, so a current downturn may not yet appear. Months are assigned to the 1st; an ongoing recession has end = null.",
+  "last_updated": "2026-06-01 00:21 UTC",
+  "recessions": [
+    {
+      "start": "1854-12-01",
+      "end": "1854-12-01"
+    },
+    {
+      "start": "1857-07-01",
+      "end": "1858-12-01"
+    },
+    {
+      "start": "1860-11-01",
+      "end": "1861-06-01"
+    },
+    {
+      "start": "1865-05-01",
+      "end": "1867-12-01"
+    },
+    {
+      "start": "1869-07-01",
+      "end": "1870-12-01"
+    },
+    {
+      "start": "1873-11-01",
+      "end": "1879-03-01"
+    },
+    {
+      "start": "1882-04-01",
+      "end": "1885-05-01"
+    },
+    {
+      "start": "1887-04-01",
+      "end": "1888-04-01"
+    },
+    {
+      "start": "1890-08-01",
+      "end": "1891-05-01"
+    },
+    {
+      "start": "1893-02-01",
+      "end": "1894-06-01"
+    },
+    {
+      "start": "1896-01-01",
+      "end": "1897-06-01"
+    },
+    {
+      "start": "1899-07-01",
+      "end": "1900-12-01"
+    },
+    {
+      "start": "1902-10-01",
+      "end": "1904-08-01"
+    },
+    {
+      "start": "1907-06-01",
+      "end": "1908-06-01"
+    },
+    {
+      "start": "1910-02-01",
+      "end": "1912-01-01"
+    },
+    {
+      "start": "1913-02-01",
+      "end": "1914-12-01"
+    },
+    {
+      "start": "1918-09-01",
+      "end": "1919-03-01"
+    },
+    {
+      "start": "1920-02-01",
+      "end": "1921-07-01"
+    },
+    {
+      "start": "1923-06-01",
+      "end": "1924-07-01"
+    },
+    {
+      "start": "1926-11-01",
+      "end": "1927-11-01"
+    },
+    {
+      "start": "1929-09-01",
+      "end": "1933-03-01"
+    },
+    {
+      "start": "1937-06-01",
+      "end": "1938-06-01"
+    },
+    {
+      "start": "1945-03-01",
+      "end": "1945-10-01"
+    },
+    {
+      "start": "1948-12-01",
+      "end": "1949-10-01"
+    },
+    {
+      "start": "1953-08-01",
+      "end": "1954-05-01"
+    },
+    {
+      "start": "1957-09-01",
+      "end": "1958-04-01"
+    },
+    {
+      "start": "1960-05-01",
+      "end": "1961-02-01"
+    },
+    {
+      "start": "1970-01-01",
+      "end": "1970-11-01"
+    },
+    {
+      "start": "1973-12-01",
+      "end": "1975-03-01"
+    },
+    {
+      "start": "1980-02-01",
+      "end": "1980-07-01"
+    },
+    {
+      "start": "1981-08-01",
+      "end": "1982-11-01"
+    },
+    {
+      "start": "1990-08-01",
+      "end": "1991-03-01"
+    },
+    {
+      "start": "2001-04-01",
+      "end": "2001-11-01"
+    },
+    {
+      "start": "2008-01-01",
+      "end": "2009-06-01"
+    },
+    {
+      "start": "2020-03-01",
+      "end": "2020-04-01"
+    }
+  ]
+}
