@@ -5,7 +5,7 @@
   "frequency": "Monthly",
   "source": "Robert Shiller / Yale (ie_data.xls) + S&P Global quarterly EPS + FRED SP500",
   "methodology": "P/E = monthly average S&P 500 price / trailing 12-month as-reported (GAAP) EPS. Historical data from Shiller/Yale (confirmed). Recent months use S&P Global quarterly earnings (data/earnings_overrides.json) with FRED SP500 monthly-average prices. Months after the last confirmed quarterly report use forward-filled earnings and are marked estimated=true.",
-  "last_updated": "2026-07-31 02:49 UTC",
+  "last_updated": "2026-08-01 02:47 UTC",
   "last_ttm_earnings": 222.53,
   "observations": [
     {
@@ -13072,9 +13072,9 @@
     },
     {
       "date": "2026-07-01",
-      "price": 7483.11,
+      "price": 7481.34,
       "earnings": 234.06,
-      "pe": 31.97,
+      "pe": 31.96,
       "estimated": true
     }
   ]
