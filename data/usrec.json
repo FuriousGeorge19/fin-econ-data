@@ -5,7 +5,7 @@
   "frequency": "Monthly",
   "source": "Federal Reserve Bank of St. Louis (FRED) / NBER",
   "description": "Recession intervals derived from the monthly USREC indicator (1 = recession). Reflects only officially NBER-dated recessions, which are announced with a lag, so a current downturn may not yet appear. Months are assigned to the 1st; an ongoing recession has end = null.",
-  "last_updated": "2026-08-15 01:12 UTC",
+  "last_updated": "2026-08-18 01:12 UTC",
   "recessions": [
     {
       "start": "1854-12-01",
