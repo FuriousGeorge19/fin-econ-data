@@ -4,7 +4,7 @@
   "frequency": "Daily",
   "source": "Federal Reserve Bank of St. Louis (FRED)",
   "methodology": "10y-2y = DGS10 \u2212 DGS2; 10y-3m = DGS10 \u2212 DGS3MO. Computed per date in Python from the daily constant-maturity series, only where both legs report (no fill or interpolation). A negative value indicates an inverted curve segment.",
-  "last_updated": "2026-08-20 01:12 UTC",
+  "last_updated": "2026-08-21 01:16 UTC",
   "series": {
     "10y2y": {
       "label": "10Y \u2212 2Y",
@@ -50208,6 +50208,10 @@
         {
           "date": "2026-08-18",
           "value": 0.52
+        },
+        {
+          "date": "2026-08-19",
+          "value": 0.46
         }
       ]
     },
@@ -95173,6 +95177,10 @@
         {
           "date": "2026-08-18",
           "value": 0.85
+        },
+        {
+          "date": "2026-08-19",
+          "value": 0.79
         }
       ]
     }
