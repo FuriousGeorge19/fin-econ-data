@@ -67,7 +67,7 @@
       surface hex); if `--series-5`/`--series-6` FAIL, pick another slot pair from the
       skill's categorical table — `--series-1..4` are frozen and must not move.
 - [x] 5.7 `openspec validate s5b-theme-tokens` clean.
-- [ ] 5.8 Commit, push, `gh workflow run update-data.yml`, wait for green, re-verify
+- [x] 5.8 Commit, push, `gh workflow run update-data.yml`, wait for green, re-verify
       5.1's screenshot and 5.2's toggle on http://joemirza.com. (manual browser check)
 
 ## 6. Docs
@@ -81,4 +81,4 @@
 
 ## 7. Validate
 
-- [ ] 7.1 `openspec archive s5b-theme-tokens` after 5.8 and 6.1–6.2.
+- [x] 7.1 `openspec archive s5b-theme-tokens` after 5.8 and 6.1–6.2.
