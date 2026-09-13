@@ -269,6 +269,21 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-13**: S5 design session (Fable, plan mode) — OpenSpec change
+  `openspec/changes/s5-chart-components/` written, validated, nothing built. Settles
+  the build fork (native ES modules plus a stdlib Python page generator,
+  `scripts/build_site.py`; "no build step" now means "no JavaScript toolchain",
+  recorded in `openspec/config.yaml`), the layout on disk (`site/css`, `site/js`
+  committed; generated pages and `site/data/` gitignored), the URL scheme
+  (`/`, `/<section>/`, `/charts/<id>/`, `/<section>/<slug>/`) and three-section nav,
+  the `presentation` block schema and the payload convention for the `timeseries`
+  type, the chart-type render contract and the card mount lifecycle (`card.js` is the
+  only plotter; eager fetch; `Plotly.Plots.resize` on sub-tab return; `themechange`
+  re-render), HTML preset buttons replacing Plotly's rangeselector, the source-line
+  band rule, the token names S5b must define, the page-manifest schema, and the
+  file-additive rule with `scripts/fetch_all.py` replacing the five per-series
+  workflow fetch steps. Build order: S5b → S6a → S6b → S7 → cutover. Until the cutover
+  the sections above describe the current single-file build, not the design.
 - **2026-09-13**: S4c: chart chrome fixes (`s4c-chart-chrome-fixes`) — five
   `site/index.html` defects found on the live site after S4b, each reproduced with
   Claude in Chrome and traced in Plotly 2.35.0's source. The "Loading chart..."

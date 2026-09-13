@@ -2,14 +2,21 @@ schema: spec-driven
 
 context: |
   Static financial/economic data site deployed to GitHub Pages at joemirza.com.
-  Stack: Python stdlib + pandas (no requirements.txt yet), vanilla JS, Plotly.js,
-  GitHub Actions for daily data refresh. No build step. No framework. No backend.
+  Stack: Python stdlib + pandas (no requirements.txt yet), vanilla JS as native ES
+  modules, Plotly.js from the CDN, GitHub Actions for daily data refresh. No JavaScript
+  toolchain (no npm, no bundler, no transpiler). No framework. No backend. A stdlib
+  Python generator (scripts/build_site.py) stamps the site's pages from series/*.json
+  and pages/*.json — decided in S5 (2026-09-13); until the S7 cutover the old
+  single-file site/index.html is still what is deployed at /.
 
   Data flow per source: scripts/fetch_<name>.py → data/<name>.json → site/data/<name>.json
-  → site/index.html (single file, all tabs and charts inline).
+  → one card per series on generated pages (site/charts/<id>/, site/<section>/, /),
+  drawn by a chart type module in site/js/charts/ from the descriptor's presentation
+  block.
 
   Strong convictions:
-  - Keep the stack minimal — vanilla JS, no framework, no build step, no backend.
+  - Keep the stack minimal — vanilla JS, no framework, no JavaScript toolchain, no backend.
+    A Python script that generates static pages is the same kind of thing as the fetchers.
   - JSON files in data/ are the contract between fetchers and the site.
   - Derived series (spreads, real rates) compute in Python at fetch time, not in JS.
   - All data on a daily timeline; monthly historical data assigned to 1st-of-month;
