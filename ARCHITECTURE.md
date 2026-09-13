@@ -337,3 +337,26 @@ Decisions made during implementation that future work should be aware of:
   S5: the component contract must say when `render` may run; the preset row is a
   component question (Plotly's button colours are layout literals, which collides
   with S5b's tokens); the source line owns the bottom-margin band.
+
+- **Theme token set frozen; dark values are an extraction, light is new**
+  (2026-09-13, `s5b-theme-tokens`): `site/css/tokens.css` defines all 20 tokens
+  `s5-chart-components` names (the existing six plus `--series-1..6`,
+  `--gridline`, `--axis-line`, `--zero-line`, `--annotation`, `--up`, `--down`,
+  `--recession-fill`, `--legend-bg`) for both a light and a dark palette. Dark
+  values are copied verbatim from `site/index.html`'s pre-existing literals — a
+  deliberate non-redesign, confirmed pixel-identical by screenshot — because
+  `s5-chart-components` design.md commits to that: whichever of S5b/S6b lands
+  first, dark keeps today's hex and the other session only adds what's missing.
+  Light values and two new series slots (`--series-5`/`--series-6`, unused until
+  now) are genuinely new, sourced from the "dataviz" skill's validated palette and
+  checked with its `validate_palette.js` against this site's own surfaces rather
+  than picked by eye; the skill's stock "yellow" categorical slot was tried first
+  and discarded when it failed the normal-vision-separation check against the
+  frozen orange (`--series-3`), a red passed instead. `getTheme()` — reading the
+  tokens via `getComputedStyle` — is explicitly provisional scaffolding for
+  `site/js/lib/theme.js`, an S6b deliverable that doesn't exist yet; building it
+  now would sit on module structure S6a/S6b haven't created. A `themechange`
+  redraw goes through the existing `renderWhenVisible`, not a direct
+  `Plotly.newPlot`, so a chart hidden during a toggle can't reproduce S4c's 700px
+  fallback. Also fixed: `nav button` (no filter) would have wired the new toggle
+  button into tab-switching; narrowed to `nav button[data-tab]`.
