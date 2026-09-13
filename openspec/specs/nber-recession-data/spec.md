@@ -6,9 +6,7 @@ The shared NBER recession dataset: `scripts/fetch_usrec.py` fetches the monthly 
 indicator from FRED and collapses it into recession intervals written to
 `data/usrec.json`, a chart-agnostic dataset reused for recession shading across multiple
 dashboard charts.
-
 ## Requirements
-
 ### Requirement: Fetch USREC recession indicator
 
 `scripts/fetch_usrec.py` SHALL fetch the USREC NBER-based recession indicator from FRED
@@ -25,15 +23,26 @@ than emitting every monthly point.
 ### Requirement: Shared, reusable recession dataset
 
 `data/usrec.json` SHALL be a standalone dataset not coupled to any single chart, intended
-for reuse across multiple dashboard charts. It SHALL carry the pipeline metadata
-conventions (`title`, `source`, UTC `last_updated`) and clearly describe that it reflects
-only officially NBER-dated recessions (which lag real time).
+for reuse across multiple dashboard charts. It SHALL follow the `series-metadata` header
+contract: `meta` from `series/usrec.json` (with `kind: intervals`, `revisions:
+retroactive`, and a note that it reflects only officially NBER-dated recessions, which
+lag real time) and `as_of` whose `last_observation` is the last month USREC reported
+(captured before the monthly series is collapsed to intervals) and whose
+`latest_value` is that month's 0/1, so consumers can state "no recession declared
+through Aug 2026".
 
 #### Scenario: Dataset is chart-agnostic
 
 - **WHEN** any chart needs recession shading
 - **THEN** it can consume `data/usrec.json` directly without that file depending on the
   spreads series or any other specific chart
+
+#### Scenario: Last observed month recorded
+
+- **WHEN** `fetch_usrec.py` runs and FRED's latest USREC observation is `2026-08-01`
+  with value 0
+- **THEN** `as_of.last_observation` is `2026-08-01`, `as_of.period_label` is `Aug 2026`,
+  `as_of.latest_value` is 0, and `recessions` is unchanged in shape
 
 ### Requirement: Ongoing recession is open-ended
 
@@ -46,3 +55,4 @@ latest available date rather than guessing an end.
 - **WHEN** the latest USREC value is 1 (in recession)
 - **THEN** the final interval in `data/usrec.json` has `end: null` (or an equivalent
   open-ended marker)
+

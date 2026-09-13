@@ -6,9 +6,7 @@ The shared fetch → `data/<name>.json` → `site/data/<name>.json` contract: pe
 Python fetch scripts, the FRED access pattern, JSON output schema conventions,
 missing-value handling, and the daily-timeline / 1st-of-month date rules that let
 every series render on a common time axis without rework.
-
 ## Requirements
-
 ### Requirement: Per-series fetch script
 
 Each data series SHALL be produced by a dedicated Python script in `scripts/`
@@ -83,16 +81,21 @@ series' spec).
 
 ### Requirement: JSON output schema conventions
 
-Each output JSON SHALL include descriptive metadata (`title`, `units`, `frequency`,
-`source`) and a UTC `last_updated` timestamp formatted `YYYY-MM-DD HH:MM UTC`, alongside
-the observations payload. Observations SHALL be ordered chronologically (oldest first)
-or keyed by date such that the site can render them on a time axis without re-sorting.
+Each output JSON SHALL follow the header contract defined by the `series-metadata`
+capability: a `meta` object (the dataset's `series/<id>.json` descriptor, copied
+verbatim minus `presentation`) and an `as_of` object (`fetched_at` in ISO 8601 UTC,
+`first_observation`, `last_observation`, `period_label`, `observation_count`, `due_by`,
+and per-input / per-series as-of where applicable), alongside the observations
+payload. Descriptive metadata (`title`, `units`, `frequency`, `source`, `methodology`)
+SHALL live only under `meta`. Observations SHALL be ordered chronologically (oldest
+first) or keyed by date such that the site can render them on a time axis without
+re-sorting. Files SHALL be written atomically through the shared `write_json`.
 
-#### Scenario: Output carries metadata and timestamp
+#### Scenario: Output carries metadata and as-of
 
 - **WHEN** any fetcher writes its JSON file
-- **THEN** the file contains `title`, `units`, `frequency`, `source`, and a
-  `last_updated` field in `YYYY-MM-DD HH:MM UTC` form
+- **THEN** the file contains `meta` with the descriptor's `title`, `units`, `cadence`
+  and `sources`, and `as_of` with `fetched_at`, `last_observation` and `due_by`
 
 ### Requirement: Daily timeline and date conventions
 
@@ -117,3 +120,4 @@ data path between Python and the browser.
 - **WHEN** the site renders a series
 - **THEN** it reads the corresponding `site/data/<name>.json` and renders the chart
   and any tables from that file alone
+

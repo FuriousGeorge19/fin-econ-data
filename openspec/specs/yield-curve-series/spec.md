@@ -6,9 +6,7 @@ The Treasury yield curve series: the fetcher that pulls all 11 standard
 constant-maturity tenors from FRED into `data/yield_curve.json`, and the dashboard's
 "Yield Curve" tab with its categorical-axis snapshot chart, historical overlays,
 custom date picker, and current-yields table.
-
 ## Requirements
-
 ### Requirement: Fetch all Treasury tenors
 
 `scripts/fetch_yield_curve.py` SHALL fetch all 11 standard Treasury constant-maturity
@@ -39,7 +37,10 @@ zero-filled.
 The dashboard SHALL render the curve for a selected date as a line across tenors on a
 categorical, evenly spaced x-axis (Bloomberg-style), with toggleable historical overlays
 (e.g. 1 week / 1 month / 1 year / 5 years ago), a custom date picker, and a current-yields
-table showing yields and period changes.
+table showing yields and period changes. Overlay and change-column dates SHALL be
+resolved by the `chart-chrome` comparison rule (anchored on the latest curve date,
+nearest observation on or before the target) and the table SHALL show each resolved
+comparison date.
 
 #### Scenario: Yield curve tab renders
 
@@ -52,6 +53,11 @@ table showing yields and period changes.
 - **WHEN** the user enables a historical overlay or picks a custom date
 - **THEN** an additional curve for that date is drawn over the current curve for comparison
 
+#### Scenario: Resolved dates in the table
+
+- **WHEN** the 1-month comparison target falls on a day with no observation
+- **THEN** the table's change column is labelled with the actual date used
+
 ### Requirement: Tab label for the yield curve series
 
 The Treasury yield curve series SHALL appear in the dashboard under a tab labeled
@@ -62,3 +68,4 @@ The Treasury yield curve series SHALL appear in the dashboard under a tab labele
 - **WHEN** the dashboard renders its tab navigation
 - **THEN** one of the tabs is labeled "Yield Curve", and selecting it shows the
   curve snapshot chart and current-yields table
+

@@ -5,21 +5,21 @@
 The 10-Year Treasury Constant Maturity Rate (DGS10) series: the FRED fetcher that
 produces `data/dgs10.json` and the dashboard's "10Y Treasury" tab with its yield
 time-series chart and recent-observations table.
-
 ## Requirements
-
 ### Requirement: Fetch 10-Year Treasury rate
 
 `scripts/fetch_treasury.py` SHALL fetch the DGS10 series (10-Year Treasury Constant
 Maturity Rate) from FRED, requesting the most recent ~2520 daily observations
-(approximately 10 years of trading days), and write `data/dgs10.json`.
+(approximately 10 years of trading days), and write `data/dgs10.json` under the
+`series-metadata` header contract.
 
 #### Scenario: Successful fetch
 
 - **WHEN** `fetch_treasury.py` runs with a valid `FRED_API_KEY`
-- **THEN** `data/dgs10.json` is written with `series_id` `DGS10`, units `Percent`,
-  frequency `Daily`, source attributed to FRED, and observations sorted oldest-first,
-  each having a `date` and a numeric `value`
+- **THEN** `data/dgs10.json` is written with `meta` from `series/dgs10.json` (input
+  `series_id` `DGS10`, units `Percent`, cadence `daily`, source FRED), `as_of` with the
+  last observation and `due_by`, and observations sorted oldest-first, each having a
+  `date` and a numeric `value`
 
 #### Scenario: Missing values dropped
 
@@ -46,3 +46,4 @@ The DGS10 series SHALL appear in the dashboard under a tab labeled "10Y Treasury
 - **WHEN** the dashboard renders its tab navigation
 - **THEN** one of the tabs is labeled "10Y Treasury", and selecting it shows the
   DGS10 chart and table
+
