@@ -179,7 +179,8 @@ When adding a new data series:
 1. Create a new Python script in `scripts/` (follow `fetch_treasury.py` pattern)
 2. Output JSON to `data/<series>.json`
 3. Add the fetch command to `.github/workflows/update-data.yml`
-4. Add a new tab and chart/table section in `site/index.html`
+4. Add a new tab and chart/table section in `site/index.html` — give the chart div
+   `class="chart"`, add it to `TAB_CHART`, and route its draw through `renderWhenVisible`
 5. Add a `cp data/<series>.json site/data/` line in the workflow
 
 The architecture was chosen specifically to scale this way without rework.
@@ -219,8 +220,20 @@ The architecture was chosen specifically to scale this way without rework.
 - Series that compound over decades plot on a log axis, labelled as log. Doesn't
   apply to yields, ratios, or spreads — only to price levels held over long spans.
 
-Full rationale for the 2026-09-12 additions is in the Session Plan decisions table at
-`~/Obsidian/Investing/Finance and Economic Data Website/Session Plan.md`.
+**Adopted 2026-09-13 (S4c):**
+- Draw a chart only when its container is visible. Plotly sizes a hidden
+  (`display:none`) container to a 700px fallback and remembers it on the chart's
+  config context. `site/index.html` defers each draw until its tab is first shown and
+  calls `Plotly.Plots.resize` on later shows. S5's component contract must say who
+  owns this.
+- "All", the mode-bar reset and double-click all mean `[first_observation, today]`
+  (via `xaxis.autorangeoptions`), never Plotly's padded data extent.
+- No range slider on time-series charts. The in-chart source line owns the bottom
+  margin band; nothing else is drawn there.
+
+Full rationale for the 2026-09-12 and 2026-09-13 additions is in the Session Plan
+decisions table at `~/Obsidian/Investing/Finance and Economic Data Website/Session
+Plan.md` and in `openspec/changes/archive/*/design.md`.
 
 ## Licence Notes
 
@@ -256,6 +269,21 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-13**: S4c: chart chrome fixes (`s4c-chart-chrome-fixes`) — five
+  `site/index.html` defects found on the live site after S4b, each reproduced with
+  Claude in Chrome and traced in Plotly 2.35.0's source. The "Loading chart..."
+  placeholder outlived every render (Plotly inserts its container as a first child and
+  never clears the div; the placeholder is now CSS, `.chart:empty::before`). The P/E,
+  yield-curve and spreads charts drew at Plotly's 700px fallback because they were
+  plotted while their tab was `display:none` (a chart is now drawn the first time its
+  tab is shown, `renderWhenVisible`/`onTabShown`, and refitted with
+  `Plotly.Plots.resize` on later shows). The range slider sat on top of the source
+  line (slider removed; `margin.b` 46→56). "All" acted as a one-month button because
+  rangeselector buttons ignore `method`/`args` (now `step: 'all'` plus
+  `xaxis.autorangeoptions` clipping autorange to `[first_observation, today]`, so All,
+  the mode-bar reset and double-click agree). A card reopened on its last sub-tab
+  (`selectSubtab(…, 'chart')` on every nav switch). No Python, data or workflow
+  change; `pytest -m "not staleness"` 57 green.
 - **2026-09-13**: S4b: frontend chrome (Section 5 of `s3-series-metadata`) —
   `site/index.html` reads `meta`/`as_of` instead of the retired `last_updated`: a
   bottom-left in-chart source line on every chart (`asOfAnnotation`, the P/E's two-input

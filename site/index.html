@@ -145,9 +145,20 @@
             margin-top: 0.15rem;
         }
 
-        #chart, #pe-chart, #yc-chart, #spreads-chart {
+        .chart {
             width: 100%;
             height: 400px;
+        }
+
+        /* Plotly inserts its own container as the first child and never clears the
+           div, so the placeholder is CSS on the empty container: it disappears the
+           moment the chart is drawn (dashboard-site spec, "Loading placeholder"). */
+        .chart:empty::before {
+            content: 'Loading chart…';
+            display: block;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
         }
 
         .yc-controls {
@@ -409,7 +420,7 @@
                     </div>
                 </div>
                 <div class="subtab-panel" data-group="dgs10" data-panel="chart">
-                    <div id="chart"><div class="loading">Loading chart...</div></div>
+                    <div id="chart" class="chart"></div>
                 </div>
                 <div class="subtab-panel" data-group="dgs10" data-panel="table" hidden>
                     <table>
@@ -461,7 +472,7 @@
                         <label style="margin-left: 0.75rem;">Custom:</label>
                         <input type="date" class="yc-date-input" id="yc-custom-date">
                     </div>
-                    <div id="yc-chart"><div class="loading">Loading chart...</div></div>
+                    <div id="yc-chart" class="chart"></div>
                 </div>
                 <div class="subtab-panel" data-group="yieldcurve" data-panel="table" hidden>
                     <table>
@@ -525,7 +536,7 @@
                     </div>
                 </div>
                 <div class="subtab-panel" data-group="sp500_pe" data-panel="chart">
-                    <div id="pe-chart"><div class="loading">Loading chart...</div></div>
+                    <div id="pe-chart" class="chart"></div>
                 </div>
                 <div class="subtab-panel" data-group="sp500_pe" data-panel="table" hidden>
                     <p class="subtitle">
@@ -572,7 +583,7 @@
                     </div>
                 </div>
                 <div class="subtab-panel" data-group="spreads" data-panel="chart">
-                    <div id="spreads-chart"><div class="loading">Loading chart...</div></div>
+                    <div id="spreads-chart" class="chart"></div>
                 </div>
                 <div class="subtab-panel" data-group="spreads" data-panel="table" hidden>
                     <table>
@@ -604,30 +615,64 @@
     <script>
         // ── Tab switching (primary nav) ─────────────────────────────────
 
+        // Which chart div lives in which tab. A chart is drawn the first time its tab
+        // is shown, never while hidden: Plotly sizes a hidden container to a 700px
+        // fallback and remembers that on the chart's config context (dashboard-site
+        // spec, "Data fetched on page load, not lazily").
+        const TAB_CHART = { treasury: 'chart', pe: 'pe-chart', yieldcurve: 'yc-chart', spreads: 'spreads-chart' };
+        const pendingRender = {};
+
+        function isTabVisible(tab) {
+            return document.getElementById(`${tab}-tab`).style.display !== 'none';
+        }
+
+        function renderWhenVisible(tab, render) {
+            if (isTabVisible(tab)) render();
+            else pendingRender[tab] = render;
+        }
+
+        function onTabShown(tab) {
+            const render = pendingRender[tab];
+            if (render) {
+                delete pendingRender[tab];
+                render();
+                return;
+            }
+            // Already drawn: refit, in case the window was resized while this tab was
+            // hidden (Plotly's own resize listener skips hidden charts).
+            const gd = document.getElementById(TAB_CHART[tab]);
+            if (gd && gd._fullLayout) Plotly.Plots.resize(gd);
+        }
+
         document.querySelectorAll('nav button').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const tab = btn.dataset.tab;
                 document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-                document.getElementById(`${tab}-tab`).style.display = 'block';
+                const tabEl = document.getElementById(`${tab}-tab`);
+                tabEl.style.display = 'block';
+                selectSubtab(tabEl.querySelector('.subtabs'), 'chart');  // a card always opens on its chart
+                onTabShown(tab);
             });
         });
 
         // ── Sub-tab strip (Chart | Table | About), shared by every card ──
 
+        function selectSubtab(strip, panel) {
+            const group = strip.dataset.group;
+            strip.querySelectorAll('.subtab').forEach(b => {
+                b.classList.toggle('active', b.dataset.panel === panel);
+            });
+            document.querySelectorAll(`.subtab-panel[data-group="${group}"]`).forEach(p => {
+                p.hidden = (p.dataset.panel !== panel);
+            });
+        }
+
         function wireSubtabs() {
             document.querySelectorAll('.subtabs').forEach(strip => {
-                const group = strip.dataset.group;
                 strip.querySelectorAll('.subtab').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        strip.querySelectorAll('.subtab').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        const panel = btn.dataset.panel;
-                        document.querySelectorAll(`.subtab-panel[data-group="${group}"]`).forEach(p => {
-                            p.hidden = (p.dataset.panel !== panel);
-                        });
-                    });
+                    btn.addEventListener('click', () => selectSubtab(strip, btn.dataset.panel));
                 });
             });
         }
@@ -845,14 +890,21 @@
 
         // ── Time-series x-axis-to-today (kind: timeseries only) ──────────
 
+        // The range is explicit, and autorange is clipped to the same window so that
+        // the "All" button (step: 'all' → autorange), the mode bar's reset-axes button
+        // and a double-click all land on [first observation, today] rather than on
+        // Plotly's padded data extent (chart-chrome spec, "x-axis ends at today").
         function xaxisToToday(xaxis, startISO, todayISO) {
             xaxis.range = [startISO, todayISO];
             xaxis.autorange = false;
+            xaxis.autorangeoptions = { clipmin: startISO, clipmax: todayISO, include: [startISO, todayISO] };
             return xaxis;
         }
 
-        function allButton(startISO, todayISO) {
-            return { label: 'All', method: 'relayout', args: ['xaxis.range', [startISO, todayISO]] };
+        // Rangeselector buttons only understand step/count/stepmode; a custom range
+        // (method/args) is silently ignored and falls back to one month backward.
+        function allButton() {
+            return { label: 'All', step: 'all' };
         }
 
         // ── Export: CSV / JSON download, PNG via Plotly's own button ─────
@@ -905,7 +957,7 @@
         async function loadData() {
             try {
                 const data = await loadSeries('dgs10');
-                renderChart(data);
+                renderWhenVisible('treasury', () => renderChart(data));
                 renderStats(data);
                 renderTable(data);
                 applyBadge('dgs10', data.meta, data.as_of);
@@ -938,19 +990,18 @@
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
                 font: { color: '#94a3b8', size: 12 },
-                margin: { t: 10, r: 20, b: 46, l: 50 },
+                margin: { t: 10, r: 20, b: 56, l: 50 },  // b leaves room for the source line under the tick labels
                 annotations: [asOfAnnotation(data.meta, data.as_of)],
                 xaxis: xaxisToToday({
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
-                    rangeslider: { visible: true, bgcolor: '#1e293b', thickness: 0.08 },
                     rangeselector: {
                         buttons: [
                             { count: 1, label: '1M', step: 'month', stepmode: 'backward' },
                             { count: 6, label: '6M', step: 'month', stepmode: 'backward' },
                             { count: 1, label: '1Y', step: 'year', stepmode: 'backward' },
                             { count: 5, label: '5Y', step: 'year', stepmode: 'backward' },
-                            allButton(start, today),
+                            allButton(),
                         ],
                         bgcolor: '#1e293b',
                         activecolor: '#334155',
@@ -1024,7 +1075,7 @@
         async function loadPEData() {
             try {
                 const data = await loadSeries('sp500_pe');
-                renderPEChart(data);
+                renderWhenVisible('pe', () => renderPEChart(data));
                 renderPEStats(data);
                 renderPETable(data);
                 applyBadge('sp500_pe', data.meta, data.as_of);
@@ -1080,20 +1131,19 @@
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
                 font: { color: '#94a3b8', size: 12 },
-                margin: { t: 10, r: 20, b: 46, l: 50 },
+                margin: { t: 10, r: 20, b: 56, l: 50 },  // b leaves room for the source line under the tick labels
                 legend: { font: { color: '#94a3b8' }, bgcolor: 'transparent' },
                 annotations: [asOfAnnotation(data.meta, data.as_of)],
                 xaxis: xaxisToToday({
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
-                    rangeslider: { visible: true, bgcolor: '#1e293b', thickness: 0.08 },
                     rangeselector: {
                         buttons: [
                             { count: 1,  label: '1Y',  step: 'year', stepmode: 'backward' },
                             { count: 10, label: '10Y', step: 'year', stepmode: 'backward' },
                             { count: 25, label: '25Y', step: 'year', stepmode: 'backward' },
                             { count: 50, label: '50Y', step: 'year', stepmode: 'backward' },
-                            allButton(start, today),
+                            allButton(),
                         ],
                         bgcolor: '#1e293b',
                         activecolor: '#334155',
@@ -1166,7 +1216,7 @@
                 dateInput.min = ycDates[0];
                 dateInput.max = ycDates[ycDates.length - 1];
 
-                renderYieldCurve();
+                renderWhenVisible('yieldcurve', renderYieldCurve);
                 renderYCTable();
                 applyBadge('yieldcurve', ycData.meta, ycData.as_of);
                 renderAbout('yieldcurve', ycData.meta, ycData.as_of);
@@ -1380,7 +1430,7 @@
                     loadSeries('spreads'),
                     loadSeries('usrec').catch(() => null),  // bands optional
                 ]);
-                renderSpreadsChart(data, usrec);
+                renderWhenVisible('spreads', () => renderSpreadsChart(data, usrec));
                 renderSpreadsTable(data);
                 applyBadge('spreads', data.meta, data.as_of);
                 renderAbout('spreads', data.meta, data.as_of);
@@ -1436,20 +1486,19 @@
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
                 font: { color: '#94a3b8', size: 12 },
-                margin: { t: 10, r: 20, b: 46, l: 50 },
+                margin: { t: 10, r: 20, b: 56, l: 50 },  // b leaves room for the source line under the tick labels
                 legend: { font: { color: '#94a3b8' }, bgcolor: 'transparent' },
                 annotations: [asOfAnnotation(data.meta, data.as_of)],
                 xaxis: xaxisToToday({
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
-                    rangeslider: { visible: true, bgcolor: '#1e293b', thickness: 0.08 },
                     rangeselector: {
                         buttons: [
                             { count: 1,  label: '1Y',  step: 'year', stepmode: 'backward' },
                             { count: 5,  label: '5Y',  step: 'year', stepmode: 'backward' },
                             { count: 10, label: '10Y', step: 'year', stepmode: 'backward' },
                             { count: 25, label: '25Y', step: 'year', stepmode: 'backward' },
-                            allButton(start, today),
+                            allButton(),
                         ],
                         bgcolor: '#1e293b',
                         activecolor: '#334155',

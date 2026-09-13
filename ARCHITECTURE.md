@@ -318,3 +318,22 @@ Decisions made during implementation that future work should be aware of:
   doesn't), always deploy, then fail the job afterward if any fetch failed so
   GitHub still notifies without delaying the site update. `main`'s
   `data/*.json` are now explicitly test fixtures, not the deploy history.
+
+- **Charts draw on first show; All/reset = first observation → today; no range
+  slider** (2026-09-13, `s4c-chart-chrome-fixes`): three of the four charts had
+  been drawn while their tab was `display:none`, and Plotly sizes a hidden
+  container to a 700px fallback that it remembers on the chart's config context
+  (`_hasZeroWidth`, OR'd, sticky). `site/index.html` now defers each Plotly draw
+  until its tab is first shown (`renderWhenVisible`/`onTabShown`) and refits with
+  `Plotly.Plots.resize` on later shows; the data fetch and the non-chart chrome
+  stay eager. Plotly's rangeselector buttons cannot express a custom range
+  (`method`/`args` are updatemenus attributes and are ignored), so "All" is
+  `step: 'all'` and `xaxis.autorangeoptions {clipmin, clipmax, include}` pins
+  autorange to `[first_observation, today]`; the mode-bar reset and double-click
+  land there too. The range slider was removed rather than moving the source line
+  under it: the line was already placed correctly without it, the plot area grows
+  ~60px, and the slider's own padded extent (to 2035 on the P/E, from the marker
+  trace's 5% autorange pad) was how the axis could wander past today. Inputs for
+  S5: the component contract must say when `render` may run; the preset row is a
+  component question (Plotly's button colours are layout literals, which collides
+  with S5b's tokens); the source line owns the bottom-margin band.
