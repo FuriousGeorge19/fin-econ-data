@@ -1,11 +1,56 @@
 {
-  "title": "NBER-based U.S. Recession Indicators",
-  "series_id": "USREC",
-  "units": "Recession interval (start/end month)",
-  "frequency": "Monthly",
-  "source": "Federal Reserve Bank of St. Louis (FRED) / NBER",
-  "description": "Recession intervals derived from the monthly USREC indicator (1 = recession). Reflects only officially NBER-dated recessions, which are announced with a lag, so a current downturn may not yet appear. Months are assigned to the 1st; an ongoing recession has end = null.",
-  "last_updated": "2026-09-12 03:25 UTC",
+  "meta": {
+    "id": "usrec",
+    "title": "NBER-Based U.S. Recession Indicator",
+    "short_title": "Recessions",
+    "kind": "intervals",
+    "units": "Recession interval (start/end month)",
+    "cadence": "monthly",
+    "publication_lag_business_days": 5,
+    "revisions": "retroactive",
+    "revision_note": "NBER's Business Cycle Dating Committee dates recession peaks and troughs 4 to 21 months after the fact; a month recorded as expansion can later be reclassified as recession once NBER announces a new dating.",
+    "source_line": "FRED USREC / NBER",
+    "sources": [
+      {
+        "slug": "fred",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "url": "https://fred.stlouisfed.org/series/USREC",
+        "licence": "Public domain (U.S. government data)"
+      },
+      {
+        "slug": "nber",
+        "name": "National Bureau of Economic Research (NBER), Business Cycle Dating Committee",
+        "url": "https://www.nber.org/research/business-cycle-dating",
+        "licence": "Public domain (U.S. government-funded research); dates are NBER's official recession chronology"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "usrec",
+        "label": "NBER-based monthly recession indicator (1 = recession)",
+        "source": "fred",
+        "series_id": "USREC",
+        "cadence": "monthly",
+        "publication_lag_business_days": 5
+      }
+    ],
+    "methodology": [
+      "Contiguous runs of USREC = 1 are collapsed into {start, end} recession intervals, both the first and last recession month. An ongoing recession has end = null.",
+      "This is a standalone, chart-agnostic dataset reused for recession shading across multiple charts (spreads today; Fed Funds, real rate, ERP and credit spreads planned)."
+    ],
+    "notes": [
+      "Reflects only officially NBER-dated recessions, which are announced with a lag (see revision_note); a current downturn may not yet appear here even if it is later dated as a recession.",
+      "Months are assigned to the 1st of the month."
+    ]
+  },
+  "as_of": {
+    "fetched_at": "2026-09-13T17:14:55Z",
+    "last_observation": "2026-08-01",
+    "period_label": "Aug 2026",
+    "latest_value": 0.0,
+    "due_by": "2026-10-07"
+  },
+  "last_updated": "2026-09-13 17:14 UTC",
   "recessions": [
     {
       "start": "1854-12-01",
