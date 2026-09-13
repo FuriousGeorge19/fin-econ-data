@@ -1,0 +1,92 @@
+/* Theme tokens (S5b, 2026-09-13). Token names are frozen by
+   openspec/changes/s5-chart-components/design.md decision 5 and must not change —
+   S6b's site/js/lib/theme.js reads these exact names. Dark values are a verbatim
+   extraction of what site/index.html already used before this file existed (not a
+   redesign); light values and --series-5/--series-6 (both modes) are new, sourced
+   from the "dataviz" skill's validated dual-mode palette. See
+   openspec/changes/s5b-theme-tokens/design.md for the full rationale and value table.
+
+   Cascade: bare :root is the light default; @media (prefers-color-scheme: dark)
+   follows the OS when no explicit choice has been stamped; :root[data-theme="dark"]
+   lets an explicit choice win over the OS either way. No :root[data-theme="light"]
+   block is needed since light is already the bare default. */
+
+:root {
+    /* ---- light (default) ---- */
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --border: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --accent: #0369a1;
+
+    --series-1: #0284c7;
+    --series-2: #7c3aed;
+    --series-3: #ea580c;
+    --series-4: #db2777;
+    --series-5: #1baf7a;
+    --series-6: #991b1b;
+
+    --gridline: #ffffff;   /* == --surface: gridlines invisible by design, as in dark */
+    --axis-line: #cbd5e1;  /* == --border */
+    --zero-line: #94a3b8;
+    --annotation: #94a3b8;
+    --up: #15803d;
+    --down: #dc2626;
+    --recession-fill: rgba(100, 116, 139, 0.10);
+    --legend-bg: rgba(255, 255, 255, 0.8);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --border: #334155;
+        --text: #e2e8f0;
+        --text-muted: #94a3b8;
+        --accent: #38bdf8;
+
+        --series-1: #38bdf8;
+        --series-2: #a78bfa;
+        --series-3: #fb923c;
+        --series-4: #f472b6;
+        --series-5: #199e70;
+        --series-6: #dc2626;
+
+        --gridline: #1e293b;
+        --axis-line: #334155;
+        --zero-line: #64748b;
+        --annotation: #64748b;
+        --up: #4ade80;
+        --down: #f87171;
+        --recession-fill: rgba(148, 163, 184, 0.18);
+        --legend-bg: rgba(30, 41, 59, 0.8);
+    }
+}
+
+:root[data-theme="dark"] {
+    /* identical to the media-query block above: an explicit choice must win
+       regardless of the OS setting */
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+
+    --series-1: #38bdf8;
+    --series-2: #a78bfa;
+    --series-3: #fb923c;
+    --series-4: #f472b6;
+    --series-5: #199e70;
+    --series-6: #dc2626;
+
+    --gridline: #1e293b;
+    --axis-line: #334155;
+    --zero-line: #64748b;
+    --annotation: #64748b;
+    --up: #4ade80;
+    --down: #f87171;
+    --recession-fill: rgba(148, 163, 184, 0.18);
+    --legend-bg: rgba(30, 41, 59, 0.8);
+}

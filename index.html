@@ -4,17 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joe Mirza — Economic & Financial Data</title>
+    <!-- Anti-FOUC: stamp an explicit theme choice before first paint, so a returning
+         visitor's preference never flashes the system default first (S5b). Deliberately
+         the only theme logic this early; the toggle and getTheme() live in the bottom
+         <script>. -->
+    <script>
+        (function () {
+            var saved = localStorage.getItem('theme');
+            if (saved === 'light' || saved === 'dark') {
+                document.documentElement.setAttribute('data-theme', saved);
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="css/tokens.css">
     <script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
     <style>
-        :root {
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --border: #334155;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --accent: #38bdf8;
-        }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -40,10 +44,28 @@
 
         nav {
             display: flex;
+            align-items: center;
             gap: 0.25rem;
             margin-top: 1rem;
             border-bottom: 1px solid var(--border);
             padding: 0 2rem;
+        }
+
+        .theme-toggle {
+            margin-left: auto;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .theme-toggle:hover {
+            color: var(--text);
+            border-color: var(--text-muted);
         }
 
         nav button {
@@ -208,8 +230,16 @@
             font-size: 0.8rem;
         }
 
-        .yc-date-input::-webkit-calendar-picker-indicator {
+        /* The native calendar-icon glyph is dark; invert it for legibility on a dark
+           input, but not on light mode's white input where the invert nearly erases it
+           (S5b). */
+        :root[data-theme="dark"] .yc-date-input::-webkit-calendar-picker-indicator {
             filter: invert(0.7);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) .yc-date-input::-webkit-calendar-picker-indicator {
+                filter: invert(0.7);
+            }
         }
 
         .est-badge {
@@ -377,6 +407,7 @@
         <button data-tab="pe">S&amp;P 500 P/E</button>
         <button data-tab="yieldcurve">Yield Curve</button>
         <button data-tab="spreads">Treasury Spreads</button>
+        <button class="theme-toggle" id="theme-toggle" type="button"></button>
     </nav>
     <main>
         <div id="treasury-tab" class="tab-content">
@@ -644,9 +675,11 @@
             if (gd && gd._fullLayout) Plotly.Plots.resize(gd);
         }
 
-        document.querySelectorAll('nav button').forEach(btn => {
+        // Scoped to [data-tab] so the theme toggle (also a nav button, but not a tab)
+        // isn't treated as one (S5b).
+        document.querySelectorAll('nav button[data-tab]').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('nav button[data-tab]').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const tab = btn.dataset.tab;
                 document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
@@ -656,6 +689,59 @@
                 onTabShown(tab);
             });
         });
+
+        // ── Light/dark theme toggle ──────────────────────────────────────
+        //
+        // Two explicit states, defaulting to prefers-color-scheme until the user
+        // picks one; the choice is stamped as data-theme on <html> (also read by the
+        // anti-FOUC script in <head>) and persisted via localStorage. themechange
+        // lets every chart/table listen and retone itself (S5b).
+
+        function currentTheme() {
+            return document.documentElement.getAttribute('data-theme')
+                || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        }
+
+        function updateToggleLabel() {
+            const btn = document.getElementById('theme-toggle');
+            if (btn) btn.textContent = currentTheme() === 'dark' ? '☾ Dark' : '☀ Light';
+        }
+
+        function toggleTheme() {
+            const next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateToggleLabel();
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: next } }));
+        }
+
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+        updateToggleLabel();
+
+        // Provisional scaffolding: reads the tokens computed CSS custom properties
+        // resolve to right now. S6b's site/js/lib/theme.js is expected to absorb this
+        // near-verbatim once ctx.theme exists (s5-chart-components design.md decision 5).
+        function getTheme() {
+            const cs = getComputedStyle(document.documentElement);
+            const v = (name) => cs.getPropertyValue(name).trim();
+            return {
+                seriesColors: [1, 2, 3, 4, 5, 6].map(n => v(`--series-${n}`)),
+                gridline: v('--gridline'),
+                axisLine: v('--axis-line'),
+                zeroLine: v('--zero-line'),
+                annotation: v('--annotation'),
+                up: v('--up'),
+                down: v('--down'),
+                recessionFill: v('--recession-fill'),
+                legendBg: v('--legend-bg'),
+                bg: v('--bg'),
+                surface: v('--surface'),
+                border: v('--border'),
+                text: v('--text'),
+                textMuted: v('--text-muted'),
+                accent: v('--accent'),
+            };
+        }
 
         // ── Sub-tab strip (Chart | Table | About), shared by every card ──
 
@@ -771,7 +857,7 @@
             return `${meta.source_line} · data through ${as_of.period_label}`;
         }
 
-        function asOfAnnotation(meta, as_of) {
+        function asOfAnnotation(meta, as_of, theme) {
             return {
                 xref: 'paper', yref: 'paper',
                 x: 0, y: 0,
@@ -780,7 +866,7 @@
                 text: asOfSourceLine(meta, as_of),
                 showarrow: false,
                 align: 'left',
-                font: { color: '#64748b', size: 10 },
+                font: { color: theme.annotation, size: 10 },
             };
         }
 
@@ -954,9 +1040,14 @@
 
         // ── 10-Year Treasury ─────────────────────────────────────────────
 
+        // Cached alongside ycData/ycDates below, so the themechange handler can
+        // redraw each chart without re-fetching (S5b).
+        let dgs10Data = null;
+
         async function loadData() {
             try {
                 const data = await loadSeries('dgs10');
+                dgs10Data = data;
                 renderWhenVisible('treasury', () => renderChart(data));
                 renderStats(data);
                 renderTable(data);
@@ -973,13 +1064,14 @@
         }
 
         function renderChart(data) {
+            const theme = getTheme();
             const obs = data.observations;
             const trace = {
                 x: obs.map(o => o.date),
                 y: obs.map(o => o.value),
                 type: 'scatter',
                 mode: 'lines',
-                line: { color: '#38bdf8', width: 1.5 },
+                line: { color: theme.seriesColors[0], width: 1.5 },
                 hovertemplate: '%{x}<br>%{y:.2f}%<extra></extra>',
             };
 
@@ -989,12 +1081,12 @@
             const layout = {
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
-                font: { color: '#94a3b8', size: 12 },
+                font: { color: theme.textMuted, size: 12 },
                 margin: { t: 10, r: 20, b: 56, l: 50 },  // b leaves room for the source line under the tick labels
-                annotations: [asOfAnnotation(data.meta, data.as_of)],
+                annotations: [asOfAnnotation(data.meta, data.as_of, theme)],
                 xaxis: xaxisToToday({
-                    gridcolor: '#1e293b',
-                    linecolor: '#334155',
+                    gridcolor: theme.gridline,
+                    linecolor: theme.axisLine,
                     rangeselector: {
                         buttons: [
                             { count: 1, label: '1M', step: 'month', stepmode: 'backward' },
@@ -1003,14 +1095,14 @@
                             { count: 5, label: '5Y', step: 'year', stepmode: 'backward' },
                             allButton(),
                         ],
-                        bgcolor: '#1e293b',
-                        activecolor: '#334155',
-                        font: { color: '#94a3b8' },
+                        bgcolor: theme.gridline,
+                        activecolor: theme.axisLine,
+                        font: { color: theme.textMuted },
                     },
                 }, start, today),
                 yaxis: {
-                    gridcolor: '#1e293b',
-                    linecolor: '#334155',
+                    gridcolor: theme.gridline,
+                    linecolor: theme.axisLine,
                     ticksuffix: '%',
                 },
             };
@@ -1036,10 +1128,11 @@
             const changeEl = document.getElementById('stat-change');
             const changeDateEl = document.getElementById('stat-change-date');
             if (yearAgoObs) {
+                const theme = getTheme();
                 const change = latest.value - yearAgoObs.value;
                 const sign = change >= 0 ? '+' : '';
                 changeEl.textContent = `${sign}${change.toFixed(2)}%`;
-                changeEl.style.color = change >= 0 ? '#f87171' : '#4ade80';
+                changeEl.style.color = change >= 0 ? theme.down : theme.up;
                 changeDateEl.textContent = `vs ${formatDateLong(yearAgoObs.date)}`;
             } else {
                 changeEl.textContent = '—';
@@ -1048,6 +1141,7 @@
         }
 
         function renderTable(data) {
+            const theme = getTheme();
             const obs = data.observations;
             const recent = obs.slice(-30).reverse(); // Last 30 days, newest first
             const tbody = document.getElementById('table-body');
@@ -1060,7 +1154,7 @@
                     const diff = o.value - prev.value;
                     const sign = diff >= 0 ? '+' : '';
                     changeStr = `${sign}${diff.toFixed(3)}`;
-                    changeClass = diff >= 0 ? 'color: #f87171' : 'color: #4ade80';
+                    changeClass = diff >= 0 ? `color: ${theme.down}` : `color: ${theme.up}`;
                 }
                 return `<tr>
                     <td>${o.date}</td>
@@ -1072,9 +1166,12 @@
 
         // ── S&P 500 P/E ──────────────────────────────────────────────
 
+        let peData = null;
+
         async function loadPEData() {
             try {
                 const data = await loadSeries('sp500_pe');
+                peData = data;
                 renderWhenVisible('pe', () => renderPEChart(data));
                 renderPEStats(data);
                 renderPETable(data);
@@ -1091,6 +1188,7 @@
         }
 
         function renderPEChart(data) {
+            const theme = getTheme();
             const obs = data.observations;
             const confirmed = obs.filter(o => !o.estimated);
             const estimated = obs.filter(o => o.estimated);
@@ -1102,7 +1200,7 @@
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Trailing P/E',
-                line: { color: '#a78bfa', width: 1.5 },
+                line: { color: theme.seriesColors[1], width: 1.5 },
                 hovertemplate: '%{x|%b %Y}<br>P/E: %{y:.1f}x<extra></extra>',
             };
 
@@ -1118,8 +1216,8 @@
                     type: 'scatter',
                     mode: 'lines+markers',
                     name: 'Estimated (†)',
-                    line: { color: '#fb923c', width: 1.5, dash: 'dash' },
-                    marker: { color: '#fb923c', size: 4 },
+                    line: { color: theme.seriesColors[2], width: 1.5, dash: 'dash' },
+                    marker: { color: theme.seriesColors[2], size: 4 },
                     hovertemplate: '%{x|%b %Y}<br>P/E: %{y:.1f}x (est.)<extra></extra>',
                 });
             }
@@ -1130,13 +1228,13 @@
             const layout = {
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
-                font: { color: '#94a3b8', size: 12 },
+                font: { color: theme.textMuted, size: 12 },
                 margin: { t: 10, r: 20, b: 56, l: 50 },  // b leaves room for the source line under the tick labels
-                legend: { font: { color: '#94a3b8' }, bgcolor: 'transparent' },
-                annotations: [asOfAnnotation(data.meta, data.as_of)],
+                legend: { font: { color: theme.textMuted }, bgcolor: 'transparent' },
+                annotations: [asOfAnnotation(data.meta, data.as_of, theme)],
                 xaxis: xaxisToToday({
-                    gridcolor: '#1e293b',
-                    linecolor: '#334155',
+                    gridcolor: theme.gridline,
+                    linecolor: theme.axisLine,
                     rangeselector: {
                         buttons: [
                             { count: 1,  label: '1Y',  step: 'year', stepmode: 'backward' },
@@ -1145,14 +1243,14 @@
                             { count: 50, label: '50Y', step: 'year', stepmode: 'backward' },
                             allButton(),
                         ],
-                        bgcolor: '#1e293b',
-                        activecolor: '#334155',
-                        font: { color: '#94a3b8' },
+                        bgcolor: theme.gridline,
+                        activecolor: theme.axisLine,
+                        font: { color: theme.textMuted },
                     },
                 }, start, today),
                 yaxis: {
-                    gridcolor: '#1e293b',
-                    linecolor: '#334155',
+                    gridcolor: theme.gridline,
+                    linecolor: theme.axisLine,
                     ticksuffix: 'x',
                 },
             };
@@ -1285,22 +1383,29 @@
             return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
-        const OVERLAY_COLORS = {
-            '1w': '#94a3b8',
-            '1m': '#a78bfa',
-            '1y': '#fb923c',
-            '5y': '#4ade80',
-            'custom': '#f472b6',
-        };
+        // 1w and 5y coincide with theme.textMuted/theme.up by accident of today's shared
+        // hex values, not because they're genuine series colors — kept that way so dark
+        // mode's appearance doesn't change (S5b design.md D1).
+        function overlayColors(theme) {
+            return {
+                '1w': theme.textMuted,
+                '1m': theme.seriesColors[1],
+                '1y': theme.seriesColors[2],
+                '5y': theme.up,
+                'custom': theme.seriesColors[3],
+            };
+        }
 
         function renderYieldCurve() {
             if (!ycData) return;
+            const theme = getTheme();
+            const OVERLAY_COLORS = overlayColors(theme);
 
             const latestDate = ycDates[ycDates.length - 1];
             const traces = [];
 
             // Current curve — bold and bright
-            const current = buildCurveTrace(latestDate, formatDateLabel(latestDate), '#38bdf8', { width: 3, markerSize: 8 });
+            const current = buildCurveTrace(latestDate, formatDateLabel(latestDate), theme.seriesColors[0], { width: 3, markerSize: 8 });
             if (current) traces.push(current);
 
             // Overlay curves from active toggles
@@ -1322,27 +1427,27 @@
             const layout = {
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
-                font: { color: '#94a3b8', size: 12 },
+                font: { color: theme.textMuted, size: 12 },
                 margin: { t: 30, r: 20, b: 56, l: 50 },
-                annotations: [asOfAnnotation(ycData.meta, ycData.as_of)],
+                annotations: [asOfAnnotation(ycData.meta, ycData.as_of, theme)],
                 legend: {
-                    font: { color: '#94a3b8', size: 11 },
-                    bgcolor: 'rgba(30,41,59,0.8)',
-                    bordercolor: '#334155',
+                    font: { color: theme.textMuted, size: 11 },
+                    bgcolor: theme.legendBg,
+                    bordercolor: theme.axisLine,
                     borderwidth: 1,
                 },
                 xaxis: {
                     title: 'Maturity',
-                    gridcolor: '#1e293b',
-                    linecolor: '#334155',
+                    gridcolor: theme.gridline,
+                    linecolor: theme.axisLine,
                     type: 'category',
                     categoryorder: 'array',
                     categoryarray: ycData.tenors,
                 },
                 yaxis: {
                     title: 'Yield',
-                    gridcolor: '#1e293b',
-                    linecolor: '#334155',
+                    gridcolor: theme.gridline,
+                    linecolor: theme.axisLine,
                     ticksuffix: '%',
                 },
             };
@@ -1365,6 +1470,7 @@
 
         function renderYCTable() {
             if (!ycData) return;
+            const theme = getTheme();
             const tenors = ycData.tenors;
             const latestDate = ycDates[ycDates.length - 1];
             const latestObs = ycData.observations[latestDate];
@@ -1389,7 +1495,7 @@
                     if (prev === undefined) return '<td>—</td>';
                     const diff = val - prev;
                     const sign = diff >= 0 ? '+' : '';
-                    const color = diff >= 0 ? '#f87171' : '#4ade80';
+                    const color = diff >= 0 ? theme.down : theme.up;
                     return `<td style="color: ${color}">${sign}${diff.toFixed(2)}</td>`;
                 }
 
@@ -1409,7 +1515,7 @@
         // Reused by future recession-shaded charts (Fed Funds, real rate, ERP…).
         // An open-ended recession (no end date) shades through to today, matching
         // the chart's x-axis-to-today range.
-        function addRecessionBands(plotDiv, usrecData) {
+        function addRecessionBands(plotDiv, usrecData, theme) {
             if (!usrecData || !usrecData.recessions) return;
             const today = todayET();
             const shapes = usrecData.recessions.map(r => ({
@@ -1417,12 +1523,15 @@
                 xref: 'x', yref: 'paper',
                 x0: r.start, x1: r.end || today,
                 y0: 0, y1: 1,
-                fillcolor: 'rgba(148, 163, 184, 0.18)',
+                fillcolor: theme.recessionFill,
                 line: { width: 0 },
                 layer: 'below',
             }));
             Plotly.relayout(plotDiv, { shapes });
         }
+
+        let spreadsData = null;
+        let spreadsUsrec = null;
 
         async function loadSpreadsData() {
             try {
@@ -1430,6 +1539,8 @@
                     loadSeries('spreads'),
                     loadSeries('usrec').catch(() => null),  // bands optional
                 ]);
+                spreadsData = data;
+                spreadsUsrec = usrec;
                 renderWhenVisible('spreads', () => renderSpreadsChart(data, usrec));
                 renderSpreadsTable(data);
                 applyBadge('spreads', data.meta, data.as_of);
@@ -1464,6 +1575,7 @@
         }
 
         function renderSpreadsChart(data, usrec) {
+            const theme = getTheme();
             const s1 = data.series['10y2y'];
             const s2 = data.series['10y3m'];
 
@@ -1477,7 +1589,7 @@
                 hovertemplate: '%{x|%b %Y}<br>' + s.label + ': %{y:+.2f}%<extra></extra>',
             });
 
-            const traces = [mkTrace(s1, '#38bdf8'), mkTrace(s2, '#a78bfa')];
+            const traces = [mkTrace(s1, theme.seriesColors[0]), mkTrace(s2, theme.seriesColors[1])];
 
             const today = todayET();
             const start = [s1.observations[0].date, s2.observations[0].date].sort()[0];
@@ -1485,13 +1597,13 @@
             const layout = {
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
-                font: { color: '#94a3b8', size: 12 },
+                font: { color: theme.textMuted, size: 12 },
                 margin: { t: 10, r: 20, b: 56, l: 50 },  // b leaves room for the source line under the tick labels
-                legend: { font: { color: '#94a3b8' }, bgcolor: 'transparent' },
-                annotations: [asOfAnnotation(data.meta, data.as_of)],
+                legend: { font: { color: theme.textMuted }, bgcolor: 'transparent' },
+                annotations: [asOfAnnotation(data.meta, data.as_of, theme)],
                 xaxis: xaxisToToday({
-                    gridcolor: '#1e293b',
-                    linecolor: '#334155',
+                    gridcolor: theme.gridline,
+                    linecolor: theme.axisLine,
                     rangeselector: {
                         buttons: [
                             { count: 1,  label: '1Y',  step: 'year', stepmode: 'backward' },
@@ -1500,26 +1612,27 @@
                             { count: 25, label: '25Y', step: 'year', stepmode: 'backward' },
                             allButton(),
                         ],
-                        bgcolor: '#1e293b',
-                        activecolor: '#334155',
-                        font: { color: '#94a3b8' },
+                        bgcolor: theme.gridline,
+                        activecolor: theme.axisLine,
+                        font: { color: theme.textMuted },
                     },
                 }, start, today),
                 yaxis: {
-                    gridcolor: '#1e293b',
-                    linecolor: '#334155',
+                    gridcolor: theme.gridline,
+                    linecolor: theme.axisLine,
                     ticksuffix: '%',
                     zeroline: true,
-                    zerolinecolor: '#64748b',
+                    zerolinecolor: theme.zeroLine,
                     zerolinewidth: 1.5,
                 },
             };
 
             Plotly.newPlot('spreads-chart', traces, layout, plotConfig(`spreads_${data.as_of.last_observation}`))
-                .then(gd => addRecessionBands(gd, usrec));
+                .then(gd => addRecessionBands(gd, usrec, theme));
         }
 
         function renderSpreadsTable(data) {
+            const theme = getTheme();
             const tbody = document.getElementById('spreads-table-body');
 
             const rows = ['10y2y', '10y3m'].map(key => {
@@ -1534,7 +1647,7 @@
                     if (!prevObs) return '<td>—</td>';
                     const diff = latest.value - prevObs.value;
                     const sign = diff >= 0 ? '+' : '';
-                    const color = diff >= 0 ? '#f87171' : '#4ade80';
+                    const color = diff >= 0 ? theme.down : theme.up;
                     return `<td style="color: ${color}">${sign}${diff.toFixed(2)} <span class="stat-date">vs ${formatDateLong(prevObs.date)}</span></td>`;
                 };
 
@@ -1549,6 +1662,34 @@
 
             tbody.innerHTML = rows.join('');
         }
+
+        // ── Redraw everything on a theme change ──────────────────────────
+        //
+        // Routed through renderWhenVisible, not a direct Plotly.newPlot, so a chart
+        // hidden during the toggle doesn't reproduce the S4c 700px-fallback bug (it
+        // draws correctly next time its tab is shown instead). Stat/table functions are
+        // cheap DOM rebuilds with no zoom state, so they redraw unconditionally. A
+        // redraw drops the user's current zoom/pan/preset selection — accepted, same
+        // tradeoff s5-chart-components design.md takes for the future card.js.
+
+        document.addEventListener('themechange', () => {
+            if (dgs10Data) {
+                renderWhenVisible('treasury', () => renderChart(dgs10Data));
+                renderStats(dgs10Data);
+                renderTable(dgs10Data);
+            }
+            if (peData) {
+                renderWhenVisible('pe', () => renderPEChart(peData));
+            }
+            if (ycData) {
+                renderWhenVisible('yieldcurve', renderYieldCurve);
+                renderYCTable();
+            }
+            if (spreadsData) {
+                renderWhenVisible('spreads', () => renderSpreadsChart(spreadsData, spreadsUsrec));
+                renderSpreadsTable(spreadsData);
+            }
+        });
 
         // ─────────────────────────────────────────────────────────────
 
