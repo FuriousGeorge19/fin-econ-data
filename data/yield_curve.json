@@ -37,7 +37,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-13T17:25:41Z",
+    "fetched_at": "2026-09-13T19:04:31Z",
     "last_observation": "2026-09-10",
     "period_label": "10 Sep 2026",
     "first_observation": "2002-07-19",
@@ -123,7 +123,6 @@
       }
     }
   },
-  "last_updated": "2026-09-13 17:25 UTC",
   "tenors": [
     "1mo",
     "3mo",

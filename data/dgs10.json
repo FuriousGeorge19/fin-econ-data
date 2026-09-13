@@ -37,14 +37,13 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-13T17:25:34Z",
+    "fetched_at": "2026-09-13T19:04:24Z",
     "last_observation": "2026-09-10",
     "period_label": "10 Sep 2026",
     "first_observation": "2017-01-13",
     "observation_count": 2415,
     "due_by": "2026-09-14"
   },
-  "last_updated": "2026-09-13 17:25 UTC",
   "observations": [
     {
       "date": "2017-01-13",

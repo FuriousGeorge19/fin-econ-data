@@ -44,13 +44,12 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-13T17:14:55Z",
+    "fetched_at": "2026-09-13T19:04:32Z",
     "last_observation": "2026-08-01",
     "period_label": "Aug 2026",
     "latest_value": 0.0,
     "due_by": "2026-10-07"
   },
-  "last_updated": "2026-09-13 17:14 UTC",
   "recessions": [
     {
       "start": "1854-12-01",

@@ -91,6 +91,29 @@
             margin-bottom: 1rem;
         }
 
+        .card-headrow {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(251, 146, 60, 0.15);
+            color: #fb923c;
+            border: 1px solid rgba(251, 146, 60, 0.4);
+            padding: 0.3rem 0.65rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .badge[hidden] {
+            display: none;
+        }
+
         .stats {
             display: flex;
             gap: 2rem;
@@ -114,6 +137,12 @@
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--accent);
+        }
+
+        .stat .stat-date {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
         }
 
         #chart, #pe-chart, #yc-chart, #spreads-chart {
@@ -203,6 +232,105 @@
             background: rgba(56, 189, 248, 0.05);
         }
 
+        .subtabs-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .subtabs {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .subtab {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .subtab:hover {
+            color: var(--text);
+        }
+
+        .subtab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .export-row {
+            display: flex;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .export-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.3rem 0.7rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .export-btn:hover {
+            color: var(--text);
+            border-color: var(--text-muted);
+        }
+
+        .about-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .about-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .about-section h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .about-section p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        .about-section ul {
+            padding-left: 1.25rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .about-section a {
+            color: var(--accent);
+        }
+
+        .about-note {
+            font-size: 0.8rem;
+            color: #fb923c;
+            display: block;
+        }
+
+        .about-table th, .about-table td {
+            font-size: 0.8rem;
+        }
+
         footer {
             text-align: center;
             padding: 2rem;
@@ -242,12 +370,18 @@
     <main>
         <div id="treasury-tab" class="tab-content">
             <div class="card">
-                <h2>10-Year Treasury Constant Maturity Rate</h2>
-                <p class="subtitle">Daily series from FRED · <span id="last-updated"></span></p>
+                <div class="card-headrow">
+                    <div>
+                        <h2>10-Year Treasury Constant Maturity Rate</h2>
+                        <p class="subtitle">Daily series from FRED</p>
+                    </div>
+                    <span class="badge" id="dgs10-badge" hidden></span>
+                </div>
                 <div class="stats">
                     <div class="stat">
                         <span class="label">Latest</span>
                         <span class="value" id="stat-latest">—</span>
+                        <span class="stat-date" id="stat-latest-date"></span>
                     </div>
                     <div class="stat">
                         <span class="label">1-Year High</span>
@@ -260,69 +394,111 @@
                     <div class="stat">
                         <span class="label">1-Year Change</span>
                         <span class="value" id="stat-change">—</span>
+                        <span class="stat-date" id="stat-change-date"></span>
                     </div>
                 </div>
-                <div id="chart"><div class="loading">Loading chart...</div></div>
-            </div>
-            <div class="card">
-                <h2>Recent Observations</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Rate (%)</th>
-                            <th>Daily Change</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        <tr><td colspan="3" class="loading">Loading data...</td></tr>
-                    </tbody>
-                </table>
+                <div class="subtabs-row">
+                    <div class="subtabs" data-group="dgs10">
+                        <button class="subtab active" data-panel="chart">Chart</button>
+                        <button class="subtab" data-panel="table">Table</button>
+                        <button class="subtab" data-panel="about">About</button>
+                    </div>
+                    <div class="export-row" data-group="dgs10">
+                        <button class="export-btn" data-export="csv">Export CSV</button>
+                        <button class="export-btn" data-export="json">Export JSON</button>
+                    </div>
+                </div>
+                <div class="subtab-panel" data-group="dgs10" data-panel="chart">
+                    <div id="chart"><div class="loading">Loading chart...</div></div>
+                </div>
+                <div class="subtab-panel" data-group="dgs10" data-panel="table" hidden>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Rate (%)</th>
+                                <th>Daily Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr><td colspan="3" class="loading">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="subtab-panel" data-group="dgs10" data-panel="about" hidden>
+                    <div id="dgs10-about"></div>
+                </div>
             </div>
         </div>
 
         <div id="yieldcurve-tab" class="tab-content" style="display:none">
             <div class="card">
-                <h2>U.S. Treasury Yield Curve</h2>
-                <p class="subtitle">Daily rates across all tenors from FRED · <span id="yc-last-updated"></span></p>
-                <div class="yc-controls">
-                    <label>Compare:</label>
-                    <button class="yc-toggle active" data-period="1w">1 Week Ago</button>
-                    <button class="yc-toggle" data-period="1m">1 Month Ago</button>
-                    <button class="yc-toggle" data-period="1y">1 Year Ago</button>
-                    <button class="yc-toggle" data-period="5y">5 Years Ago</button>
-                    <label style="margin-left: 0.75rem;">Custom:</label>
-                    <input type="date" class="yc-date-input" id="yc-custom-date">
+                <div class="card-headrow">
+                    <div>
+                        <h2>U.S. Treasury Yield Curve</h2>
+                        <p class="subtitle">Daily rates across all tenors from FRED</p>
+                    </div>
+                    <span class="badge" id="yieldcurve-badge" hidden></span>
                 </div>
-                <div id="yc-chart"><div class="loading">Loading chart...</div></div>
-            </div>
-            <div class="card">
-                <h2>Current Yields</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tenor</th>
-                            <th>Yield (%)</th>
-                            <th>1-Week Change</th>
-                            <th>1-Month Change</th>
-                            <th>1-Year Change</th>
-                        </tr>
-                    </thead>
-                    <tbody id="yc-table-body">
-                        <tr><td colspan="5" class="loading">Loading data...</td></tr>
-                    </tbody>
-                </table>
+                <div class="subtabs-row">
+                    <div class="subtabs" data-group="yieldcurve">
+                        <button class="subtab active" data-panel="chart">Chart</button>
+                        <button class="subtab" data-panel="table">Table</button>
+                        <button class="subtab" data-panel="about">About</button>
+                    </div>
+                    <div class="export-row" data-group="yieldcurve">
+                        <button class="export-btn" data-export="csv">Export CSV</button>
+                        <button class="export-btn" data-export="json">Export JSON</button>
+                    </div>
+                </div>
+                <div class="subtab-panel" data-group="yieldcurve" data-panel="chart">
+                    <div class="yc-controls">
+                        <label>Compare:</label>
+                        <button class="yc-toggle active" data-period="1w">1 Week Ago</button>
+                        <button class="yc-toggle" data-period="1m">1 Month Ago</button>
+                        <button class="yc-toggle" data-period="1y">1 Year Ago</button>
+                        <button class="yc-toggle" data-period="5y">5 Years Ago</button>
+                        <label style="margin-left: 0.75rem;">Custom:</label>
+                        <input type="date" class="yc-date-input" id="yc-custom-date">
+                    </div>
+                    <div id="yc-chart"><div class="loading">Loading chart...</div></div>
+                </div>
+                <div class="subtab-panel" data-group="yieldcurve" data-panel="table" hidden>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tenor</th>
+                                <th>Yield (%)</th>
+                                <th id="yc-th-1w">1-Week Change</th>
+                                <th id="yc-th-1m">1-Month Change</th>
+                                <th id="yc-th-1y">1-Year Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="yc-table-body">
+                            <tr><td colspan="5" class="loading">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="subtab-panel" data-group="yieldcurve" data-panel="about" hidden>
+                    <div id="yieldcurve-about"></div>
+                </div>
             </div>
         </div>
 
         <div id="pe-tab" class="tab-content" style="display:none">
             <div class="card">
-                <h2>S&amp;P 500 P/E Ratio (Trailing Twelve Months)</h2>
-                <p class="subtitle">Monthly series · Shiller/Yale data back to 1871 · <span id="pe-last-updated"></span></p>
+                <div class="card-headrow">
+                    <div>
+                        <h2>S&amp;P 500 P/E Ratio (Trailing Twelve Months)</h2>
+                        <p class="subtitle">Monthly series · Shiller/Yale data back to 1871</p>
+                    </div>
+                    <span class="badge" id="sp500_pe-badge" hidden></span>
+                </div>
                 <div class="stats">
                     <div class="stat">
                         <span class="label">Latest P/E</span>
                         <span class="value" id="pe-stat-latest">—</span>
+                        <span class="stat-date" id="pe-stat-latest-date"></span>
                     </div>
                     <div class="stat">
                         <span class="label">Long-term Avg</span>
@@ -337,50 +513,85 @@
                         <span class="value" id="pe-stat-10y-low">—</span>
                     </div>
                 </div>
-                <div id="pe-chart"><div class="loading">Loading chart...</div></div>
-            </div>
-            <div class="card">
-                <h2>Recent Observations</h2>
-                <p class="subtitle">
-                    <span class="est-badge">†</span> Estimated — latest TTM earnings not yet reported by S&amp;P Global
-                </p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>P/E Ratio</th>
-                            <th>S&amp;P 500 Price</th>
-                            <th>TTM Earnings</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pe-table-body">
-                        <tr><td colspan="4" class="loading">Loading data...</td></tr>
-                    </tbody>
-                </table>
+                <div class="subtabs-row">
+                    <div class="subtabs" data-group="sp500_pe">
+                        <button class="subtab active" data-panel="chart">Chart</button>
+                        <button class="subtab" data-panel="table">Table</button>
+                        <button class="subtab" data-panel="about">About</button>
+                    </div>
+                    <div class="export-row" data-group="sp500_pe">
+                        <button class="export-btn" data-export="csv">Export CSV</button>
+                        <button class="export-btn" data-export="json">Export JSON</button>
+                    </div>
+                </div>
+                <div class="subtab-panel" data-group="sp500_pe" data-panel="chart">
+                    <div id="pe-chart"><div class="loading">Loading chart...</div></div>
+                </div>
+                <div class="subtab-panel" data-group="sp500_pe" data-panel="table" hidden>
+                    <p class="subtitle">
+                        <span class="est-badge">†</span> Estimated — earnings forward-filled from the last confirmed quarter
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>P/E Ratio</th>
+                                <th>S&amp;P 500 Price</th>
+                                <th>TTM Earnings</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pe-table-body">
+                            <tr><td colspan="4" class="loading">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="subtab-panel" data-group="sp500_pe" data-panel="about" hidden>
+                    <div id="sp500_pe-about"></div>
+                </div>
             </div>
         </div>
 
         <div id="spreads-tab" class="tab-content" style="display:none">
             <div class="card">
-                <h2>Treasury Yield Spreads</h2>
-                <p class="subtitle">10Y−2Y and 10Y−3M, daily from FRED · NBER recessions shaded · <span id="spreads-last-updated"></span></p>
-                <div id="spreads-chart"><div class="loading">Loading chart...</div></div>
-            </div>
-            <div class="card">
-                <h2>Current Spreads</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Spread</th>
-                            <th>Latest</th>
-                            <th>1-Month Change</th>
-                            <th>1-Year Change</th>
-                        </tr>
-                    </thead>
-                    <tbody id="spreads-table-body">
-                        <tr><td colspan="4" class="loading">Loading data...</td></tr>
-                    </tbody>
-                </table>
+                <div class="card-headrow">
+                    <div>
+                        <h2>Treasury Yield Spreads</h2>
+                        <p class="subtitle">10Y−2Y and 10Y−3M, daily from FRED · NBER recessions shaded</p>
+                    </div>
+                    <span class="badge" id="spreads-badge" hidden></span>
+                </div>
+                <div class="subtabs-row">
+                    <div class="subtabs" data-group="spreads">
+                        <button class="subtab active" data-panel="chart">Chart</button>
+                        <button class="subtab" data-panel="table">Table</button>
+                        <button class="subtab" data-panel="about">About</button>
+                    </div>
+                    <div class="export-row" data-group="spreads">
+                        <button class="export-btn" data-export="csv">Export CSV</button>
+                        <button class="export-btn" data-export="json">Export JSON</button>
+                    </div>
+                </div>
+                <div class="subtab-panel" data-group="spreads" data-panel="chart">
+                    <div id="spreads-chart"><div class="loading">Loading chart...</div></div>
+                </div>
+                <div class="subtab-panel" data-group="spreads" data-panel="table" hidden>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Spread</th>
+                                <th>Latest</th>
+                                <th>1-Month Change</th>
+                                <th>1-Year Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spreads-table-body">
+                            <tr><td colspan="4" class="loading">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="subtab-panel" data-group="spreads" data-panel="about" hidden>
+                    <div id="spreads-about"></div>
+                </div>
             </div>
         </div>
     </main>
@@ -391,7 +602,8 @@
     </footer>
 
     <script>
-        // Tab switching
+        // ── Tab switching (primary nav) ─────────────────────────────────
+
         document.querySelectorAll('nav button').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -402,15 +614,306 @@
             });
         });
 
+        // ── Sub-tab strip (Chart | Table | About), shared by every card ──
+
+        function wireSubtabs() {
+            document.querySelectorAll('.subtabs').forEach(strip => {
+                const group = strip.dataset.group;
+                strip.querySelectorAll('.subtab').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        strip.querySelectorAll('.subtab').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        const panel = btn.dataset.panel;
+                        document.querySelectorAll(`.subtab-panel[data-group="${group}"]`).forEach(p => {
+                            p.hidden = (p.dataset.panel !== panel);
+                        });
+                    });
+                });
+            });
+        }
+
+        // ── Shared date/time helpers (UTC-only arithmetic; see chart-chrome
+        //    and data-freshness specs — the browser compares dates, it never
+        //    does business-day arithmetic, which stays in scripts/staleness.py) ──
+
+        const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        function todayET() {
+            return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+        }
+
+        function toISO(utcMs) {
+            return new Date(utcMs).toISOString().slice(0, 10);
+        }
+
+        function addDaysUTC(dateStr, days) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            return toISO(Date.UTC(y, m - 1, d + days));
+        }
+
+        function addMonthsUTC(dateStr, months) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            return toISO(Date.UTC(y, m - 1 + months, d));
+        }
+
+        function addYearsUTC(dateStr, years) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            return toISO(Date.UTC(y + years, m - 1, d));
+        }
+
+        function formatDateLong(iso) {
+            const [y, m, d] = iso.split('-').map(Number);
+            return `${d} ${MONTH_ABBR[m - 1]} ${y}`;
+        }
+
+        function formatFetchedAt(iso) {
+            const dt = new Date(iso);
+            const d = dt.getUTCDate();
+            const mon = MONTH_ABBR[dt.getUTCMonth()];
+            const y = dt.getUTCFullYear();
+            const hh = String(dt.getUTCHours()).padStart(2, '0');
+            const mm = String(dt.getUTCMinutes()).padStart(2, '0');
+            return `${d} ${mon} ${y}, ${hh}:${mm} UTC`;
+        }
+
+        function daysBetweenUTC(fromIso, toIso) {
+            const [fy, fm, fd] = fromIso.split('-').map(Number);
+            const [ty, tm, td] = toIso.split('-').map(Number);
+            return Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86400000);
+        }
+
+        // Single shared "nearest on or before" primitive — every comparison
+        // (yield-curve overlays/table, spreads table, stat-tile windows) is
+        // built on this one function, per the chart-chrome spec.
+        function nearestOnOrBefore(sortedDates, targetISO) {
+            for (let i = sortedDates.length - 1; i >= 0; i--) {
+                if (sortedDates[i] <= targetISO) return sortedDates[i];
+            }
+            return null;
+        }
+
+        function valueOnOrBefore(observations, targetISO) {
+            const dates = observations.map(o => o.date);
+            const found = nearestOnOrBefore(dates, targetISO);
+            return found === null ? null : observations.find(o => o.date === found);
+        }
+
+        // ── Shared data loading ──────────────────────────────────────────
+
+        async function loadSeries(id) {
+            const resp = await fetch(`data/${id}.json`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return resp.json();
+        }
+
+        // ── as_of chrome: in-chart source line, badge, About tab ─────────
+
+        function inputPhrase(inputDesc, asOfInput) {
+            const label = inputDesc.id;
+            if (inputDesc.status === 'discontinued') {
+                const since = formatDateLong(addMonthsUTC(asOfInput.confirmed_through, 1)).replace(/^\d+ /, '');
+                return `${label} confirmed through ${asOfInput.period_label}, estimated since ${since} (source discontinued)`;
+            }
+            return `${label} through ${asOfInput.period_label}`;
+        }
+
+        function asOfSourceLine(meta, as_of) {
+            if (as_of.inputs) {
+                const parts = meta.inputs.map(inp => inputPhrase(inp, as_of.inputs[inp.id]));
+                return `${meta.source_line} · ${parts.join(' · ')}`;
+            }
+            return `${meta.source_line} · data through ${as_of.period_label}`;
+        }
+
+        function asOfAnnotation(meta, as_of) {
+            return {
+                xref: 'paper', yref: 'paper',
+                x: 0, y: 0,
+                xanchor: 'left', yanchor: 'top',
+                yshift: -30,
+                text: asOfSourceLine(meta, as_of),
+                showarrow: false,
+                align: 'left',
+                font: { color: '#64748b', size: 10 },
+            };
+        }
+
+        function overdueInputEntry(meta, as_of) {
+            if (!as_of.inputs) return null;
+            return Object.entries(as_of.inputs).find(([id, entry]) => {
+                const inputDesc = meta.inputs.find(i => i.id === id);
+                const required = inputDesc.required !== false;
+                const active = (inputDesc.status || 'active') === 'active';
+                return required && active && entry.due_by === as_of.due_by;
+            });
+        }
+
+        function freshnessBadgeText(meta, as_of, today) {
+            if (today <= as_of.due_by) return null;
+            const daysLate = daysBetweenUTC(as_of.due_by, today);
+            const dueByLabel = formatDateLong(as_of.due_by);
+            const overdue = overdueInputEntry(meta, as_of);
+            if (overdue) {
+                const [id, entry] = overdue;
+                const label = id.charAt(0).toUpperCase() + id.slice(1);
+                return `${label} overdue · ${entry.period_label} expected by ${dueByLabel} · ${daysLate} days late`;
+            }
+            return `Overdue · expected by ${dueByLabel} · ${daysLate} days late`;
+        }
+
+        function applyBadge(id, meta, as_of) {
+            const el = document.getElementById(`${id}-badge`);
+            if (!el) return;
+            const text = freshnessBadgeText(meta, as_of, todayET());
+            if (text) {
+                el.textContent = text;
+                el.hidden = false;
+            } else {
+                el.hidden = true;
+            }
+        }
+
+        function renderAboutHTML(meta, as_of) {
+            const sourcesHTML = meta.sources.map(s => {
+                const licence = s.licence ? ` — ${s.licence}` : '';
+                return `<li><a href="${s.url}" target="_blank" rel="noopener">${s.name}</a>${licence}</li>`;
+            }).join('');
+
+            const inputsHTML = meta.inputs.map(inp => {
+                const entry = (as_of.inputs && as_of.inputs[inp.id]) || as_of;
+                const status = inp.status || 'active';
+                const statusCell = status === 'discontinued'
+                    ? `discontinued<span class="about-note">${inp.status_note || ''}</span>`
+                    : status;
+                return `<tr>
+                    <td>${inp.label}</td>
+                    <td>${inp.series_id || '—'}</td>
+                    <td>${inp.cadence}</td>
+                    <td>${inp.publication_lag_business_days} business days</td>
+                    <td>${entry.period_label || '—'}</td>
+                    <td>${statusCell}</td>
+                </tr>`;
+            }).join('');
+
+            const coverageHTML = (as_of.first_observation && as_of.observation_count)
+                ? `<p>Coverage: ${formatDateLong(as_of.first_observation)} – ${formatDateLong(as_of.last_observation)} (${as_of.observation_count.toLocaleString()} observations).</p>`
+                : `<p>Latest observation: ${as_of.period_label}.</p>`;
+
+            const methodologyHTML = (meta.methodology || []).map(p => `<p>${p}</p>`).join('');
+            const notesHTML = (meta.notes || []).map(p => `<p>${p}</p>`).join('');
+
+            return `
+                <div class="about-section">
+                    <h3>Sources</h3>
+                    <ul>${sourcesHTML}</ul>
+                </div>
+                <div class="about-section">
+                    <h3>Inputs</h3>
+                    <table class="about-table">
+                        <thead>
+                            <tr>
+                                <th>Input</th><th>Series ID</th><th>Cadence</th>
+                                <th>Publication lag</th><th>Last observation</th><th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>${inputsHTML}</tbody>
+                    </table>
+                </div>
+                <div class="about-section">
+                    <h3>Freshness</h3>
+                    <p>Next update expected by ${formatDateLong(as_of.due_by)} (judged on the US Eastern date).</p>
+                    <p>Last fetched: ${formatFetchedAt(as_of.fetched_at)}.</p>
+                    ${coverageHTML}
+                </div>
+                <div class="about-section">
+                    <h3>Revisions</h3>
+                    <p>${meta.revision_note}</p>
+                </div>
+                <div class="about-section">
+                    <h3>Methodology</h3>
+                    ${methodologyHTML}
+                </div>
+                ${notesHTML ? `<div class="about-section"><h3>Notes</h3>${notesHTML}</div>` : ''}
+            `;
+        }
+
+        function renderAbout(id, meta, as_of) {
+            const el = document.getElementById(`${id}-about`);
+            if (el) el.innerHTML = renderAboutHTML(meta, as_of);
+        }
+
+        // ── Time-series x-axis-to-today (kind: timeseries only) ──────────
+
+        function xaxisToToday(xaxis, startISO, todayISO) {
+            xaxis.range = [startISO, todayISO];
+            xaxis.autorange = false;
+            return xaxis;
+        }
+
+        function allButton(startISO, todayISO) {
+            return { label: 'All', method: 'relayout', args: ['xaxis.range', [startISO, todayISO]] };
+        }
+
+        // ── Export: CSV / JSON download, PNG via Plotly's own button ─────
+
+        function downloadBlob(filename, content, mime) {
+            const blob = new Blob([content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function wireExport(group, filenameBase, { csv, raw }) {
+            const row = document.querySelector(`.export-row[data-group="${group}"]`);
+            if (!row) return;
+            row.querySelector('[data-export="csv"]').onclick = () => {
+                downloadBlob(`${filenameBase}.csv`, csv(), 'text/csv');
+            };
+            row.querySelector('[data-export="json"]').onclick = () => {
+                downloadBlob(`${filenameBase}.json`, JSON.stringify(raw, null, 2), 'application/json');
+            };
+        }
+
+        const PLOT_CONFIG_BASE = {
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false,
+            modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+        };
+
+        function plotConfig(filenameBase) {
+            return {
+                ...PLOT_CONFIG_BASE,
+                toImageButtonOptions: { format: 'png', filename: filenameBase },
+            };
+        }
+
+        function csvFromObservations(observations, fields) {
+            const header = fields.join(',');
+            const rows = observations.map(o => fields.map(f => o[f]).join(','));
+            return [header, ...rows].join('\n');
+        }
+
+        // ── 10-Year Treasury ─────────────────────────────────────────────
+
         async function loadData() {
             try {
-                const resp = await fetch('data/dgs10.json');
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const data = await resp.json();
+                const data = await loadSeries('dgs10');
                 renderChart(data);
                 renderStats(data);
                 renderTable(data);
-                document.getElementById('last-updated').textContent = `Last updated: ${data.last_updated}`;
+                applyBadge('dgs10', data.meta, data.as_of);
+                renderAbout('dgs10', data.meta, data.as_of);
+                wireExport('dgs10', `dgs10_${data.as_of.last_observation}`, {
+                    csv: () => csvFromObservations(data.observations, ['date', 'value']),
+                    raw: data,
+                });
             } catch (err) {
                 document.getElementById('chart').innerHTML =
                     `<div class="loading">Failed to load data. ${err.message}</div>`;
@@ -428,12 +931,16 @@
                 hovertemplate: '%{x}<br>%{y:.2f}%<extra></extra>',
             };
 
+            const today = todayET();
+            const start = data.as_of.first_observation;
+
             const layout = {
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
                 font: { color: '#94a3b8', size: 12 },
-                margin: { t: 10, r: 20, b: 40, l: 50 },
-                xaxis: {
+                margin: { t: 10, r: 20, b: 46, l: 50 },
+                annotations: [asOfAnnotation(data.meta, data.as_of)],
+                xaxis: xaxisToToday({
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
                     rangeslider: { visible: true, bgcolor: '#1e293b', thickness: 0.08 },
@@ -443,13 +950,13 @@
                             { count: 6, label: '6M', step: 'month', stepmode: 'backward' },
                             { count: 1, label: '1Y', step: 'year', stepmode: 'backward' },
                             { count: 5, label: '5Y', step: 'year', stepmode: 'backward' },
-                            { step: 'all', label: 'All' },
+                            allButton(start, today),
                         ],
                         bgcolor: '#1e293b',
                         activecolor: '#334155',
                         font: { color: '#94a3b8' },
                     },
-                },
+                }, start, today),
                 yaxis: {
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
@@ -457,32 +964,36 @@
                 },
             };
 
-            Plotly.newPlot('chart', [trace], layout, {
-                responsive: true,
-                displayModeBar: true,
-                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
-            });
+            Plotly.newPlot('chart', [trace], layout, plotConfig(`dgs10_${data.as_of.last_observation}`));
         }
 
         function renderStats(data) {
             const obs = data.observations;
             const latest = obs[obs.length - 1];
 
-            // Last ~252 trading days
-            const oneYearAgo = obs.slice(-252);
-            const high = Math.max(...oneYearAgo.map(o => o.value));
-            const low = Math.min(...oneYearAgo.map(o => o.value));
-            const yearAgoVal = oneYearAgo[0].value;
-            const change = latest.value - yearAgoVal;
+            const yearAgoTarget = addYearsUTC(latest.date, -1);
+            const yearAgoObs = valueOnOrBefore(obs, yearAgoTarget);
+            const windowObs = obs.filter(o => o.date >= yearAgoTarget);
+            const high = Math.max(...windowObs.map(o => o.value));
+            const low = Math.min(...windowObs.map(o => o.value));
 
             document.getElementById('stat-latest').textContent = `${latest.value.toFixed(2)}%`;
+            document.getElementById('stat-latest-date').textContent = `as of ${formatDateLong(latest.date)}`;
             document.getElementById('stat-high').textContent = `${high.toFixed(2)}%`;
             document.getElementById('stat-low').textContent = `${low.toFixed(2)}%`;
 
             const changeEl = document.getElementById('stat-change');
-            const sign = change >= 0 ? '+' : '';
-            changeEl.textContent = `${sign}${change.toFixed(2)}%`;
-            changeEl.style.color = change >= 0 ? '#f87171' : '#4ade80';
+            const changeDateEl = document.getElementById('stat-change-date');
+            if (yearAgoObs) {
+                const change = latest.value - yearAgoObs.value;
+                const sign = change >= 0 ? '+' : '';
+                changeEl.textContent = `${sign}${change.toFixed(2)}%`;
+                changeEl.style.color = change >= 0 ? '#f87171' : '#4ade80';
+                changeDateEl.textContent = `vs ${formatDateLong(yearAgoObs.date)}`;
+            } else {
+                changeEl.textContent = '—';
+                changeDateEl.textContent = '';
+            }
         }
 
         function renderTable(data) {
@@ -512,13 +1023,16 @@
 
         async function loadPEData() {
             try {
-                const resp = await fetch('data/sp500_pe.json');
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const data = await resp.json();
+                const data = await loadSeries('sp500_pe');
                 renderPEChart(data);
                 renderPEStats(data);
                 renderPETable(data);
-                document.getElementById('pe-last-updated').textContent = `Last updated: ${data.last_updated}`;
+                applyBadge('sp500_pe', data.meta, data.as_of);
+                renderAbout('sp500_pe', data.meta, data.as_of);
+                wireExport('sp500_pe', `sp500_pe_${data.as_of.last_observation}`, {
+                    csv: () => csvFromObservations(data.observations, ['date', 'pe', 'price', 'earnings', 'estimated']),
+                    raw: data,
+                });
             } catch (err) {
                 document.getElementById('pe-chart').innerHTML =
                     `<div class="loading">Failed to load data. ${err.message}</div>`;
@@ -559,13 +1073,17 @@
                 });
             }
 
+            const today = todayET();
+            const start = data.as_of.first_observation;
+
             const layout = {
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
                 font: { color: '#94a3b8', size: 12 },
-                margin: { t: 10, r: 20, b: 40, l: 50 },
+                margin: { t: 10, r: 20, b: 46, l: 50 },
                 legend: { font: { color: '#94a3b8' }, bgcolor: 'transparent' },
-                xaxis: {
+                annotations: [asOfAnnotation(data.meta, data.as_of)],
+                xaxis: xaxisToToday({
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
                     rangeslider: { visible: true, bgcolor: '#1e293b', thickness: 0.08 },
@@ -575,13 +1093,13 @@
                             { count: 10, label: '10Y', step: 'year', stepmode: 'backward' },
                             { count: 25, label: '25Y', step: 'year', stepmode: 'backward' },
                             { count: 50, label: '50Y', step: 'year', stepmode: 'backward' },
-                            { step: 'all', label: 'All' },
+                            allButton(start, today),
                         ],
                         bgcolor: '#1e293b',
                         activecolor: '#334155',
                         font: { color: '#94a3b8' },
                     },
-                },
+                }, start, today),
                 yaxis: {
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
@@ -589,11 +1107,7 @@
                 },
             };
 
-            Plotly.newPlot('pe-chart', traces, layout, {
-                responsive: true,
-                displayModeBar: true,
-                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
-            });
+            Plotly.newPlot('pe-chart', traces, layout, plotConfig(`sp500_pe_${data.as_of.last_observation}`));
         }
 
         function renderPEStats(data) {
@@ -604,12 +1118,14 @@
             const confirmed = obs.filter(o => !o.estimated);
             const avgPE = confirmed.reduce((s, o) => s + o.pe, 0) / confirmed.length;
 
-            // 10-year range (~120 monthly observations)
-            const tenYear = obs.slice(-120);
-            const high10 = Math.max(...tenYear.map(o => o.pe));
-            const low10  = Math.min(...tenYear.map(o => o.pe));
+            // 10-year window anchored on the last observation (calendar-date based)
+            const tenYearsAgoTarget = addYearsUTC(latest.date, -10);
+            const windowObs = obs.filter(o => o.date >= tenYearsAgoTarget);
+            const high10 = Math.max(...windowObs.map(o => o.pe));
+            const low10  = Math.min(...windowObs.map(o => o.pe));
 
             document.getElementById('pe-stat-latest').textContent   = `${latest.pe.toFixed(1)}x`;
+            document.getElementById('pe-stat-latest-date').textContent = `as of ${data.as_of.period_label}`;
             document.getElementById('pe-stat-avg').textContent       = `${avgPE.toFixed(1)}x`;
             document.getElementById('pe-stat-10y-high').textContent  = `${high10.toFixed(1)}x`;
             document.getElementById('pe-stat-10y-low').textContent   = `${low10.toFixed(1)}x`;
@@ -624,7 +1140,7 @@
                 const d = new Date(o.date);
                 const dateStr = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', timeZone: 'UTC' });
                 const estMark = o.estimated
-                    ? '<span class="est-badge" title="Estimated — TTM earnings not yet reported">† </span>'
+                    ? '<span class="est-badge" title="Estimated — TTM earnings forward-filled">† </span>'
                     : '';
                 return `<tr>
                     <td>${estMark}${dateStr}</td>
@@ -642,11 +1158,8 @@
 
         async function loadYCData() {
             try {
-                const resp = await fetch('data/yield_curve.json');
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                ycData = await resp.json();
+                ycData = await loadSeries('yield_curve');
                 ycDates = Object.keys(ycData.observations).sort();
-                document.getElementById('yc-last-updated').textContent = `Last updated: ${ycData.last_updated}`;
 
                 // Set date input bounds
                 const dateInput = document.getElementById('yc-custom-date');
@@ -655,29 +1168,44 @@
 
                 renderYieldCurve();
                 renderYCTable();
+                applyBadge('yieldcurve', ycData.meta, ycData.as_of);
+                renderAbout('yieldcurve', ycData.meta, ycData.as_of);
+                wireExport('yieldcurve', `yield_curve_${ycData.as_of.last_observation}`, {
+                    csv: () => csvFromYieldCurve(ycData),
+                    raw: ycData,
+                });
             } catch (err) {
                 document.getElementById('yc-chart').innerHTML =
                     `<div class="loading">Failed to load data. ${err.message}</div>`;
             }
         }
 
+        function csvFromYieldCurve(data) {
+            const tenors = data.tenors;
+            const dates = Object.keys(data.observations).sort();
+            const header = ['date', ...tenors].join(',');
+            const rows = dates.map(d => {
+                const obs = data.observations[d];
+                return [d, ...tenors.map(t => (obs[t] !== undefined ? obs[t] : ''))].join(',');
+            });
+            return [header, ...rows].join('\n');
+        }
+
         function findNearestDate(targetDate) {
-            // Find the nearest trading day on or before the target date
-            for (let i = ycDates.length - 1; i >= 0; i--) {
-                if (ycDates[i] <= targetDate) return ycDates[i];
-            }
-            return ycDates[0];
+            return nearestOnOrBefore(ycDates, targetDate) || ycDates[0];
+        }
+
+        function targetDateFor(period, latestDate) {
+            if (period === '1w') return addDaysUTC(latestDate, -7);
+            if (period === '1m') return addMonthsUTC(latestDate, -1);
+            if (period === '1y') return addYearsUTC(latestDate, -1);
+            if (period === '5y') return addYearsUTC(latestDate, -5);
+            throw new Error(`unknown period: ${period}`);
         }
 
         function getComparisonDate(period) {
             const latest = ycDates[ycDates.length - 1];
-            const d = new Date(latest + 'T00:00:00');
-            if (period === '1w') d.setDate(d.getDate() - 7);
-            else if (period === '1m') d.setMonth(d.getMonth() - 1);
-            else if (period === '1y') d.setFullYear(d.getFullYear() - 1);
-            else if (period === '5y') d.setFullYear(d.getFullYear() - 5);
-            const iso = d.toISOString().slice(0, 10);
-            return findNearestDate(iso);
+            return findNearestDate(targetDateFor(period, latest));
         }
 
         function buildCurveTrace(date, name, color, opts = {}) {
@@ -745,7 +1273,8 @@
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
                 font: { color: '#94a3b8', size: 12 },
-                margin: { t: 30, r: 20, b: 50, l: 50 },
+                margin: { t: 30, r: 20, b: 56, l: 50 },
+                annotations: [asOfAnnotation(ycData.meta, ycData.as_of)],
                 legend: {
                     font: { color: '#94a3b8', size: 11 },
                     bgcolor: 'rgba(30,41,59,0.8)',
@@ -768,11 +1297,7 @@
                 },
             };
 
-            Plotly.newPlot('yc-chart', traces, layout, {
-                responsive: true,
-                displayModeBar: true,
-                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
-            });
+            Plotly.newPlot('yc-chart', traces, layout, plotConfig(`yield_curve_${ycData.as_of.last_observation}`));
         }
 
         // Toggle overlay buttons
@@ -801,6 +1326,10 @@
             const monthObs = ycData.observations[monthDate] || {};
             const yearObs = ycData.observations[yearDate] || {};
 
+            document.getElementById('yc-th-1w').textContent = `1-Week Change (vs ${formatDateLong(weekDate)})`;
+            document.getElementById('yc-th-1m').textContent = `1-Month Change (vs ${formatDateLong(monthDate)})`;
+            document.getElementById('yc-th-1y').textContent = `1-Year Change (vs ${formatDateLong(yearDate)})`;
+
             const tbody = document.getElementById('yc-table-body');
             tbody.innerHTML = tenors.map(t => {
                 const val = latestObs[t];
@@ -828,44 +1357,60 @@
 
         // Shared helper: overlay NBER recession bands on any Plotly chart.
         // Reused by future recession-shaded charts (Fed Funds, real rate, ERP…).
+        // An open-ended recession (no end date) shades through to today, matching
+        // the chart's x-axis-to-today range.
         function addRecessionBands(plotDiv, usrecData) {
             if (!usrecData || !usrecData.recessions) return;
-            // Latest plotted date, used to shade an ongoing (open-ended) recession.
-            let maxDate = null;
-            (plotDiv.data || []).forEach(tr => {
-                if (tr.x && tr.x.length) {
-                    const last = tr.x[tr.x.length - 1];
-                    if (!maxDate || last > maxDate) maxDate = last;
-                }
-            });
+            const today = todayET();
             const shapes = usrecData.recessions.map(r => ({
                 type: 'rect',
                 xref: 'x', yref: 'paper',
-                x0: r.start, x1: r.end || maxDate,
+                x0: r.start, x1: r.end || today,
                 y0: 0, y1: 1,
                 fillcolor: 'rgba(148, 163, 184, 0.18)',
                 line: { width: 0 },
                 layer: 'below',
-            })).filter(s => s.x1);  // skip open-ended band if no plotted dates
+            }));
             Plotly.relayout(plotDiv, { shapes });
         }
 
         async function loadSpreadsData() {
             try {
-                const [sResp, uResp] = await Promise.all([
-                    fetch('data/spreads.json'),
-                    fetch('data/usrec.json'),
+                const [data, usrec] = await Promise.all([
+                    loadSeries('spreads'),
+                    loadSeries('usrec').catch(() => null),  // bands optional
                 ]);
-                if (!sResp.ok) throw new Error(`HTTP ${sResp.status}`);
-                const data = await sResp.json();
-                const usrec = uResp.ok ? await uResp.json() : null;  // bands optional
                 renderSpreadsChart(data, usrec);
                 renderSpreadsTable(data);
-                document.getElementById('spreads-last-updated').textContent = `Last updated: ${data.last_updated}`;
+                applyBadge('spreads', data.meta, data.as_of);
+                renderAbout('spreads', data.meta, data.as_of);
+                wireExport('spreads', `spreads_${data.as_of.last_observation}`, {
+                    csv: () => csvFromSpreads(data),
+                    raw: data,
+                });
             } catch (err) {
                 document.getElementById('spreads-chart').innerHTML =
                     `<div class="loading">Failed to load data. ${err.message}</div>`;
             }
+        }
+
+        function csvFromSpreads(data) {
+            const s1 = data.series['10y2y'].observations;
+            const s2 = data.series['10y3m'].observations;
+            const byDate = new Map();
+            s1.forEach(o => byDate.set(o.date, { a: o.value, b: '' }));
+            s2.forEach(o => {
+                const entry = byDate.get(o.date) || { a: '', b: '' };
+                entry.b = o.value;
+                byDate.set(o.date, entry);
+            });
+            const dates = Array.from(byDate.keys()).sort();
+            const header = 'date,10y2y,10y3m';
+            const rows = dates.map(d => {
+                const e = byDate.get(d);
+                return `${d},${e.a},${e.b}`;
+            });
+            return [header, ...rows].join('\n');
         }
 
         function renderSpreadsChart(data, usrec) {
@@ -884,13 +1429,17 @@
 
             const traces = [mkTrace(s1, '#38bdf8'), mkTrace(s2, '#a78bfa')];
 
+            const today = todayET();
+            const start = [s1.observations[0].date, s2.observations[0].date].sort()[0];
+
             const layout = {
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
                 font: { color: '#94a3b8', size: 12 },
-                margin: { t: 10, r: 20, b: 40, l: 50 },
+                margin: { t: 10, r: 20, b: 46, l: 50 },
                 legend: { font: { color: '#94a3b8' }, bgcolor: 'transparent' },
-                xaxis: {
+                annotations: [asOfAnnotation(data.meta, data.as_of)],
+                xaxis: xaxisToToday({
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
                     rangeslider: { visible: true, bgcolor: '#1e293b', thickness: 0.08 },
@@ -900,13 +1449,13 @@
                             { count: 5,  label: '5Y',  step: 'year', stepmode: 'backward' },
                             { count: 10, label: '10Y', step: 'year', stepmode: 'backward' },
                             { count: 25, label: '25Y', step: 'year', stepmode: 'backward' },
-                            { step: 'all', label: 'All' },
+                            allButton(start, today),
                         ],
                         bgcolor: '#1e293b',
                         activecolor: '#334155',
                         font: { color: '#94a3b8' },
                     },
-                },
+                }, start, today),
                 yaxis: {
                     gridcolor: '#1e293b',
                     linecolor: '#334155',
@@ -917,11 +1466,8 @@
                 },
             };
 
-            Plotly.newPlot('spreads-chart', traces, layout, {
-                responsive: true,
-                displayModeBar: true,
-                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
-            }).then(gd => addRecessionBands(gd, usrec));
+            Plotly.newPlot('spreads-chart', traces, layout, plotConfig(`spreads_${data.as_of.last_observation}`))
+                .then(gd => addRecessionBands(gd, usrec));
         }
 
         function renderSpreadsTable(data) {
@@ -932,31 +1478,23 @@
                 const obs = s.observations;
                 const latest = obs[obs.length - 1];
 
-                const valOnOrBefore = (target) => {
-                    for (let i = obs.length - 1; i >= 0; i--) {
-                        if (obs[i].date <= target) return obs[i].value;
-                    }
-                    return null;
-                };
-                const d = new Date(latest.date + 'T00:00:00');
-                const moAgo = new Date(d); moAgo.setMonth(moAgo.getMonth() - 1);
-                const yrAgo = new Date(d); yrAgo.setFullYear(yrAgo.getFullYear() - 1);
-                const iso = x => x.toISOString().slice(0, 10);
+                const moAgo = valueOnOrBefore(obs, addMonthsUTC(latest.date, -1));
+                const yrAgo = valueOnOrBefore(obs, addYearsUTC(latest.date, -1));
 
-                const fmtChange = (prev) => {
-                    if (prev === null) return '<td>—</td>';
-                    const diff = latest.value - prev;
+                const fmtChange = (prevObs) => {
+                    if (!prevObs) return '<td>—</td>';
+                    const diff = latest.value - prevObs.value;
                     const sign = diff >= 0 ? '+' : '';
                     const color = diff >= 0 ? '#f87171' : '#4ade80';
-                    return `<td style="color: ${color}">${sign}${diff.toFixed(2)}</td>`;
+                    return `<td style="color: ${color}">${sign}${diff.toFixed(2)} <span class="stat-date">vs ${formatDateLong(prevObs.date)}</span></td>`;
                 };
 
                 const sign = latest.value >= 0 ? '+' : '';
                 return `<tr>
                     <td><strong>${s.label}</strong></td>
                     <td>${sign}${latest.value.toFixed(2)}%</td>
-                    ${fmtChange(valOnOrBefore(iso(moAgo)))}
-                    ${fmtChange(valOnOrBefore(iso(yrAgo)))}
+                    ${fmtChange(moAgo)}
+                    ${fmtChange(yrAgo)}
                 </tr>`;
             });
 
@@ -965,6 +1503,7 @@
 
         // ─────────────────────────────────────────────────────────────
 
+        wireSubtabs();
         loadData();
         loadPEData();
         loadYCData();
