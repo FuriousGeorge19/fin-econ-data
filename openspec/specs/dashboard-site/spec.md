@@ -45,17 +45,6 @@ chart was already drawn, so a window resize while the tab was hidden is picked u
   activates that tab
 - **THEN** its chart is refitted to the card width
 
-### Requirement: Dark theme and per-tab data loading
-
-The dashboard SHALL use a dark theme and SHALL load each tab's data by fetching the
-corresponding `data/<name>.json` file relative to the page.
-
-#### Scenario: Data fetched per series
-
-- **WHEN** a tab needs its data
-- **THEN** the page fetches the matching JSON (`data/dgs10.json`, `data/sp500_pe.json`,
-  or `data/yield_curve.json`) and renders its chart and table from that response
-
 ### Requirement: Plotly loaded from CDN, not bundled
 
 The dashboard SHALL load Plotly.js from a public CDN (`cdn.plot.ly`) at a version
@@ -154,4 +143,29 @@ it. A failed fetch SHALL replace it with the error message.
 
 - **WHEN** the user activates a tab whose fetch has not yet resolved
 - **THEN** the container shows "Loading chart…" until the chart is drawn
+
+### Requirement: Light and dark theme, toggle defaults to system preference
+
+The dashboard SHALL support a light and a dark theme via CSS custom properties defined
+in `site/css/tokens.css`. The active theme SHALL follow the browser's
+`prefers-color-scheme` when no explicit choice has been made. A toggle control SHALL
+let the user pick Light or Dark explicitly; that choice SHALL be stamped as
+`data-theme` on the document root, SHALL override `prefers-color-scheme`, and SHALL
+persist across reloads via `localStorage`. Changing the theme SHALL dispatch a
+`themechange` event that every themed chart and table listens for.
+
+#### Scenario: System preference on first visit
+
+- **WHEN** the page loads with no stored theme preference
+- **THEN** the active theme matches the browser's `prefers-color-scheme`
+
+#### Scenario: Explicit choice persists
+
+- **WHEN** the user selects a theme via the toggle and reloads the page
+- **THEN** the same theme is active, regardless of `prefers-color-scheme`
+
+#### Scenario: Explicit choice overrides system preference
+
+- **WHEN** the user's OS is set to dark but they have explicitly selected Light
+- **THEN** the page renders in Light
 
