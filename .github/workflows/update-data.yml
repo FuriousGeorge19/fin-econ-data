@@ -20,7 +20,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install Python dependencies
-        run: pip install pandas xlrd openpyxl
+        run: pip install pandas xlrd openpyxl -r requirements-test.txt
 
       - name: Fetch latest data from FRED
         env:
@@ -46,6 +46,12 @@ jobs:
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_spreads.py
+
+      - name: Run correctness tests
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          STALENESS_SOURCE: local
+        run: pytest
 
       - name: Copy data to site directory
         run: |
