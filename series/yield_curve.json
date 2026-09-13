@@ -1,0 +1,37 @@
+{
+  "id": "yield_curve",
+  "title": "U.S. Treasury Yield Curve",
+  "short_title": "Yield Curve",
+  "kind": "curve",
+  "units": "Percent",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 constant-maturity series are not revised after publication.",
+  "source_line": "FRED DGS1MO–DGS30",
+  "sources": [
+    {
+      "slug": "fred",
+      "name": "Federal Reserve Bank of St. Louis (FRED)",
+      "url": "https://fred.stlouisfed.org/categories/115",
+      "licence": "Public domain (U.S. government data)"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "tenors",
+      "label": "Treasury constant-maturity yields, all tenors (1mo–30yr)",
+      "source": "fred",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "Daily par yields for all eleven standard Treasury constant-maturity tenors (1mo, 3mo, 6mo, 1yr, 2yr, 3yr, 5yr, 7yr, 10yr, 20yr, 30yr), each its own FRED H.15 series (DGS1MO–DGS30), joined on date.",
+    "The snapshot chart plots one date's yields across tenors on a categorical, evenly spaced axis (Bloomberg convention), not the calendar-spaced date axis used by the other charts."
+  ],
+  "notes": [
+    "The 20-year tenor (DGS20) has a gap from 2002-02-18 to 2006-02-08 while the Treasury suspended issuance of 20-year bonds; the chart leaves this gap visible rather than interpolating across it.",
+    "Values are percent, not a decimal fraction."
+  ]
+}

@@ -8,10 +8,10 @@ only for dates where both legs report — no forward-fill, no interpolation — 
 each spread spans its own valid date range (10y-2y from ~1976, 10y-3m from ~1982).
 """
 
-import json
 import os
 from datetime import datetime, timezone
 
+import series_meta
 from fred_utils import fetch_series
 
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "spreads.json")
@@ -41,26 +41,38 @@ def main():
     spread_10y2y = compute_spread(dgs10, dgs2)
     spread_10y3m = compute_spread(dgs10, dgs3mo)
 
+    descriptor = series_meta.load("spreads")
+    fetched_at = datetime.now(timezone.utc)
+    last_observation = max(spread_10y2y[-1]["date"], spread_10y3m[-1]["date"])
+    as_of = series_meta.build_as_of(
+        descriptor,
+        last_observation=last_observation,
+        series={
+            "10y2y": {
+                "first_observation": spread_10y2y[0]["date"],
+                "last_observation": spread_10y2y[-1]["date"],
+                "observation_count": len(spread_10y2y),
+            },
+            "10y3m": {
+                "first_observation": spread_10y3m[0]["date"],
+                "last_observation": spread_10y3m[-1]["date"],
+                "observation_count": len(spread_10y3m),
+            },
+        },
+        fetched_at=fetched_at,
+    )
+
     output = {
-        "title": "U.S. Treasury Yield Spreads",
-        "units": "Percentage points",
-        "frequency": "Daily",
-        "source": "Federal Reserve Bank of St. Louis (FRED)",
-        "methodology": (
-            "10y-2y = DGS10 − DGS2; 10y-3m = DGS10 − DGS3MO. Computed per date in Python "
-            "from the daily constant-maturity series, only where both legs report (no fill "
-            "or interpolation). A negative value indicates an inverted curve segment."
-        ),
-        "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "meta": series_meta.meta_from_descriptor(descriptor),
+        "as_of": as_of,
+        "last_updated": series_meta.last_updated_alias(fetched_at),
         "series": {
             "10y2y": {"label": "10Y − 2Y", "observations": spread_10y2y},
             "10y3m": {"label": "10Y − 3M", "observations": spread_10y3m},
         },
     }
 
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+    series_meta.write_json(OUTPUT_PATH, output)
 
     print(f"Wrote spreads to {OUTPUT_PATH}")
     for key, s in output["series"].items():

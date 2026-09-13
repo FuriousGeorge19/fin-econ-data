@@ -1,12 +1,89 @@
 {
-  "series_id": "SP500_PE",
-  "title": "S&P 500 P/E Ratio (Trailing Twelve Months, As-Reported)",
-  "units": "Ratio",
-  "frequency": "Monthly",
-  "source": "Robert Shiller / Yale (ie_data.xls) + S&P Global quarterly EPS + FRED SP500",
-  "methodology": "P/E = monthly average S&P 500 price / trailing 12-month as-reported (GAAP) EPS. Historical data from Shiller/Yale (confirmed). Recent months use S&P Global quarterly earnings (data/earnings_overrides.json) with FRED SP500 monthly-average prices. Months after the last confirmed quarterly report use forward-filled earnings and are marked estimated=true.",
-  "last_updated": "2026-03-08 08:39 UTC",
-  "last_ttm_earnings": 222.53,
+  "meta": {
+    "id": "sp500_pe",
+    "title": "S&P 500 Trailing P/E Ratio (As-Reported)",
+    "short_title": "S&P 500 P/E",
+    "kind": "timeseries",
+    "units": "Ratio",
+    "cadence": "monthly",
+    "publication_lag_business_days": 1,
+    "revisions": "occasional",
+    "revision_note": "Shiller periodically restates historical earnings figures. The site always shows the latest revision; the gh-pages deploy history is the vintage archive.",
+    "source_line": "Shiller/Yale \u00b7 S&P Global \u00b7 FRED SP500",
+    "sources": [
+      {
+        "slug": "fred",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "url": "https://fred.stlouisfed.org/series/SP500",
+        "licence": "S&P Dow Jones Indices terms via FRED"
+      },
+      {
+        "slug": "shiller",
+        "name": "Robert Shiller / Yale",
+        "url": "http://www.econ.yale.edu/~shiller/data.htm",
+        "licence": "Free download; no republication restriction found"
+      },
+      {
+        "slug": "spglobal",
+        "name": "S&P Global, sp-500-eps-est.xlsx (manual)",
+        "url": "https://www.spglobal.com/spdji/",
+        "licence": "Unverified; only the derived TTM EPS is published"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "price",
+        "label": "Monthly average S&P 500 price",
+        "source": "fred",
+        "series_id": "SP500",
+        "cadence": "monthly",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "earnings",
+        "label": "Trailing 12-month as-reported EPS",
+        "source": "spglobal",
+        "cadence": "quarterly",
+        "publication_lag_business_days": 60,
+        "manual": true,
+        "status": "discontinued",
+        "status_note": "S&P's public EPS file was discontinued on 31 Jan 2026; earnings are estimated from the last confirmed quarter until a replacement source is found."
+      }
+    ],
+    "methodology": [
+      "P/E = monthly average S&P 500 price / trailing 12-month as-reported (GAAP) EPS.",
+      "Historical months (1871 through Shiller's last confirmed month) use Shiller/Yale's own price and earnings, both confirmed.",
+      "Later months use FRED's SP500 monthly average price with TTM earnings from data/earnings_overrides.json (S&P Global quarterly scorecard): a month is confirmed once the calendar quarter ending before it begins is in the file, and estimated (forward-filled from the last confirmed quarter) otherwise.",
+      "The current, not-yet-completed month is never included: FRED's monthly average of a month in progress changes daily, while every other point in the series is a full-month average."
+    ],
+    "notes": [
+      "The dashed portion of the chart marks estimated months, starting the first month not yet covered by a confirmed quarter.",
+      "The S&P Global earnings workbook was discontinued by its publisher on 31 Jan 2026 (see the earnings input's status_note); the P/E has been running on forward-filled earnings since and will continue to until a replacement source is adopted."
+    ]
+  },
+  "as_of": {
+    "fetched_at": "2026-09-13T08:23:56Z",
+    "last_observation": "2026-08-01",
+    "period_label": "Aug 2026",
+    "first_observation": "1871-01-01",
+    "observation_count": 1868,
+    "inputs": {
+      "price": {
+        "last_observation": "2026-08-01",
+        "period_label": "Aug 2026",
+        "due_by": "2026-10-01"
+      },
+      "earnings": {
+        "last_observation": "2025-09-30",
+        "period_label": "Q3 2025",
+        "due_by": "2026-03-30",
+        "confirmed_through": "2025-12-01",
+        "value": 234.06
+      }
+    },
+    "due_by": "2026-10-01"
+  },
+  "last_updated": "2026-09-13 08:23 UTC",
   "observations": [
     {
       "date": "1871-01-01",
@@ -13012,21 +13089,21 @@
       "price": 6735.69,
       "earnings": 234.06,
       "pe": 28.78,
-      "estimated": true
+      "estimated": false
     },
     {
       "date": "2025-11-01",
       "price": 6740.89,
       "earnings": 234.06,
       "pe": 28.8,
-      "estimated": true
+      "estimated": false
     },
     {
       "date": "2025-12-01",
       "price": 6853.03,
       "earnings": 234.06,
       "pe": 29.28,
-      "estimated": true
+      "estimated": false
     },
     {
       "date": "2026-01-01",
@@ -13040,6 +13117,48 @@
       "price": 6893.81,
       "earnings": 234.06,
       "pe": 29.45,
+      "estimated": true
+    },
+    {
+      "date": "2026-03-01",
+      "price": 6654.42,
+      "earnings": 234.06,
+      "pe": 28.43,
+      "estimated": true
+    },
+    {
+      "date": "2026-04-01",
+      "price": 6957.01,
+      "earnings": 234.06,
+      "pe": 29.72,
+      "estimated": true
+    },
+    {
+      "date": "2026-05-01",
+      "price": 7412.55,
+      "earnings": 234.06,
+      "pe": 31.67,
+      "estimated": true
+    },
+    {
+      "date": "2026-06-01",
+      "price": 7450.03,
+      "earnings": 234.06,
+      "pe": 31.83,
+      "estimated": true
+    },
+    {
+      "date": "2026-07-01",
+      "price": 7481.34,
+      "earnings": 234.06,
+      "pe": 31.96,
+      "estimated": true
+    },
+    {
+      "date": "2026-08-01",
+      "price": 7711.32,
+      "earnings": 234.06,
+      "pe": 32.95,
       "estimated": true
     }
   ]

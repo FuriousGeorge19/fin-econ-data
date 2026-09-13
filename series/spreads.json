@@ -1,0 +1,37 @@
+{
+  "id": "spreads",
+  "title": "U.S. Treasury Yield Spreads",
+  "short_title": "Yield Spreads",
+  "kind": "timeseries",
+  "units": "Percentage points",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "Computed from FRED's H.15 constant-maturity series, which are not revised after publication.",
+  "source_line": "FRED DGS10, DGS2, DGS3MO",
+  "sources": [
+    {
+      "slug": "fred",
+      "name": "Federal Reserve Bank of St. Louis (FRED)",
+      "url": "https://fred.stlouisfed.org/series/DGS10",
+      "licence": "Public domain (U.S. government data)"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "constituents",
+      "label": "10-year, 2-year and 3-month Treasury constant-maturity yields (DGS10, DGS2, DGS3MO)",
+      "source": "fred",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "10y-2y = DGS10 − DGS2; 10y-3m = DGS10 − DGS3MO. Computed per date in Python from the daily constant-maturity series, only where both legs report — no forward-fill or interpolation — so each spread spans its own valid date range.",
+    "Computed at fetch time from FRED's constant-maturity legs rather than pulled from FRED's own precomputed T10Y2Y / T10Y3M series."
+  ],
+  "notes": [
+    "A negative value indicates an inverted curve segment.",
+    "10y-2y begins 1976-06-01 (DGS2's start); 10y-3m begins 1981-09-01 (DGS3MO's start)."
+  ]
+}

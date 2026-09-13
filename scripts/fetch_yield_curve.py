@@ -1,10 +1,10 @@
 """Fetch all Treasury yield curve tenors (daily DGS series) from FRED."""
 
-import json
 import os
 import sys
 from datetime import datetime, timezone
 
+import series_meta
 from fred_utils import fetch_series, get_api_key
 
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "yield_curve.json")
@@ -56,20 +56,36 @@ def main():
         if yields:  # skip dates with no data at all
             observations[date] = yields
 
+    descriptor = series_meta.load("yield_curve")
+    fetched_at = datetime.now(timezone.utc)
+    series = {
+        tenor["label"]: {
+            "first_observation": min(tenor_data[tenor["label"]]),
+            "last_observation": max(tenor_data[tenor["label"]]),
+            "observation_count": len(tenor_data[tenor["label"]]),
+        }
+        for tenor in TENORS
+        if tenor_data[tenor["label"]]
+    }
+    as_of = series_meta.build_as_of(
+        descriptor,
+        last_observation=all_dates[-1],
+        first_observation=all_dates[0],
+        observation_count=len(observations),
+        series=series,
+        fetched_at=fetched_at,
+    )
+
     output = {
-        "title": "U.S. Treasury Yield Curve",
-        "units": "Percent",
-        "frequency": "Daily",
-        "source": "Federal Reserve Bank of St. Louis (FRED)",
-        "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "meta": series_meta.meta_from_descriptor(descriptor),
+        "as_of": as_of,
+        "last_updated": series_meta.last_updated_alias(fetched_at),
         "tenors": [t["label"] for t in TENORS],
         "tenor_months": {t["label"]: t["months"] for t in TENORS},
         "observations": observations,
     }
 
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+    series_meta.write_json(OUTPUT_PATH, output)
 
     print(f"\nWrote {len(observations)} dates to {OUTPUT_PATH}")
     print(f"Date range: {all_dates[0]} to {all_dates[-1]}")

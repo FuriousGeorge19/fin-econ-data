@@ -1,7 +1,9 @@
 {
-  "description": "S&P 500 quarterly and TTM as-reported (GAAP) EPS. Source: S&P Global sp-500-eps-est.xlsx. Update this file each earnings season (4x/year) by copying from reference_resources/sp-500-eps-est.xlsx.",
+  "description": "S&P 500 quarterly and TTM as-reported (GAAP) EPS. Source: S&P Global sp-500-eps-est.xlsx. Regenerate this file each earnings season (4x/year) by replacing reference_resources/sp-500-eps-est.xlsx and running this script.",
   "source": "S&P Global / S&P Dow Jones Indices (sp-500-eps-est.xlsx)",
-  "last_updated": "2026-03-08",
+  "data_as_of": "2026-01-29",
+  "actuals_through": "2025-09-30",
+  "last_updated": "2026-09-13",
   "entries": [
     {
       "quarter_end": "1988-12-31",
@@ -700,25 +702,25 @@
       "ttm_eps": 107.08
     },
     {
-      "quarter_end": "2017-12-29",
+      "quarter_end": "2017-12-31",
       "effective_from": "2018-01-01",
       "quarterly_eps": 26.96,
       "ttm_eps": 109.88
     },
     {
-      "quarter_end": "2018-03-29",
+      "quarter_end": "2018-03-31",
       "effective_from": "2018-04-01",
       "quarterly_eps": 33.02,
       "ttm_eps": 115.44
     },
     {
-      "quarter_end": "2018-06-29",
+      "quarter_end": "2018-06-30",
       "effective_from": "2018-07-01",
       "quarterly_eps": 34.05,
       "ttm_eps": 122.48
     },
     {
-      "quarter_end": "2018-09-28",
+      "quarter_end": "2018-09-30",
       "effective_from": "2018-10-01",
       "quarterly_eps": 36.36,
       "ttm_eps": 130.39
@@ -730,13 +732,13 @@
       "ttm_eps": 132.39
     },
     {
-      "quarter_end": "2019-03-29",
+      "quarter_end": "2019-03-31",
       "effective_from": "2019-04-01",
       "quarterly_eps": 35.02,
       "ttm_eps": 134.39
     },
     {
-      "quarter_end": "2019-06-28",
+      "quarter_end": "2019-06-30",
       "effective_from": "2019-07-01",
       "quarterly_eps": 34.93,
       "ttm_eps": 135.27
@@ -838,25 +840,25 @@
       "ttm_eps": 181.01
     },
     {
-      "quarter_end": "2023-09-29",
+      "quarter_end": "2023-09-30",
       "effective_from": "2023-10-01",
       "quarterly_eps": 47.65,
       "ttm_eps": 184.25
     },
     {
-      "quarter_end": "2023-12-29",
+      "quarter_end": "2023-12-31",
       "effective_from": "2024-01-01",
       "quarterly_eps": 47.79,
       "ttm_eps": 192.43
     },
     {
-      "quarter_end": "2024-03-28",
+      "quarter_end": "2024-03-31",
       "effective_from": "2024-04-01",
       "quarterly_eps": 47.37,
       "ttm_eps": 191.39
     },
     {
-      "quarter_end": "2024-06-28",
+      "quarter_end": "2024-06-30",
       "effective_from": "2024-07-01",
       "quarterly_eps": 53.12,
       "ttm_eps": 195.93

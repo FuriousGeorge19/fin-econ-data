@@ -2,8 +2,10 @@ name: Update Data
 
 on:
   schedule:
-    # Run at 7 PM ET (midnight UTC) on weekdays — after markets close
-    - cron: '0 0 * * 2-6'
+    # 23:15 UTC Mon-Fri (19:15 EDT / 18:15 EST): after FRED's ~16:15 ET H.15
+    # update, hours before US Eastern midnight, off the congested top-of-hour
+    # slot. See openspec/changes/s3-series-metadata/design.md decision 11.
+    - cron: '15 23 * * 1-5'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
@@ -22,45 +24,92 @@ jobs:
       - name: Install Python dependencies
         run: pip install pandas xlrd openpyxl -r requirements-test.txt
 
+      - name: Seed data/ from the live site (gh-pages)
+        # gh-pages is the deploy history; main's data/*.json are test fixtures
+        # that can lag it by months. Restoring each series' live file first
+        # means a fetch failure below carries forward what's actually live,
+        # not main's stale fixture. Named files only, never the directory:
+        # data/earnings_overrides.json is a fetch-time input, not on gh-pages,
+        # and would be deleted by a directory-level restore.
+        run: |
+          git fetch --depth=1 origin gh-pages || echo "::warning::could not fetch gh-pages; fetch steps below will fall back to main's fixtures"
+          for f in series/*.json; do
+            id=$(basename "$f" .json)
+            git checkout FETCH_HEAD -- "data/${id}.json" \
+              || echo "::warning::could not restore data/${id}.json from gh-pages; using main's fixture"
+          done
+
       - name: Fetch latest data from FRED
+        id: fetch_treasury
+        continue-on-error: true
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_treasury.py
 
       - name: Fetch S&P 500 P/E ratio from Shiller/Yale
+        id: fetch_sp500_pe
+        continue-on-error: true
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_sp500_pe.py
 
       - name: Fetch yield curve data from FRED
+        id: fetch_yield_curve
+        continue-on-error: true
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_yield_curve.py
 
       - name: Fetch NBER recession indicator from FRED
+        id: fetch_usrec
+        continue-on-error: true
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_usrec.py
 
       - name: Fetch Treasury yield spreads from FRED
+        id: fetch_spreads
+        continue-on-error: true
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_spreads.py
 
-      - name: Run correctness tests
+      - name: Run correctness tests (gates the deploy)
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: pytest -m "not staleness"
+
+      - name: Run staleness check (reports, does not gate)
+        id: staleness_check
+        continue-on-error: true
+        env:
           STALENESS_SOURCE: local
-        run: pytest
+        run: pytest -m staleness
+
+      - name: Write staleness summary
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import sys
+          sys.path.insert(0, "scripts")
+          from staleness import check
+
+          print("| Series | Last observation | Due by | Status |")
+          print("|---|---|---|---|")
+          for row in check("local"):
+              if "error" in row:
+                  print(f"| {row['id']} | — | — | could not check: {row['error']} |")
+                  continue
+              status = f"⚠️ overdue, {row['days_late']} day(s) late" if row["overdue"] else "on time"
+              print(f"| {row['id']} | {row['last_observation']} | {row['due_by']} | {status} |")
+          PY
 
       - name: Copy data to site directory
         run: |
           mkdir -p site/data
-          cp data/dgs10.json site/data/
-          cp data/sp500_pe.json site/data/
-          cp data/yield_curve.json site/data/
-          cp data/usrec.json site/data/
-          cp data/spreads.json site/data/
+          for f in series/*.json; do
+            id=$(basename "$f" .json)
+            cp "data/${id}.json" "site/data/${id}.json"
+          done
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -68,3 +117,47 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           cname: joemirza.com
+
+      - name: Report fetch failures and overdue series
+        # continue-on-error above means a failed fetch or an overdue series
+        # never blocked the deploy; this step is the only thing that still
+        # marks the job (and therefore the run) failed, and it runs after the
+        # data has already shipped.
+        if: always()
+        env:
+          OUTCOME_dgs10: ${{ steps.fetch_treasury.outcome }}
+          OUTCOME_sp500_pe: ${{ steps.fetch_sp500_pe.outcome }}
+          OUTCOME_yield_curve: ${{ steps.fetch_yield_curve.outcome }}
+          OUTCOME_usrec: ${{ steps.fetch_usrec.outcome }}
+          OUTCOME_spreads: ${{ steps.fetch_spreads.outcome }}
+        run: |
+          failed=0
+          for id in dgs10 sp500_pe yield_curve usrec spreads; do
+            var="OUTCOME_${id}"
+            outcome="${!var}"
+            if [ "$outcome" != "success" ]; then
+              echo "::warning::fetch for ${id} ${outcome} — site is serving the last live copy for this series"
+              failed=1
+            fi
+          done
+
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, "scripts")
+          from staleness import check
+
+          for row in check("local"):
+              if "error" in row:
+                  continue
+              if row["overdue"]:
+                  print(f"::warning::{row['id']} is overdue: last observation {row['last_observation']}, "
+                        f"due by {row['due_by']}, {row['days_late']} day(s) late")
+              for input_row in row.get("inputs", []):
+                  if input_row["alarms"] and input_row["overdue"]:
+                      print(f"::warning::{row['id']}.{input_row['id']} is overdue: due by "
+                            f"{input_row['due_by']}, {input_row['days_late']} day(s) late")
+          PY
+
+          if [ "$failed" = "1" ]; then
+            exit 1
+          fi

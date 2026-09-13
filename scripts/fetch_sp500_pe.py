@@ -23,15 +23,18 @@ Update cadence:
     S&P Global quarterly scorecard (reference_resources/sp-500-eps-est.xlsx).
 """
 
+import calendar
 import json
 import os
 import sys
 import tempfile
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from urllib.request import urlopen, Request
 from urllib.error import URLError
 
+import series_meta
 from fred_utils import fetch_series
+from staleness import today_eastern
 
 SHILLER_URL   = "http://www.econ.yale.edu/~shiller/data/ie_data.xls"
 OVERRIDES_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "earnings_overrides.json")
@@ -71,12 +74,15 @@ def parse_shiller_date(val):
 
 def next_month_str(date_str):
     """'2023-06-01' → '2023-07-01'"""
+    return add_months_str(date_str, 1)
+
+
+def add_months_str(date_str, n):
+    """'2023-06-01' + 3 → '2023-09-01'"""
     y, m, _ = date_str.split("-")
-    m = int(m) + 1
-    y = int(y)
-    if m > 12:
-        m = 1
-        y += 1
+    y, m = int(y), int(m) + n
+    y += (m - 1) // 12
+    m = (m - 1) % 12 + 1
     return f"{y}-{m:02d}-01"
 
 
@@ -164,10 +170,17 @@ def load_overrides():
 def get_ttm_for_month(date_str, overrides):
     """
     Return (ttm_eps, is_estimated) for a given month date string.
-    Finds the most recent override whose effective_from <= date_str.
-    is_estimated = True if date_str >= the effective_from of the NEXT quarter
-    that hasn't been confirmed yet (i.e., beyond the last entry).
+
+    Finds the most recent override whose effective_from <= date_str (an
+    override's effective_from applies to that month and the two following, so
+    it covers a full calendar quarter of months). A month is confirmed
+    (estimated=False) iff the earnings file contains the calendar quarter
+    ending strictly before it begins; equivalently, estimated is true exactly
+    when date_str >= effective_from(last entry) + 3 months.
     """
+    if not overrides:
+        return None, True
+
     applicable = None
     for entry in overrides:
         if entry["effective_from"] <= date_str:
@@ -177,21 +190,9 @@ def get_ttm_for_month(date_str, overrides):
     if applicable is None:
         return None, True
 
-    # If date_str is at or after the effective_from of the last entry,
-    # the earnings are confirmed (the quarter is fully reported); the P/E
-    # is "estimated" only if there's no confirmed quarter covering this month.
-    # Since overrides only contain confirmed quarters, any month reachable by
-    # an override is using confirmed earnings → estimated=False.
-    # Months PAST the last override's effective_from but with no newer override
-    # are also covered by the last override → estimated=True (forward-filled).
     last_entry = overrides[-1]
-    is_estimated = date_str >= last_entry["effective_from"]
-    # Actually: if applicable IS the last entry, we're forward-filling → estimated
-    # If applicable is NOT the last entry, earnings are confirmed for this month
-    if applicable["effective_from"] == last_entry["effective_from"]:
-        is_estimated = True
-    else:
-        is_estimated = False
+    confirmed_cutoff = add_months_str(last_entry["effective_from"], 3)
+    is_estimated = date_str >= confirmed_cutoff
 
     return applicable["ttm_eps"], is_estimated
 
@@ -204,6 +205,10 @@ def fetch_fred_prices(start_date):
     FRED is a secondary source here (the primary is Shiller), so this degrades
     gracefully via fetch_series(required=False): a missing key or failed request
     yields no prices and the series falls back to Shiller-only.
+
+    A month is included only when today (US Eastern) is later than that
+    month's last day: FRED's monthly average of a month in progress changes
+    daily, while every other point in this series is a full-month average.
     """
     obs = fetch_series(
         "SP500",
@@ -216,10 +221,15 @@ def fetch_fred_prices(start_date):
         required=False,
     )
 
+    today = today_eastern()
     prices = {}
     for o in obs:
         y, m, _ = o["date"].split("-")
-        prices[f"{y}-{m}-01"] = o["value"]  # {month_str: avg_price}
+        y, m = int(y), int(m)
+        last_day = calendar.monthrange(y, m)[1]
+        if today <= date(y, m, last_day):
+            continue  # month still in progress — drop it
+        prices[f"{y}-{m:02d}-01"] = o["value"]  # {month_str: avg_price}
 
     return prices
 
@@ -275,39 +285,53 @@ def main():
 
     observations = shiller_obs + extension
 
-    # ── 5. Summary ────────────────────────────────────────────────────────────
+    # ── 5. Header metadata ────────────────────────────────────────────────────
     confirmed = [o for o in observations if not o["estimated"]]
     estimated = [o for o in observations if o["estimated"]]
-    last_confirmed_ttm = confirmed[-1]["earnings"] if confirmed else None
+
+    if overrides:
+        last_override = overrides[-1]
+        earnings_last_observation = last_override["quarter_end"]
+        earnings_confirmed_through = add_months_str(last_override["effective_from"], 2)
+        earnings_value = last_override["ttm_eps"]
+    else:
+        # No overrides file: Shiller's own confirmed earnings are the latest we have.
+        earnings_last_observation = last_shiller_date
+        earnings_confirmed_through = last_shiller_date
+        earnings_value = shiller_obs[-1]["earnings"]
+
+    descriptor = series_meta.load("sp500_pe")
+    fetched_at = datetime.now(timezone.utc)
+    as_of = series_meta.build_as_of(
+        descriptor,
+        last_observation=observations[-1]["date"],
+        first_observation=observations[0]["date"],
+        observation_count=len(observations),
+        inputs={
+            "price": {"last_observation": observations[-1]["date"]},
+            "earnings": {
+                "last_observation": earnings_last_observation,
+                "confirmed_through": earnings_confirmed_through,
+                "value": earnings_value,
+            },
+        },
+        fetched_at=fetched_at,
+    )
 
     output = {
-        "series_id":   "SP500_PE",
-        "title":       "S&P 500 P/E Ratio (Trailing Twelve Months, As-Reported)",
-        "units":       "Ratio",
-        "frequency":   "Monthly",
-        "source":      "Robert Shiller / Yale (ie_data.xls) + S&P Global quarterly EPS + FRED SP500",
-        "methodology": (
-            "P/E = monthly average S&P 500 price / trailing 12-month as-reported (GAAP) EPS. "
-            "Historical data from Shiller/Yale (confirmed). "
-            "Recent months use S&P Global quarterly earnings (data/earnings_overrides.json) "
-            "with FRED SP500 monthly-average prices. "
-            "Months after the last confirmed quarterly report use forward-filled earnings "
-            "and are marked estimated=true."
-        ),
-        "last_updated":     datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
-        "last_ttm_earnings": last_confirmed_ttm,
-        "observations":     observations,
+        "meta": series_meta.meta_from_descriptor(descriptor),
+        "as_of": as_of,
+        "last_updated": series_meta.last_updated_alias(fetched_at),
+        "observations": observations,
     }
 
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+    series_meta.write_json(OUTPUT_PATH, output)
 
     print(f"\nWrote {len(observations)} total observations → {OUTPUT_PATH}")
     print(f"  Confirmed: {len(confirmed)}  |  Estimated: {len(estimated)}")
     print(f"  Full range: {observations[0]['date']} → {observations[-1]['date']}")
     print(f"  Latest P/E:       {observations[-1]['pe']:.1f}x  (price: {observations[-1]['price']:,.2f})")
-    print(f"  Current TTM EPS:  {observations[-1]['earnings']:.2f}  (last confirmed: {last_confirmed_ttm})")
+    print(f"  Current TTM EPS:  {observations[-1]['earnings']:.2f}  (confirmed through: {earnings_confirmed_through})")
 
 
 if __name__ == "__main__":

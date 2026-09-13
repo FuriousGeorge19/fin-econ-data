@@ -7,10 +7,10 @@ intervals and writes `data/usrec.json`, a shared dataset reused by multiple
 charts (spreads, Fed Funds, real rate, ERP, credit spreads).
 """
 
-import json
 import os
 from datetime import datetime, timezone
 
+import series_meta
 from fred_utils import fetch_series
 
 SERIES_ID = "USREC"
@@ -45,27 +45,26 @@ def collapse_to_intervals(observations):
 
 def main():
     observations = fetch_series(SERIES_ID)  # FRED-primary: exits if key missing
+    last_observation = observations[-1]  # captured before collapsing to intervals
     intervals = collapse_to_intervals(observations)
 
+    descriptor = series_meta.load("usrec")
+    fetched_at = datetime.now(timezone.utc)
+    as_of = series_meta.build_as_of(
+        descriptor,
+        last_observation=last_observation["date"],
+        latest_value=last_observation["value"],
+        fetched_at=fetched_at,
+    )
+
     output = {
-        "title": "NBER-based U.S. Recession Indicators",
-        "series_id": SERIES_ID,
-        "units": "Recession interval (start/end month)",
-        "frequency": "Monthly",
-        "source": "Federal Reserve Bank of St. Louis (FRED) / NBER",
-        "description": (
-            "Recession intervals derived from the monthly USREC indicator (1 = recession). "
-            "Reflects only officially NBER-dated recessions, which are announced with a lag, "
-            "so a current downturn may not yet appear. Months are assigned to the 1st; an "
-            "ongoing recession has end = null."
-        ),
-        "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "meta": series_meta.meta_from_descriptor(descriptor),
+        "as_of": as_of,
+        "last_updated": series_meta.last_updated_alias(fetched_at),
         "recessions": intervals,
     }
 
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+    series_meta.write_json(OUTPUT_PATH, output)
 
     print(f"Wrote {len(intervals)} recession intervals to {OUTPUT_PATH}")
     if intervals:

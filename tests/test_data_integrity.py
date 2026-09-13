@@ -4,8 +4,16 @@ value silently became zero, and internally consistent header fields.
 """
 
 import math
+import os
+import sys
+from datetime import date
 
 import pytest
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+
+from fetch_sp500_pe import add_months_str
+from staleness import today_eastern
 
 
 def _dates_unique_and_ascending(dates):
@@ -74,20 +82,34 @@ def test_sp500_pe_internal_consistency(sp500_pe):
         assert expected == pytest.approx(o["pe"], rel=0.035), o
 
 
-@pytest.mark.xfail(
-    reason=(
-        "Known bug, found 2026-09-12: get_ttm_for_month() in fetch_sp500_pe.py "
-        "always marks the newest override entry as estimated=True, so the "
-        "header's last_ttm_earnings (from the last estimated=False row) is one "
-        "quarter behind the earnings the most recent observation actually "
-        "plots — 222.53 vs 234.06 as of this writing. xfail (not skip) so CI "
-        "stays green without masking the bug; remove the mark once "
-        "fetch_sp500_pe.py is fixed to report the true latest earnings figure."
-    ),
-    strict=False,
-)
-def test_sp500_pe_header_matches_latest_observation_earnings(sp500_pe):
-    """The header's last_ttm_earnings must equal the earnings figure used by
-    the most recent observation in the series."""
-    latest = sp500_pe["observations"][-1]
-    assert sp500_pe["last_ttm_earnings"] == latest["earnings"]
+def test_sp500_pe_confirmed_estimated_boundary(sp500_pe, earnings_overrides):
+    """Structural invariants from design decision 10 (openspec change
+    s3-series-metadata), replacing the S1 xfail: the header's earnings value
+    is the last override's TTM, confirmed_through is exactly two months after
+    that override's effective_from, and every observation splits cleanly
+    across that boundary. The old header-vs-last-observation check would pass
+    tautologically under forward-fill, which is why it's structural now."""
+    last = sorted(earnings_overrides["entries"], key=lambda e: e["effective_from"])[-1]
+    earnings_as_of = sp500_pe["as_of"]["inputs"]["earnings"]
+
+    assert earnings_as_of["value"] == last["ttm_eps"]
+
+    confirmed_through = add_months_str(last["effective_from"], 2)
+    assert earnings_as_of["confirmed_through"] == confirmed_through
+
+    confirmed_dates = [o["date"] for o in sp500_pe["observations"] if not o["estimated"]]
+    estimated_dates = [o["date"] for o in sp500_pe["observations"] if o["estimated"]]
+
+    assert confirmed_dates, "expected at least one confirmed observation"
+    assert max(confirmed_dates) == confirmed_through
+    assert all(d <= confirmed_through for d in confirmed_dates)
+    assert all(d > confirmed_through for d in estimated_dates)
+
+
+def test_sp500_pe_no_observation_in_current_or_future_month(sp500_pe):
+    """FRED's monthly average of a month in progress moves daily; the fetcher
+    drops it (design decision 10), so the last observation is always dated
+    before the current US Eastern month."""
+    current_month_start = today_eastern().replace(day=1)
+    latest = date.fromisoformat(sp500_pe["observations"][-1]["date"])
+    assert latest < current_month_start

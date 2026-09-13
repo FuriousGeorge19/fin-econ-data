@@ -53,6 +53,21 @@ def usrec():
     return load_json("usrec.json")
 
 
+@pytest.fixture
+def earnings_overrides():
+    return load_json("earnings_overrides.json")
+
+
+@pytest.fixture
+def load_data():
+    """Callable fixture: load_data("dgs10") -> the parsed data/dgs10.json,
+    for tests parametrized over series_meta.ids() rather than one named
+    per-series fixture each."""
+    def _load(series_id):
+        return load_json(f"{series_id}.json")
+    return _load
+
+
 def has_fred_key():
     return bool(os.environ.get("FRED_API_KEY"))
 

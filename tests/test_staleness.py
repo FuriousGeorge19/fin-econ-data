@@ -1,52 +1,59 @@
-"""Check each fetcher's last observation against its expected publication lag.
+"""Check each dataset's freshness against its data file's as_of.due_by.
 
 Source defaults to the *live* published data (https://joemirza.com/data/*.json)
-rather than the locally committed data/*.json. The workflow deploys
-data/ -> site/data/ -> gh-pages but never commits fetched data back to main
-(see CLAUDE.md's data-flow note), so a local checkout's data/*.json is known to
-lag what's actually live — checking it here in a dev/local run would just
-re-report that known gap every time instead of catching a real fetch
-failure. The bigger question of whether to commit data back to main is left
-open for a later session.
+rather than the locally committed data/*.json — see CLAUDE.md's data-flow
+note: the workflow deploys data/ -> site/data/ -> gh-pages but never commits
+fetched data back to main, so a local checkout's data/*.json is known to lag
+what's actually live; checking it here in a dev/local run would just
+re-report that known gap every time instead of catching a real fetch failure.
 
 Set STALENESS_SOURCE=local to check the local data/ directory instead — this
 is what the CI workflow does, running this check right after the day's fetch
-and before deploy, when local data/ is the freshest copy that exists (the live
-site still has yesterday's data at that point in the job).
+and before deploy, when local data/ is the freshest copy that exists.
 
-Business-day lag, not calendar days, so a Saturday check on a weekday-only
-series doesn't false-positive. This is a provisional, hardcoded per-series
-tolerance — S3 of the Session Plan formalizes cadence + publication lag as
-part of the metadata design; this test should be updated to read from that
-metadata once it exists instead of the SERIES table in scripts/staleness.py.
+due_by is computed in Python at fetch time (scripts/series_meta.py,
+scripts/staleness.py) from each series' cadence and publication lag; this
+test only compares it to today's US Eastern date, per the data-freshness
+capability — no business-day or holiday arithmetic happens here. A
+`status: discontinued` or non-required input (e.g. sp500_pe's earnings) is
+reported but never asserted overdue, matching the roll-up rule.
 
-The lag table and business-day math live in scripts/staleness.py, shared with
-scripts/dev.sh, so the two call sites can't drift on what "stale" means.
+Carries the `staleness` marker so CI can run it as its own non-gating step,
+separate from the correctness tests that gate the deploy (see
+.github/workflows/update-data.yml).
 """
 
 import os
-from datetime import date, datetime
+import sys
 
 import pytest
 
-from staleness import SERIES, business_days_between, fetch_live, load_local
+SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
+sys.path.insert(0, SCRIPTS_DIR)
+
+import series_meta
+from staleness import check_series
+
+SOURCE = "local" if os.environ.get("STALENESS_SOURCE") == "local" else "live"
 
 
 @pytest.mark.network
-@pytest.mark.parametrize("filename,extract_date,max_business_days", SERIES)
-def test_series_within_expected_lag(filename, extract_date, max_business_days):
-    use_local = os.environ.get("STALENESS_SOURCE") == "local"
-    if use_local:
-        current = load_local(filename)
-    else:
-        try:
-            current = fetch_live(filename)
-        except Exception as e:
-            pytest.skip(f"could not reach live site: {e}")
+@pytest.mark.staleness
+@pytest.mark.parametrize("series_id", series_meta.ids())
+def test_series_on_time(series_id):
+    row = check_series(series_id, source=SOURCE)
+    if "error" in row:
+        pytest.skip(f"could not reach {row['filename']}: {row['error']}")
 
-    last_date = datetime.strptime(extract_date(current)[:10], "%Y-%m-%d").date()
-    lag = business_days_between(last_date, date.today())
-    assert lag <= max_business_days, (
-        f"{filename}: last observation {last_date} is {lag} business days old "
-        f"(expected <= {max_business_days})"
+    assert not row["overdue"], (
+        f"{row['filename']}: last observation {row['last_observation']}, "
+        f"due by {row['due_by']} — {row['days_late']} day(s) late"
     )
+    for input_row in row["inputs"]:
+        if not input_row["alarms"]:
+            continue  # discontinued or non-required input: reported, never alarmed
+        assert not input_row["overdue"], (
+            f"{row['filename']}.{input_row['id']}: last observation "
+            f"{input_row['last_observation']}, due by {input_row['due_by']} — "
+            f"{input_row['days_late']} day(s) late"
+        )
