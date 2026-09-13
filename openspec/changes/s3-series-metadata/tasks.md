@@ -32,7 +32,7 @@
 - [x] 4.6 Final `if: always()` step after the deploy: `::warning::` per failed fetch (`steps.<id>.outcome`) and per overdue series; `exit 1` if any fetch step failed
 - [x] 4.7 `scripts/dev.sh`: file list from `series/*.json`; `--live` downloads each `https://joemirza.com/data/<id>.json` into `data/` before serving; staleness warning now prints `due_by`
 - [x] 4.8 Rollback check: `git diff` of the workflow is confined to the steps above and indentation matches siblings
-- [ ] 4.9 **Manual CI check (post-merge)**: `workflow_dispatch`; confirm the seed step logs five restores, all fetches succeed, the staleness summary renders, and the site redeploys. Then force one failure (e.g. temporarily bad Shiller URL on a branch run) and confirm: four fresh files, one carried forward, deploy done, job red
+- [x] 4.9 **Manual CI check (post-merge)**: `workflow_dispatch`; confirm the seed step logs five restores, all fetches succeed, the staleness summary renders, and the site redeploys. Then force one failure (e.g. temporarily bad Shiller URL on a branch run) and confirm: four fresh files, one carried forward, deploy done, job red — verified 2026-09-13: normal run (`main`, #142) restored 5/5 and showed all series "on time"; forced-failure run on throwaway branch `test/s4a-forced-fetch-failure` (broke `fetch_usrec.py`'s `SERIES_ID`, not `fetch_sp500_pe.py`'s `SHILLER_URL` — the latter is also imported by `tests/test_sp500_pe.py` and would fail the gating tests instead of exercising this path) confirmed 4 fresh + 1 carried-forward, deploy ran, final step warned and exited 1. Branch deleted, never merged
 
 ## 5. Frontend (S4b)
 
