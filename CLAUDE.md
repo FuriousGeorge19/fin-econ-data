@@ -248,6 +248,15 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-13**: S3 design session (Fable, plan mode) — OpenSpec change
+  `openspec/changes/s3-series-metadata/` written and approved, nothing built yet.
+  Settles per-series metadata (`series/<id>.json` embedded as `meta` + a runtime
+  `as_of` block), the overdue rule (`due_by` computed in Python, judged on the US
+  Eastern date), the in-chart source line / About tab / x-axis-to-today / export
+  chrome, the workflow failure policy (seed from gh-pages, deploy what succeeded, no
+  commit-back), and the P/E confirmed/estimated rule that removes the `xfail`. S4a
+  (Python + workflow) and S4b (JS) implement it via `/opsx:apply`; until then the
+  sections above describe the current build, not the design.
 - **2026-09-12**: Local iteration loop (S2 of the multi-session plan) —
   `scripts/dev.sh` copies `data/` → `site/data/`, warns on stale series, serves
   `site/` on 8888; works with `FRED_API_KEY` unset. Extracted the lag table/
