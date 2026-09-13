@@ -72,6 +72,26 @@ site/              Static site served by GitHub Pages
 | `data/usrec.json` | NBER recession intervals, updated by the workflow |
 | `reference_resources/sp-500-eps-est.xlsx` | Source file for quarterly EPS (S&P Global, not auto-fetchable) |
 | `tests/` | Pytest correctness suite — see Correctness Tests below |
+| `scripts/dev.sh` | Local iteration loop — see below |
+| `scripts/staleness.py` | Shared lag table/logic used by `tests/test_staleness.py` and `scripts/dev.sh` |
+
+## Local Iteration Loop
+
+`scripts/dev.sh [port]` (default 8888): copies `data/*.json` → `site/data/`, prints
+a staleness warning per series, then serves `site/` with `python3 -m http.server`.
+No network calls, works with `FRED_API_KEY` unset — it only reads what's already
+committed to `data/`.
+
+The staleness warning matters because local `data/*.json` is known to lag production
+(see Architecture above — the workflow never commits fetched data back to `main`).
+`dev.sh` surfaces this instead of silently serving old data as if it were current;
+it warns, it doesn't block, since UI iteration usually doesn't need fresh data.
+
+**The loop**: edit `site/index.html` (or a fetch script + rerun it locally with
+`FRED_API_KEY` set) → `scripts/dev.sh` → reload `http://localhost:8888` → check the
+result with a Claude in Chrome screenshot → commit and push. The daily workflow
+handles fetching and deploying; this loop is only for checking a change works before
+it ships.
 
 ## Correctness Tests
 
@@ -209,23 +229,17 @@ Full rationale for the 2026-09-12 additions is in the Session Plan decisions tab
 ## Running Locally
 
 ```bash
+# UI iteration on already-committed data (no network, no FRED_API_KEY needed)
+scripts/dev.sh
+# Then open http://localhost:8888 — see Local Iteration Loop above
+
 # Fetch fresh data (requires pandas xlrd openpyxl installed)
 FRED_API_KEY=xxxxxxxxxxxxxx python scripts/fetch_treasury.py
 FRED_API_KEY=xxxxxxxxxxxxxx python scripts/fetch_sp500_pe.py
 FRED_API_KEY=xxxxxxxxxxxxxx python scripts/fetch_yield_curve.py
 FRED_API_KEY=xxxxxxxxxxxxxx python scripts/fetch_usrec.py
 FRED_API_KEY=xxxxxxxxxxxxxx python scripts/fetch_spreads.py
-
-# Copy to site directory
-cp data/dgs10.json site/data/
-cp data/sp500_pe.json site/data/
-cp data/yield_curve.json site/data/
-cp data/usrec.json site/data/
-cp data/spreads.json site/data/
-
-# Serve locally
-cd site && python3 -m http.server 8888
-# Then open http://localhost:8888
+# Then scripts/dev.sh again to serve the freshly fetched data
 
 # Run the correctness test suite (see Correctness Tests above)
 pip install -r requirements-test.txt
@@ -234,6 +248,12 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-12**: Local iteration loop (S2 of the multi-session plan) —
+  `scripts/dev.sh` copies `data/` → `site/data/`, warns on stale series, serves
+  `site/` on 8888; works with `FRED_API_KEY` unset. Extracted the lag table/
+  business-day logic from `tests/test_staleness.py` into shared
+  `scripts/staleness.py` so the test and the dev script can't drift apart on what
+  counts as stale. Added a Local Iteration Loop section to this file.
 - **2026-09-12**: Correctness test suite (S1 of the multi-session plan) — `tests/`
   (pytest): data-integrity invariants, `fred_utils` unit tests, spreads/yield-curve/
   P/E cross-checks against FRED and Shiller directly, and a staleness check (live
