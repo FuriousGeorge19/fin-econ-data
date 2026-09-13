@@ -30,7 +30,7 @@ each piece will need to evolve.
 | # | Chart | Key Data | Status |
 |---|-------|----------|--------|
 | 1 | Yield curve snapshot with overlays | DGS series (11 tenors) | **Done** |
-| 2 | 10y-2y and 10y-3m spreads + recession shading | GS10, GS2, TB3MS, USREC | Planned next |
+| 2 | 10y-2y and 10y-3m spreads + recession shading | GS10, GS2, TB3MS, USREC | **Done** |
 | 3 | Fed Funds rate, long history | FEDFUNDS, USREC | Planned |
 | 4 | 10-year nominal yield, ultra-long (1871+) | GS10 + Shiller long bond | Planned |
 | 5 | Ex-post real short rate (3mo − CPI) | TB3MS, CPIAUCSL, USREC | Planned |
@@ -276,3 +276,45 @@ Decisions made during implementation that future work should be aware of:
   (spreads, real rates) should be computed in Python fetch scripts, not in
   browser JavaScript. Keeps the frontend simple and makes the JSON files
   self-contained and debuggable.
+
+- **Header contract: one descriptor per dataset, `meta` + `as_of` + payload**
+  (2026-09-13, `s3-series-metadata`): every `data/<id>.json` embeds its
+  hand-maintained `series/<id>.json` descriptor verbatim under `meta` and a
+  runtime `as_of` block (`fetched_at`, `last_observation`, `period_label`,
+  `due_by`, and per-input/per-series breakdowns for multi-input or
+  multi-series datasets) computed by `scripts/series_meta.py`. Retired the
+  single top-level `last_updated` string once the frontend (S4b) stopped
+  reading it. Payload shapes (`observations`, `series`, `recessions`,
+  `tenors`) are unchanged. This is also now the single source of the site's
+  file list: `scripts/dev.sh`, the workflow's seed/copy steps and
+  `scripts/staleness.py` all derive their file lists from `series/*.json`
+  rather than each hand-copying it.
+
+- **Freshness judged by a business-day `due_by`, computed in Python, compared
+  in the US Eastern date** (2026-09-13, `s3-series-metadata`): replaced the
+  old five-integer staleness table with a calendar-aware rule —
+  `due_by = period_end(last_observation)` advanced one cadence step plus the
+  descriptor's `publication_lag_business_days`, using a hand-rolled US
+  bond-market business-day calendar (federal holidays by rule, Good Friday
+  always treated as closed, plus an `extra_closures` list). Python computes
+  `due_by` at fetch time; the browser only compares it against
+  `toLocaleDateString('en-CA', {timeZone: 'America/New_York'})` — no
+  business-day arithmetic in JS, so freshness stays correct even if the
+  pipeline stops running entirely. A dataset's `due_by` rolls up to the
+  earliest `due_by` among its `required`, `active` inputs; an input marked
+  `status: discontinued` (the P/E's earnings input, as of 31 Jan 2026) is
+  excluded from the roll-up and is stated in the UI rather than alarmed.
+
+- **Workflow failure policy: seed from `gh-pages`, deploy what succeeded, fail
+  the job after the fact** (2026-09-13, `s3-series-metadata`): rejected both
+  the prior all-or-nothing model (one FRED hiccup froze every series with no
+  badge) and committing fetched data back to `main` (the strongest case —
+  fresh local data via `git pull` — didn't justify ~250 bot commits/year and a
+  rebase step, since `gh-pages` already holds the daily history and
+  `scripts/dev.sh --live` covers local freshness). Instead: seed each
+  `data/<id>.json` from the live `gh-pages` copy before fetching, run each
+  fetch with `continue-on-error`, gate the deploy only on
+  `pytest -m "not staleness"` (a *wrong* number still blocks; a *late* one
+  doesn't), always deploy, then fail the job afterward if any fetch failed so
+  GitHub still notifies without delaying the site update. `main`'s
+  `data/*.json` are now explicitly test fixtures, not the deploy history.

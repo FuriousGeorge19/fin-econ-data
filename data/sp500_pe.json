@@ -62,7 +62,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-13T08:23:56Z",
+    "fetched_at": "2026-09-13T17:45:54Z",
     "last_observation": "2026-08-01",
     "period_label": "Aug 2026",
     "first_observation": "1871-01-01",
@@ -83,7 +83,6 @@
     },
     "due_by": "2026-10-01"
   },
-  "last_updated": "2026-09-13 08:23 UTC",
   "observations": [
     {
       "date": "1871-01-01",

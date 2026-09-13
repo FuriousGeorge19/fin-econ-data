@@ -37,7 +37,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-13T08:23:22Z",
+    "fetched_at": "2026-09-13T17:45:38Z",
     "last_observation": "2026-09-10",
     "period_label": "10 Sep 2026",
     "due_by": "2026-09-14",
@@ -58,7 +58,6 @@
       }
     }
   },
-  "last_updated": "2026-09-13 08:23 UTC",
   "series": {
     "10y2y": {
       "label": "10Y \u2212 2Y",

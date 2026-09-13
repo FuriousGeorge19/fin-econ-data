@@ -36,23 +36,23 @@
 
 ## 5. Frontend (S4b)
 
-- [ ] 5.1 Shared `loadSeries(id)` (fetch, error path) and `todayET()` (`toLocaleDateString('en-CA', {timeZone: 'America/New_York'})`); remove the four `data.last_updated` reads
-- [ ] 5.2 `asOfAnnotation(meta, as_of)`: bottom-left paper annotation `source_line · data through period_label`, with the P/E's two-input form and the discontinued wording; added to every chart's layout
-- [ ] 5.3 `freshnessBadge(as_of)`: no element when on time; `Overdue · expected by <date> · N days late` (calendar days); per-input form for multi-input datasets; discontinued inputs never badge
-- [ ] 5.4 Sub-tab strip (`Chart | Table | About`) per chart and an About renderer from `meta`/`as_of` per the `chart-chrome` spec; no hard-coded About text; discontinued status and note shown
-- [ ] 5.5 `xaxisToToday(layout)` for `kind: timeseries`; range buttons count back from today; `addRecessionBands` shades an open interval to today
-- [ ] 5.6 Shared `valueOnOrBefore(obs, targetISO)` with UTC-only arithmetic; the DGS10 stat tiles, P/E stats, yield-curve table and spreads table all use it and display the resolved comparison date; stat tiles show the date beside "Latest"
-- [ ] 5.7 Export buttons per chart: CSV (payload flattened; `date,10y2y,10y3m` for spreads, one column per tenor for the curve), JSON (the file), PNG via `toImageButtonOptions` with `filename: "<id>_<last_observation>"`; `displaylogo: false`
-- [ ] 5.8 Regenerate `site/data/` via `scripts/dev.sh` and run the page through `node --check` on the inline script
-- [ ] 5.9 **Manual browser check**: each tab renders on local data with no console errors; the source line is visible in a PNG export; the About tab shows sources, inputs, `due_by`, revision sentence; the P/E dashed segment starts at Jan 2026; the badge appears when local data is old and disappears with `dev.sh --live`
-- [ ] 5.10 Remove the `last_updated` alias from `series_meta` once 5.1 is deployed
+- [x] 5.1 Shared `loadSeries(id)` (fetch, error path) and `todayET()` (`toLocaleDateString('en-CA', {timeZone: 'America/New_York'})`); remove the four `data.last_updated` reads
+- [x] 5.2 `asOfAnnotation(meta, as_of)`: bottom-left paper annotation `source_line · data through period_label`, with the P/E's two-input form and the discontinued wording; added to every chart's layout
+- [x] 5.3 `freshnessBadge(as_of)`: no element when on time; `Overdue · expected by <date> · N days late` (calendar days); per-input form for multi-input datasets; discontinued inputs never badge
+- [x] 5.4 Sub-tab strip (`Chart | Table | About`) per chart and an About renderer from `meta`/`as_of` per the `chart-chrome` spec; no hard-coded About text; discontinued status and note shown
+- [x] 5.5 `xaxisToToday(layout)` for `kind: timeseries`; range buttons count back from today; `addRecessionBands` shades an open interval to today
+- [x] 5.6 Shared `valueOnOrBefore(obs, targetISO)` with UTC-only arithmetic; the DGS10 stat tiles, P/E stats, yield-curve table and spreads table all use it and display the resolved comparison date; stat tiles show the date beside "Latest"
+- [x] 5.7 Export buttons per chart: CSV (payload flattened; `date,10y2y,10y3m` for spreads, one column per tenor for the curve), JSON (the file), PNG via `toImageButtonOptions` with `filename: "<id>_<last_observation>"`; `displaylogo: false`
+- [x] 5.8 Regenerate `site/data/` via `scripts/dev.sh` and run the page through `node --check` on the inline script
+- [x] 5.9 **Manual browser check** — verified 2026-09-13 via Claude in Chrome against `scripts/dev.sh 8899` on regenerated local data: all four tabs render with no console errors; Chart/Table/About sub-tabs work on every card; badges correctly stay hidden (all series on time against today 2026-09-13); the P/E About tab shows the earnings input as `discontinued` with its `status_note`, and its Table sub-tab's dagger marks estimated months starting Jan 2026; the yield-curve Table sub-tab headers show resolved comparison dates (e.g. "1-Week Change (vs 3 Sep 2026)"); the spreads Table sub-tab shows a per-row resolved date; CSV exports for dgs10/spreads/yield_curve/sp500_pe matched their required column shapes exactly (spreads: `date,10y2y,10y3m` with blanks; yield curve: one column per tenor); the yield-curve PNG export (via Plotly's modebar camera button) is named `yield_curve_2026-09-10.png` and the in-chart source line survives the export. Found and fixed one bug in the process: `.badge`'s own `display: inline-block` was overriding the browser's `[hidden]` rule (author CSS beats the UA stylesheet regardless of specificity), so an empty badge pill was showing on every chart; added an explicit `.badge[hidden] { display: none; }` rule. Did not test `dev.sh --live` (would require deploying first — the local-data badge-hidden state was verified instead, since local data is fresh)
+- [x] 5.10 Remove the `last_updated` alias from `series_meta` once 5.1 is deployed — removed `last_updated_alias()` from `scripts/series_meta.py` and its call site from all five fetchers; regenerated all five `data/*.json` and confirmed `last_updated` is absent from each; `pytest -m "not staleness"` (57 tests) still green
 
 ## 6. Docs and close
 
-- [ ] 6.1 `CLAUDE.md`: Key Files rows for `series/` and `scripts/series_meta.py`; Architecture data-flow paragraph (seed from gh-pages, no commit-back, `main`'s `data/` are fixtures); Correctness Tests (metadata test, `staleness` marker); remove the "known failing check" paragraph; changelog entries for S4a and S4b
-- [ ] 6.2 `ARCHITECTURE.md`: decision-log entries for the header contract, the freshness rule and the failure policy; fix the chart 2 roadmap row
-- [ ] 6.3 Session Plan "Where things stand" and HANDOFF after each S4 half
+- [x] 6.1 `CLAUDE.md`: Key Files rows for `series/` and `scripts/series_meta.py`; Architecture data-flow paragraph (seed from gh-pages, no commit-back, `main`'s `data/` are fixtures); Correctness Tests (metadata test, `staleness` marker); remove the "known failing check" paragraph; changelog entries for S4a and S4b
+- [x] 6.2 `ARCHITECTURE.md`: decision-log entries for the header contract, the freshness rule and the failure policy; fix the chart 2 roadmap row
+- [x] 6.3 Session Plan "Where things stand" and HANDOFF after each S4 half — S4a handoff/bullet already existed; added the S4b bullet to Session Plan and `HANDOFF — 13 Sep 2026 (S4b).md`, which supersedes the S4a one
 
 ## 7. Validate
 
-- [ ] 7.1 `openspec validate s3-series-metadata` clean and `openspec status --change s3-series-metadata` all done, before S4 starts (done in S3) and again before archive
+- [x] 7.1 `openspec validate s3-series-metadata` clean and `openspec status --change s3-series-metadata` all done, before S4 starts (done in S3) and again before archive — **both run for real**: `openspec` (`@fission-ai/openspec@1.3.1`) turned out to be installed already, just under nvm's Node v18.20.8 rather than this shell's active v22.22.3, so it wasn't on PATH (`which openspec` found nothing); invoking `/Users/joemirza/.nvm/versions/node/v18.20.8/bin/openspec` directly worked fine. `validate s3-series-metadata` → "Change 's3-series-metadata' is valid"; `status --change s3-series-metadata` → all 4 artifacts (proposal/design/specs/tasks) complete

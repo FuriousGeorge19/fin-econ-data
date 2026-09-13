@@ -16,11 +16,6 @@ from datetime import date, datetime, timezone
 REPO_ROOT = os.path.join(os.path.dirname(__file__), "..")
 SERIES_DIR = os.path.join(REPO_ROOT, "series")
 
-# Old top-level `last_updated` format, kept as an alias of `as_of.fetched_at`
-# for one release (see design.md decision 3) so the pre-S4b page keeps working
-# on post-S4a data.
-_LAST_UPDATED_FORMAT = "%Y-%m-%d %H:%M UTC"
-
 
 def ids():
     """Dataset ids (data-file stems), one per `series/<id>.json`, sorted."""
@@ -55,12 +50,6 @@ def write_json(path, obj):
     with open(tmp, "w") as f:
         json.dump(obj, f, indent=2)
     os.replace(tmp, path)
-
-
-def last_updated_alias(fetched_at):
-    """`fetched_at` (a UTC datetime) rendered in the retired top-level
-    `last_updated` string format."""
-    return fetched_at.strftime(_LAST_UPDATED_FORMAT)
 
 
 def period_label(d, cadence):

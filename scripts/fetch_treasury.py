@@ -27,7 +27,6 @@ def fetch_dgs10():
     output = {
         "meta": series_meta.meta_from_descriptor(descriptor),
         "as_of": as_of,
-        "last_updated": series_meta.last_updated_alias(fetched_at),
         "observations": observations,
     }
 

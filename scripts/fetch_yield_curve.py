@@ -79,7 +79,6 @@ def main():
     output = {
         "meta": series_meta.meta_from_descriptor(descriptor),
         "as_of": as_of,
-        "last_updated": series_meta.last_updated_alias(fetched_at),
         "tenors": [t["label"] for t in TENORS],
         "tenor_months": {t["label"]: t["months"] for t in TENORS},
         "observations": observations,

@@ -65,7 +65,6 @@ def main():
     output = {
         "meta": series_meta.meta_from_descriptor(descriptor),
         "as_of": as_of,
-        "last_updated": series_meta.last_updated_alias(fetched_at),
         "series": {
             "10y2y": {"label": "10Y − 2Y", "observations": spread_10y2y},
             "10y3m": {"label": "10Y − 3M", "observations": spread_10y3m},
