@@ -9,7 +9,8 @@ Every chart SHALL draw a single-line annotation inside its Plotly figure (paper
 coordinates, bottom-left, muted small type) reading `<meta.source_line> · data through
 <as_of.period_label>`. A multi-input dataset SHALL name each input's data-through in
 the same line. Because it is part of the figure, the line SHALL appear in PNG exports
-and cropped screenshots.
+and cropped screenshots. No chart control (range slider, range buttons, legend, mode
+bar) SHALL overlap the line, and time-series charts SHALL NOT use Plotly's range slider.
 
 #### Scenario: Single-input line
 
@@ -28,6 +29,11 @@ and cropped screenshots.
 
 - **WHEN** the user exports the chart as PNG
 - **THEN** the exported image contains the source line
+
+#### Scenario: Line unobstructed
+
+- **WHEN** any chart renders at the desktop (400px) or mobile (300px) chart height
+- **THEN** the source line is fully inside the figure with nothing drawn over it
 
 ### Requirement: About tab
 
@@ -55,13 +61,25 @@ hard-coded in HTML.
 
 Charts for datasets with `kind: timeseries` SHALL set the x-axis range end to today's
 US Eastern date, so the gap between the last observation and today is visible. Range
-buttons SHALL count back from today. An open-ended recession interval (`end: null`)
+buttons SHALL count back from today. The "All" button, the mode bar's reset-axes button
+and a double-click on the plot SHALL each set the range to `[first observation, today]`,
+never to Plotly's padded data extent. An open-ended recession interval (`end: null`)
 SHALL be shaded through to today. Charts with `kind: curve` are exempt.
 
 #### Scenario: Gap visible
 
 - **WHEN** the spreads chart renders on 2026-09-13 with data through 2026-09-10
 - **THEN** the x-axis extends to 2026-09-13 and the last three days are empty
+
+#### Scenario: All returns to full history through today
+
+- **WHEN** the user clicks "All" on the P/E chart on 2026-09-13
+- **THEN** the x-axis range is `['1871-01-01', '2026-09-13']`
+
+#### Scenario: Reset matches All
+
+- **WHEN** the user clicks the mode bar's reset-axes button or double-clicks the plot
+- **THEN** the x-axis range is the same `[first observation, today]` range
 
 #### Scenario: Curve snapshot unchanged
 

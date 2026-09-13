@@ -16,10 +16,10 @@
 
 - [x] 4.1 Local via `scripts/dev.sh` + Claude in Chrome: fresh load; each other tab fills the card on first show; no placeholder text after render; All / reset / double-click ranges on all three time-series charts; resize-while-hidden refit; sub-tab reset; PNG export keeps the source line; mobile width; zero console errors. (manual browser check)
 - [x] 4.2 `pytest -m "not staleness"` green (no Python changed; sanity).
-- [ ] 4.3 Commit, push, `gh workflow run update-data.yml`, wait for green, re-verify 4.1's first three checks on http://joemirza.com. (manual browser check)
+- [x] 4.3 Commit, push, `gh workflow run update-data.yml`, wait for green, re-verify 4.1's first three checks on http://joemirza.com. (manual browser check)
 
 ## 5. Docs and plan
 
 - [x] 5.1 `CLAUDE.md`: S4c changelog entry; Chart Conventions gains "charts are drawn only when their container is visible", "All / reset = first observation → today", "no range slider on time-series charts".
 - [x] 5.2 `ARCHITECTURE.md` Decision Log entry in the S4b entries' format.
-- [ ] 5.3 Obsidian: `Session Plan.md` (decision row, "Where things stand" S4c bullet, S4c session row between S4 and S5) and a new `HANDOFF — 13 Sep 2026 (S4c).md`; update the memory pointer to the new handoff.
+- [x] 5.3 Obsidian: `Session Plan.md` (decision row, "Where things stand" S4c bullet, S4c session row between S4 and S5) and a new `HANDOFF — 13 Sep 2026 (S4c).md`; update the memory pointer to the new handoff.
