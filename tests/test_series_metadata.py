@@ -12,10 +12,22 @@ import pytest
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
 sys.path.insert(0, SCRIPTS_DIR)
 
+import build_site
 import series_meta
 from staleness import add_business_days, compute_due_by
 
 SERIES_IDS = series_meta.ids()
+
+# ── `presentation` schema (chart-components capability, design.md decision 4) ─
+
+ALLOWED_PRESENTATION_KEYS = {"sections", "order", "summary", "chart", "stats", "table"}
+REQUIRED_PRESENTATION_KEYS = {"sections", "order", "summary", "chart"}
+ALLOWED_CHART_KEYS = {
+    "type", "y", "presets", "recessions", "zeroline", "overlays", "custom_date", "traces",
+}
+ALLOWED_TABLE_KEYS = {"kind", "rows", "windows"}
+VALID_TABLE_KIND = {"recent", "changes"}
+SITE_SECTION_IDS = {s["id"] for s in build_site.load_site(build_site.PAGES_DIR)["sections"]}
 
 REQUIRED_FIELDS = {
     "id", "title", "short_title", "kind", "units", "cadence",
@@ -53,6 +65,51 @@ def test_descriptor_enums_valid(series_id):
     for inp in d["inputs"]:
         status = inp.get("status", "active")
         assert status in VALID_INPUT_STATUS, f"{series_id}.{inp['id']}: status {status!r}"
+
+
+@pytest.mark.parametrize("series_id", SERIES_IDS)
+def test_presentation_schema_valid(series_id):
+    d = series_meta.load(series_id)
+    presentation = d.get("presentation")
+    if presentation is None:
+        return  # a data-only dataset (e.g. usrec) has no page
+
+    missing = REQUIRED_PRESENTATION_KEYS - presentation.keys()
+    assert not missing, f"{series_id}.presentation: missing {missing}"
+    extra = presentation.keys() - ALLOWED_PRESENTATION_KEYS
+    assert not extra, f"{series_id}.presentation: unknown keys {extra}"
+
+    unknown_sections = set(presentation["sections"]) - SITE_SECTION_IDS
+    assert not unknown_sections, (
+        f"{series_id}.presentation.sections: {unknown_sections} not in pages/site.json"
+    )
+
+    chart = presentation["chart"]
+    assert "type" in chart, f"{series_id}.presentation.chart: missing type"
+    extra_chart_keys = chart.keys() - ALLOWED_CHART_KEYS
+    assert not extra_chart_keys, f"{series_id}.presentation.chart: unknown keys {extra_chart_keys}"
+    for preset in chart.get("presets", []):
+        assert build_site.PRESET_RE.match(preset), f"{series_id}.presentation.chart.presets: {preset!r}"
+
+    table = presentation.get("table")
+    if isinstance(table, dict):
+        extra_table_keys = table.keys() - ALLOWED_TABLE_KEYS
+        assert not extra_table_keys, f"{series_id}.presentation.table: unknown keys {extra_table_keys}"
+        assert table.get("kind") in VALID_TABLE_KIND, f"{series_id}.presentation.table.kind: {table.get('kind')!r}"
+        for window in table.get("windows", []):
+            assert build_site.PRESET_RE.match(window), f"{series_id}.presentation.table.windows: {window!r}"
+    else:
+        assert table in (None, True, False), f"{series_id}.presentation.table: {table!r}"
+
+
+@pytest.mark.parametrize("series_id", SERIES_IDS)
+def test_fetcher_exists_when_given(series_id):
+    d = series_meta.load(series_id)
+    fetcher = d.get("fetcher")
+    if fetcher is None:
+        return
+    path = os.path.join(SCRIPTS_DIR, fetcher)
+    assert os.path.isfile(path), f"{series_id}.fetcher: {fetcher!r} not found at {path}"
 
 
 @pytest.mark.parametrize("series_id", SERIES_IDS)

@@ -1,0 +1,20 @@
+{
+  "name": "Joe Mirza — Economic & Financial Data",
+  "sections": [
+    {
+      "id": "economy",
+      "label": "Economy",
+      "tagline": "Where the U.S. economy sits in the cycle, and the leading indicators that hint at where it's headed."
+    },
+    {
+      "id": "markets",
+      "label": "Markets",
+      "tagline": "Relative valuation and risk pricing across asset classes."
+    },
+    {
+      "id": "rates",
+      "label": "Rates & Yields",
+      "tagline": "The practical \"what can I earn\" dashboard: the current curve and today's yields."
+    }
+  ]
+}

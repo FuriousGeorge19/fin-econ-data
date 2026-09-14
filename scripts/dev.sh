@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Local iteration loop: copy committed data/ into site/data/, warn about any
-# series known to be overdue (no network calls — see scripts/staleness.py),
-# then serve site/ on 8888. Works with FRED_API_KEY unset.
+# Local iteration loop: run scripts/build_site.py (generates the multi-page
+# site and copies committed data/ into site/data/), warn about any series
+# known to be overdue (no network calls — see scripts/staleness.py), then
+# serve site/ on 8888. Works with FRED_API_KEY unset.
 #
 # Usage: scripts/dev.sh [--live] [port]
 #   --live   download each series' live data/<id>.json from joemirza.com
@@ -21,9 +22,9 @@ if [ "${1:-}" = "--live" ]; then
 fi
 PORT="${1:-8888}"
 
-# The file list — here, in the workflow's seed/copy steps, and in
-# staleness.py's check() — derives from series/*.json rather than being
-# hand-copied in each place.
+# The file list — here (for --live), in the workflow's seed step, in
+# build_site.py's data copy, and in staleness.py's check() — derives from
+# series/*.json rather than being hand-copied in each place.
 SERIES_IDS=()
 for f in "$REPO_ROOT"/series/*.json; do
   SERIES_IDS+=("$(basename "$f" .json)")
@@ -38,10 +39,7 @@ if [ "$LIVE" = "1" ]; then
   echo ""
 fi
 
-mkdir -p "$REPO_ROOT/site/data"
-for id in "${SERIES_IDS[@]}"; do
-  cp "$REPO_ROOT/data/${id}.json" "$REPO_ROOT/site/data/${id}.json"
-done
+python3 "$REPO_ROOT/scripts/build_site.py"
 
 echo "Local data/ freshness (this checkout — may lag the live site unless run with --live):"
 python3 "$REPO_ROOT/scripts/staleness.py" local

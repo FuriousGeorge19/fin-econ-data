@@ -35,10 +35,11 @@ def load(series_id):
 
 def meta_from_descriptor(descriptor):
     """The descriptor as embedded into a data file's `meta`: a verbatim copy
-    minus `presentation`, which is reserved for chart configuration and never
-    written to the data file."""
+    minus `presentation` (chart configuration) and `fetcher` (build-time
+    config naming the fetch script) — neither is written to the data file."""
     meta = copy.deepcopy(descriptor)
     meta.pop("presentation", None)
+    meta.pop("fetcher", None)
     return meta
 
 

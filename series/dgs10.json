@@ -3,6 +3,7 @@
   "title": "10-Year Treasury Constant Maturity Rate",
   "short_title": "10Y Treasury",
   "kind": "timeseries",
+  "fetcher": "fetch_treasury.py",
   "units": "Percent",
   "cadence": "daily",
   "publication_lag_business_days": 1,
@@ -33,5 +34,19 @@
   "notes": [
     "Values are percent (4.25 means 4.25%), not a decimal fraction.",
     "No observation is published on weekends or U.S. bond-market holidays; those dates are simply absent, not zero."
-  ]
+  ],
+  "presentation": {
+    "sections": ["rates", "economy"],
+    "order": 5,
+    "summary": "Daily 10-year Treasury constant-maturity yield, from FRED.",
+    "chart": {
+      "type": "timeseries",
+      "y": { "suffix": "%", "format": ".2f" },
+      "presets": ["1M", "6M", "1Y", "5Y", "All"],
+      "recessions": false,
+      "zeroline": false
+    },
+    "stats": true,
+    "table": { "kind": "recent", "rows": 30 }
+  }
 }

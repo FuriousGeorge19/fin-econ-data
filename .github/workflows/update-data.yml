@@ -39,40 +39,10 @@ jobs:
               || echo "::warning::could not restore data/${id}.json from gh-pages; using main's fixture"
           done
 
-      - name: Fetch latest data from FRED
-        id: fetch_treasury
-        continue-on-error: true
+      - name: Fetch all series (per-series failures are non-fatal)
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        run: python scripts/fetch_treasury.py
-
-      - name: Fetch S&P 500 P/E ratio from Shiller/Yale
-        id: fetch_sp500_pe
-        continue-on-error: true
-        env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        run: python scripts/fetch_sp500_pe.py
-
-      - name: Fetch yield curve data from FRED
-        id: fetch_yield_curve
-        continue-on-error: true
-        env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        run: python scripts/fetch_yield_curve.py
-
-      - name: Fetch NBER recession indicator from FRED
-        id: fetch_usrec
-        continue-on-error: true
-        env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        run: python scripts/fetch_usrec.py
-
-      - name: Fetch Treasury yield spreads from FRED
-        id: fetch_spreads
-        continue-on-error: true
-        env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        run: python scripts/fetch_spreads.py
+        run: python scripts/fetch_all.py
 
       - name: Run correctness tests (gates the deploy)
         env:
@@ -103,13 +73,8 @@ jobs:
               print(f"| {row['id']} | {row['last_observation']} | {row['due_by']} | {status} |")
           PY
 
-      - name: Copy data to site directory
-        run: |
-          mkdir -p site/data
-          for f in series/*.json; do
-            id=$(basename "$f" .json)
-            cp "data/${id}.json" "site/data/${id}.json"
-          done
+      - name: Build the site
+        run: python scripts/build_site.py
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -124,27 +89,22 @@ jobs:
         # marks the job (and therefore the run) failed, and it runs after the
         # data has already shipped.
         if: always()
-        env:
-          OUTCOME_dgs10: ${{ steps.fetch_treasury.outcome }}
-          OUTCOME_sp500_pe: ${{ steps.fetch_sp500_pe.outcome }}
-          OUTCOME_yield_curve: ${{ steps.fetch_yield_curve.outcome }}
-          OUTCOME_usrec: ${{ steps.fetch_usrec.outcome }}
-          OUTCOME_spreads: ${{ steps.fetch_spreads.outcome }}
         run: |
-          failed=0
-          for id in dgs10 sp500_pe yield_curve usrec spreads; do
-            var="OUTCOME_${id}"
-            outcome="${!var}"
-            if [ "$outcome" != "success" ]; then
-              echo "::warning::fetch for ${id} ${outcome} — site is serving the last live copy for this series"
-              failed=1
-            fi
-          done
-
           python3 - <<'PY'
+          import json
           import sys
           sys.path.insert(0, "scripts")
           from staleness import check
+
+          with open("data/fetch_status.json") as f:
+              fetch_status = json.load(f)
+
+          failed = False
+          for series_id, result in sorted(fetch_status.items()):
+              if not result["ok"]:
+                  print(f"::warning::fetch for {series_id} failed (returncode {result['returncode']}) "
+                        f"— site is serving the last live copy for this series")
+                  failed = True
 
           for row in check("local"):
               if "error" in row:
@@ -156,8 +116,7 @@ jobs:
                   if input_row["alarms"] and input_row["overdue"]:
                       print(f"::warning::{row['id']}.{input_row['id']} is overdue: due by "
                             f"{input_row['due_by']}, {input_row['days_late']} day(s) late")
-          PY
 
-          if [ "$failed" = "1" ]; then
-            exit 1
-          fi
+          if failed:
+              sys.exit(1)
+          PY

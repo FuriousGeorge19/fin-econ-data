@@ -280,6 +280,48 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-13**: S6a: site generator, fetch runner, tests (`s5-chart-components`
+  tasks.md groups 1-3) — `scripts/build_site.py` (new, stdlib only): reads
+  `pages/site.json` (new; site name + the three sections with taglines) and every
+  `series/*.json`/`pages/*.json`, writes `site/charts/<id>/index.html` per descriptor
+  carrying `presentation`, `site/<section>/index.html` as an automatic grid ordered by
+  `presentation.order`, and `site/<section>/<slug>/index.html` for curated manifests;
+  copies `data/*.json` into `site/data/`; fails the build (naming the file) on an
+  unknown section, a missing chart-type module, a malformed preset, an unresolved
+  manifest reference, or a descriptor id colliding with a built-in type name. Does
+  **not** write `site/index.html` unless `pages/home.json` exists, so the old
+  single-file dashboard stays untouched and live at `/` — the new pages appear beside
+  it under their own URLs (`/charts/dgs10/`, `/economy/`, `/markets/`, `/rates/`) until
+  the S7 cutover. `series/dgs10.json` gained `"fetcher": "fetch_treasury.py"` and the
+  `presentation` block from the S5 design (sections `rates`/`economy`, order 5,
+  `timeseries`, presets `1M 6M 1Y 5Y All`, `stats: true`, `table {kind: recent, rows:
+  30}`) — the first descriptor to carry one. `scripts/fetch_all.py` (new) replaces the
+  workflow's five per-series fetch steps with one runner that executes each
+  descriptor's fetcher inside a `::group::<id>` block, catches failures per series, and
+  writes `data/fetch_status.json` (`{id: {ok, returncode, seconds}}`), always exiting
+  0; `.github/workflows/update-data.yml` now runs it plus `build_site.py` in place of
+  the old copy step, and the final failure-reporting step reads `fetch_status.json`
+  instead of five `OUTCOME_<id>` step-output env vars. `scripts/dev.sh` now calls
+  `build_site.py` instead of hand-copying `data/` into `site/data/`. `series_meta.py`'s
+  `meta_from_descriptor()` now also strips `fetcher` (not just `presentation`) from
+  what's embedded into a data file's `meta`, per the series-metadata spec's header
+  contract. Added `tests/test_build_site.py` (generator behavior against a synthetic
+  sandbox tree, plus an integration test that runs the real generator — real
+  `series/`/`pages/`/`data/`, output to a scratch dir — so a broken build is caught by
+  the gating `pytest` step before it can ship an empty deploy) and `presentation`
+  schema checks in `tests/test_series_metadata.py` (allowed keys/enums, presets
+  grammar, `sections` ⊆ `pages/site.json`, `fetcher` exists when given). One deviation
+  from `tasks.md`, load-bearing: added a placeholder `site/js/charts/timeseries.js`
+  (throws if actually called) — the generator's own module-existence check, run for
+  real against `dgs10`'s new `timeseries` presentation, would otherwise fail the
+  gating tests and the real deploy step until S6b lands; S6b's task 4.4 replaces this
+  file's contents entirely. `.gitignore` gained `site/data/`, `site/**/index.html` and
+  `data/fetch_status.json`; the stray `.envrc.DS_Store` line removed. `pytest -m "not
+  staleness"` 87 green, up from 57 (30 new: 20 in `test_build_site.py`, 10 more
+  `presentation`/`fetcher` checks in `test_series_metadata.py`); full `pytest` with
+  `FRED_API_KEY` set also green (5 staleness checks skip offline/live-site as before).
+  Task 2.4 (post-merge `workflow_dispatch` check) not yet run. Next: S6b (JS runtime
+  and the `timeseries` type, tasks.md groups 4-5).
 - **2026-09-13**: S5b: theme tokens (`s5b-theme-tokens`) — `site/css/tokens.css` (new)
   defines a light and a dark palette under the 20 token names `s5-chart-components`
   froze (the existing 6 plus `--series-1..6`, `--gridline`, `--axis-line`,
