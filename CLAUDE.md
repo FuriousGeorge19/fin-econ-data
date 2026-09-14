@@ -280,6 +280,66 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-14**: S6b: shared JS runtime and the `timeseries` chart type
+  (`s5-chart-components` tasks.md groups 4-5) — `site/css/site.css` (new): the
+  pre-S6 single-file dashboard's inline styles moved and adapted for the
+  generated nav (`nav.nav-primary`/`nav.nav-section` in place of the old
+  header/tab buttons) and a size-variant card grid (`card--full/half/third`,
+  six-column grid collapsing to one column under 640px); `.est-badge`/`.yc-*`
+  moved verbatim per the task. `site/js/lib/`: `dates.js`, `theme.js`
+  (`getTheme()` plus the one `fmtChange()` that replaces the pre-S6 file's
+  four copies — the up/down colour convention it preserves is deliberate:
+  a yield/spread going up is coloured `theme.down`, since that's bad for a
+  bond holder, not the literal numeric sign), `data.js` (`loadSeries`,
+  root-relative `/data/`), `export.js` (`downloadBlob`), `asof.js` (source
+  line, badge text, About HTML — ported near-verbatim), `plotly-layout.js`
+  (`baseLayout`/`xaxisToToday`/`PLOT_CONFIG`; the only file that sets
+  `margin`, legend position, `rangeslider` or a chart `height`), `presets.js`
+  (HTML preset buttons calling `Plotly.relayout`, active state tracked via
+  `plotly_relayout`), `card.js` (`mount(block, today)` — the only code that
+  plots into a card; builds the whole card DOM scoped to its own container so
+  more than one card, even two mounts of the same type, never collide; a
+  `themechange` listener is wired per the mount-lifecycle contract even
+  though no toggle exists yet on generated pages — see the open item below).
+  `site/js/charts/timeseries.js` replaces S6a's placeholder: `render`,
+  `stats`, `table` (`recent` and `changes` kinds), default `csv`, the
+  `series`/`observations`/`traces` payload convention and `y`/`presets`/
+  `recessions`/`zeroline` options from design.md decision 4, hover x-format
+  derived from `meta.cadence`. `site/js/app.js` (new): parses the inline
+  `#page` JSON, computes `todayET()` once, mounts every block. `pytest -m
+  "not staleness"` 87 green (unchanged count — S6b added no new tests, per
+  tasks.md; the existing `test_build_site.py` colour-literal and
+  forbidden-key greps now exercise real content for the first time).
+  Verified live with Claude in Chrome: `/charts/dgs10/` and `/rates/` on
+  first show (`_fullLayout.width === clientWidth`, zero console errors,
+  1Y preset relayout, a simulated drag-zoom clearing every preset button, All
+  and a simulated reset-axes agreeing on `[2017-01-13, 2026-09-14]`, CSV/JSON
+  export filenames, Table and About tab content, a simulated `themechange`
+  re-rendering the chart and re-colouring the stats in the dark palette) and
+  `/` (the old single-file dashboard, unchanged).
+
+  **Bug found and fixed during verification, not in any task list**:
+  `site/css/site.css` never linked `site/css/tokens.css`, so every
+  `getComputedStyle` read of a `--series-*`/`--up`/`--down`/etc. token
+  returned `''` — Plotly silently fell back to its own default blue (masking
+  the bug in a screenshot) and every colour-driven stat/table cell silently
+  lost its inline colour. Fixed with `@import url('tokens.css');` at the top
+  of `site.css` (CSS requires `@import` to precede all other rules). Caught
+  only because task 5.4 requires reading resolved theme values in the
+  browser, not just eyeballing a screenshot — a reminder for S7's curve/P/E
+  ports to check computed values, not just chart appearance.
+
+  **Open item, not scoped to any task**: the generated pages (`/`,
+  `/<section>/`, `/charts/<id>/`) have no theme toggle and no anti-FOUC
+  script — both exist only on the old `site/index.html`. `dashboard-site`'s
+  spec text credits the toggle to S5b, but S5b only added it to the old
+  file. `card.js`'s `themechange` listener is wired and verified working
+  (tested above via a simulated dispatch), so adding the toggle later is a
+  nav/markup change only, not a runtime one — but until then, generated
+  pages are theme-static at whatever `prefers-color-scheme` says on load.
+  Not fixed here: `build_site.py`'s `render_nav`/`render_shell` are S6a's
+  committed groups 1-3, out of this session's assigned scope (groups 4-5).
+
 - **2026-09-13**: S6a: site generator, fetch runner, tests (`s5-chart-components`
   tasks.md groups 1-3) — `scripts/build_site.py` (new, stdlib only): reads
   `pages/site.json` (new; site name + the three sections with taglines) and every

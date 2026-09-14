@@ -23,17 +23,17 @@
 
 ## 4. Shared runtime and the timeseries type (S6b)
 
-- [ ] 4.1 `site/css/site.css`: today's CSS moved verbatim (including `.est-badge` and `.yc-*`), the six existing tokens plus the S5b token names from design decision 5 (values from `site/css/tokens.css` if S5b has landed, otherwise today's hex values); card grid rules for `full | half | third` and the 640 px one-column rule
-- [ ] 4.2 `site/js/lib/dates.js`, `asof.js`, `export.js`, `data.js` (root-relative `/data/`), `theme.js` (reads the tokens into `ctx.theme`): today's shared functions moved into modules, one `fmtChange` replacing the four copies
-- [ ] 4.3 `site/js/lib/plotly-layout.js`: `baseLayout(ctx)` (transparent paper, margins with `margin.b` reserved for the source-line annotation, axis chrome and font from `ctx.theme`, legend top-horizontal, hover x-format from `meta.cadence`), `xaxisToToday` with `autorangeoptions`, start = min x over traces; the only file that sets `margin`/legend position/`rangeslider`/`height`; `PLOT_CONFIG` with `displaylogo: false` and `toImageButtonOptions`
-- [ ] 4.4 `site/js/charts/timeseries.js`: `render`, `stats`, `table` (`recent` and `changes` kinds), default `csv` (outer join on date, columns `date,<key>…`); the payload convention and options from design decision 4; recession bands from `ctx.recessions` in the initial `layout.shapes`; no module-level state, no `getElementById`, no colour literal
+- [x] 4.1 `site/css/site.css`: today's CSS moved verbatim (including `.est-badge` and `.yc-*`), the six existing tokens plus the S5b token names from design decision 5 (values from `site/css/tokens.css` if S5b has landed, otherwise today's hex values); card grid rules for `full | half | third` and the 640 px one-column rule
+- [x] 4.2 `site/js/lib/dates.js`, `asof.js`, `export.js`, `data.js` (root-relative `/data/`), `theme.js` (reads the tokens into `ctx.theme`): today's shared functions moved into modules, one `fmtChange` replacing the four copies
+- [x] 4.3 `site/js/lib/plotly-layout.js`: `baseLayout(ctx)` (transparent paper, margins with `margin.b` reserved for the source-line annotation, axis chrome and font from `ctx.theme`, legend top-horizontal, hover x-format from `meta.cadence`), `xaxisToToday` with `autorangeoptions`, start = min x over traces; the only file that sets `margin`/legend position/`rangeslider`/`height`; `PLOT_CONFIG` with `displaylogo: false` and `toImageButtonOptions`
+- [x] 4.4 `site/js/charts/timeseries.js`: `render`, `stats`, `table` (`recent` and `changes` kinds), default `csv` (outer join on date, columns `date,<key>…`); the payload convention and options from design decision 4; recession bands from `ctx.recessions` in the initial `layout.shapes`; no module-level state, no `getElementById`, no colour literal
 
 ## 5. Card chrome, presets, app entry (S6b)
 
-- [ ] 5.1 `site/js/lib/presets.js`: buttons from `presentation.chart.presets`; `Plotly.relayout` with `[today − n, today]`, YTD, and `xaxis.autorange: true` for All; active state on `plotly_relayout`; `applyInitial(preset)`
-- [ ] 5.2 `site/js/lib/card.js`: `mount(block)` per design decision 5 — build the card DOM with Loading in every panel, eager fetch (+ `usrec.json` when `recessions`), error message owned here, badge/stats/table/About/exports as the fetch resolves, `import('/js/charts/<type>.js')` then `render` once, `Plotly.Plots.resize` on return to the Chart sub-tab, `destroy()`/`render()` on `themechange`, `initialPreset` applied after render
-- [ ] 5.3 `site/js/app.js`: parse `#page`, `mount` every block, compute `todayET()` once
-- [ ] 5.4 **Manual browser check** — `scripts/dev.sh`, then `/charts/dgs10/` and `/rates/` on first show: `_fullLayout.width === clientWidth`, zero console errors, All/reset = `[first_observation, today]`, presets relayout correctly, screenshot matches today's 10Y tab (chart, stats, table, About, exports); the old `/` unchanged (manual browser check)
+- [x] 5.1 `site/js/lib/presets.js`: buttons from `presentation.chart.presets`; `Plotly.relayout` with `[today − n, today]`, YTD, and `xaxis.autorange: true` for All; active state on `plotly_relayout`; `applyInitial(preset)`
+- [x] 5.2 `site/js/lib/card.js`: `mount(block)` per design decision 5 — build the card DOM with Loading in every panel, eager fetch (+ `usrec.json` when `recessions`), error message owned here, badge/stats/table/About/exports as the fetch resolves, `import('/js/charts/<type>.js')` then `render` once, `Plotly.Plots.resize` on return to the Chart sub-tab, `destroy()`/`render()` on `themechange`, `initialPreset` applied after render
+- [x] 5.3 `site/js/app.js`: parse `#page`, `mount` every block, compute `todayET()` once
+- [x] 5.4 **Manual browser check** — `scripts/dev.sh`, then `/charts/dgs10/` and `/rates/` on first show: `_fullLayout.width === clientWidth`, zero console errors, All/reset = `[first_observation, today]`, presets relayout correctly, screenshot matches today's 10Y tab (chart, stats, table, About, exports); the old `/` unchanged (manual browser check)
 
 ## 6. Port the other three charts (S7 workflow, 3 + 1 agents)
 

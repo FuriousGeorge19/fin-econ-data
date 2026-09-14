@@ -1,0 +1,411 @@
+/* Base chrome for the generated multi-page site (s5-chart-components S6b).
+   Ported from the pre-S6 single-file dashboard's inline <style> block, with
+   the header/tab-button/id-based chart rules replaced by the generated
+   nav markup and the size-variant card grid; .est-badge and .yc-* are moved
+   verbatim, per task 4.1. Colour VALUES come from site/css/tokens.css; no
+   literal here duplicates a token except the pre-existing #fb923c badge/note
+   accent and the tr:hover tint, both out of S5b's tokenising scope. */
+
+@import url('tokens.css');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+nav.nav-primary,
+nav.nav-section {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0 2rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+nav.nav-primary { padding-top: 1rem; }
+
+nav.nav-primary a,
+nav.nav-section a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+nav.nav-primary a:first-child {
+    font-weight: 600;
+    color: var(--text);
+}
+
+nav.nav-primary a:hover,
+nav.nav-section a:hover {
+    color: var(--text);
+}
+
+nav.nav-primary a[aria-current="page"],
+nav.nav-section a[aria-current="page"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    grid-column: span 6;
+}
+
+.card--full { grid-column: span 6; }
+.card--half { grid-column: span 3; }
+.card--third { grid-column: span 2; }
+
+.card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.card h2 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.card .subtitle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.card-headrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.badge {
+    display: inline-block;
+    background: rgba(251, 146, 60, 0.15);
+    color: #fb923c;
+    border: 1px solid rgba(251, 146, 60, 0.4);
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.badge[hidden] {
+    display: none;
+}
+
+.stats {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.stat .stat-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+.chart {
+    width: 100%;
+}
+
+.card--full .chart { height: 400px; }
+.card--half .chart,
+.card--third .chart { height: 300px; }
+
+/* Plotly inserts its own container as the first child and never clears the
+   div, so the placeholder is CSS on the empty container: it disappears the
+   moment the chart is drawn (dashboard-site spec, "Loading placeholder"). */
+.chart:empty::before {
+    content: 'Loading chart…';
+    display: block;
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}
+
+.control-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.presets,
+.controls {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.preset-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.preset-btn:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+}
+
+.preset-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+}
+
+.yc-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.yc-controls label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 0.5rem;
+}
+
+.yc-toggle {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.yc-toggle:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+}
+
+.yc-toggle.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+}
+
+.yc-date-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+}
+
+/* The native calendar-icon glyph is dark; invert it for legibility on a dark
+   input, but not on light mode's white input where the invert nearly erases
+   it (S5b). */
+:root[data-theme="dark"] .yc-date-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .yc-date-input::-webkit-calendar-picker-indicator {
+        filter: invert(0.7);
+    }
+}
+
+.est-badge {
+    font-size: 0.75rem;
+    color: #fb923c;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+th {
+    text-align: left;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+tr:hover {
+    background: rgba(56, 189, 248, 0.05);
+}
+
+.subtabs-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+}
+
+.subtabs {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.subtab {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.subtab:hover {
+    color: var(--text);
+}
+
+.subtab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.export-row {
+    display: flex;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.export-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.3rem 0.7rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.export-btn:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+}
+
+.about-section {
+    margin-bottom: 1.25rem;
+}
+
+.about-section:last-child {
+    margin-bottom: 0;
+}
+
+.about-section h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.about-section p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.about-section ul {
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.about-section a {
+    color: var(--accent);
+}
+
+.about-note {
+    font-size: 0.8rem;
+    color: #fb923c;
+    display: block;
+}
+
+.about-table th, .about-table td {
+    font-size: 0.8rem;
+}
+
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+    nav.nav-primary, nav.nav-section { padding: 0 1rem; }
+    main { padding: 1rem; grid-template-columns: 1fr; }
+    .card,
+    .card--full,
+    .card--half,
+    .card--third { grid-column: 1 / -1; }
+    .stats { gap: 1rem; }
+    .card--full .chart { height: 300px; }
+}
