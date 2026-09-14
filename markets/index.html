@@ -10,11 +10,11 @@
 </head>
 <body>
 <nav class="nav-primary"><a href="/">Joe Mirza — Economic &amp; Financial Data</a><a href="/economy/">Economy</a><a href="/markets/" aria-current="page" class="current">Markets</a><a href="/rates/">Rates &amp; Yields</a></nav>
-<nav class="nav-section"></nav>
+<nav class="nav-section"><a href="/charts/sp500_pe/">S&amp;P 500 P/E</a></nav>
 <main>
-
+<div class="card" data-block="sp500_pe"></div>
 </main>
-<script type="application/json" id="page">{"page": {"slug": "markets", "title": "Markets", "layout": "grid"}, "blocks": []}</script>
+<script type="application/json" id="page">{"page": {"slug": "markets", "title": "Markets", "layout": "grid"}, "blocks": [{"id": "sp500_pe", "title": "S&P 500 Trailing P/E Ratio (As-Reported)", "short_title": "S&P 500 P/E", "summary": "Monthly S&P 500 trailing twelve-month P/E ratio, Shiller/Yale data back to 1871.", "href": "/charts/sp500_pe/", "presentation": {"sections": ["markets"], "order": 7, "summary": "Monthly S&P 500 trailing twelve-month P/E ratio, Shiller/Yale data back to 1871.", "chart": {"type": "sp500_pe", "presets": ["1Y", "10Y", "25Y", "50Y", "All"], "recessions": false}, "stats": true, "table": true}, "size": "half"}]}</script>
 <script type="module" src="/js/app.js"></script>
 </body>
 </html>
