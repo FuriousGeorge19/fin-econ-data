@@ -213,6 +213,7 @@ export async function mount(block, today) {
     // one dispatches `themechange`, with no further contract change needed.
     document.addEventListener('themechange', () => {
         instance.destroy();
+        controlsEl.innerHTML = ''; // a type may repopulate slots.controls on every render (e.g. curve)
         const newCtx = buildCtx({ block, data, recessions, today, controlsEl });
         instance = type.render(chartEl, newCtx);
         if (presentation.stats && type.stats) renderStats(container, type.stats(newCtx));

@@ -280,6 +280,60 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-14**: S7: ported spreads, sp500_pe and yield_curve onto the chart-component
+  pattern (`s5-chart-components` tasks.md group 6) — run as a `Workflow` fan-out, three
+  parallel Sonnet agents in one shared checkout (no worktree isolation; each was scoped
+  to disjoint files and explicitly told not to run `pytest`/`build_site.py` against the
+  shared tree, since concurrent invalid-intermediate-state reads would give spurious
+  failures) plus a sequential verifier agent afterward. All four finished cleanly (0
+  errors, 0 empty results, ~453k subagent tokens, ~17 minutes wall-clock).
+  `series/spreads.json` (6.1): `presentation` only, zero JS — `timeseries.js`'s generic
+  `series`-payload derivation, `changes` table kind, `recessions` and `zeroline` options
+  (all built ahead of need in S6b specifically so this port could be config-only) worked
+  exactly as designed. `site/js/charts/sp500_pe.js` (new, 6.2): a custom module porting
+  the confirmed/dashed-estimated split (with the last-confirmed point prepended so the
+  dash visually connects), the long-term-average/10Y-high-low stats, and the
+  dagger-prefixed table rows from the pre-rebuild `site/index.html`; `series/sp500_pe.
+  json` gained its `presentation` block. `site/js/charts/curve.js` (new, 6.3): a second
+  built-in type alongside `timeseries` — all interactive state (active overlay toggles,
+  the custom date value) lives inside `render()`'s own closure, never at module scope;
+  overlay/date controls mount into `ctx.slots.controls` inside a reused `.yc-controls`
+  wrapper; redraws via `Plotly.react` rather than a fresh `Plotly.newPlot`; `table()`/
+  `csv()` are pure, driven by the *configured* overlays, not live DOM toggle state, since
+  neither has access to it; `series/yield_curve.json` gained its `presentation` block.
+  `pytest -m "not staleness"` stayed 87 green throughout (no new tests, per `tasks.md`).
+
+  **Two real bugs found by the verifier's browser check, both in this session's own S6b
+  code, not introduced by any port agent** — dgs10 never exercised either path, so
+  neither was caught until spreads/curve did: (1) `timeseries.js`'s `plotlyTrace()` piped
+  a raw format string straight into Plotly's `%{y:<format>}` hover templating; that path
+  is plain d3-format and doesn't accept the `"+.2f"` forced-sign convention this repo's
+  own `formatValue()` handles correctly, so every hover on the spreads chart logged
+  `encountered bad format: "+.2f"` to the console and silently dropped the `+` sign.
+  (2) hover date text relied on Plotly's own zoom-adaptive default formatting for a date
+  axis instead of a fixed one, so a daily-cadence chart's hover showed an abbreviated
+  date at wide zoom and only the full date once zoomed in — failing the chart-chrome
+  spec's "hover x-format derives from `meta.cadence`" rule at the chart's own default
+  view. Fixed by precomputing each point's hover text (date label plus
+  `formatValue()`-formatted value) into a `text` array and using a plain `%{text}`
+  hovertemplate, sidestepping Plotly's own number/date formatting entirely; verified in
+  the browser afterward (`Plotly.Fx.hover()` plus reading `_fullData[...].text`), zero
+  console warnings, correct signs on both positive and negative spread values, and no
+  regression on dgs10's existing hover. Also fixed a latent, currently-unreachable bug
+  the yield_curve agent's own report flagged accurately: `card.js`'s `themechange`
+  listener re-rendered a chart type without first clearing `ctx.slots.controls`, which
+  would have silently duplicated curve.js's overlay buttons and date input on every
+  theme toggle once one exists on generated pages (none does yet — see the S6b open
+  item) — fixed with one `controlsEl.innerHTML = ''` before re-render.
+
+  Verified live in the browser after both fixes: `/charts/spreads/` (zero line, recession
+  shading, all five presets, correct signed hover text, zero console warnings),
+  `/charts/sp500_pe/` (dashed estimated segment visually connects, table daggers, four
+  distinct stats), `/charts/yield_curve/` (categorical axis, default active overlay,
+  correct min/max date bounds), `/charts/dgs10/` (hover fix caused no regression), and
+  the untouched old `/`. Hit the known `localhost`-serves-a-stale-cached-response gotcha
+  from the S5b session again — `127.0.0.1` bypassed it, as before.
+
 - **2026-09-14**: S6b: shared JS runtime and the `timeseries` chart type
   (`s5-chart-components` tasks.md groups 4-5) — `site/css/site.css` (new): the
   pre-S6 single-file dashboard's inline styles moved and adapted for the

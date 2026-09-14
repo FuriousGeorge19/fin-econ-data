@@ -33,5 +33,18 @@
   "notes": [
     "The 20-year tenor (DGS20) has a gap from 2002-02-18 to 2006-02-08 while the Treasury suspended issuance of 20-year bonds; the chart leaves this gap visible rather than interpolating across it.",
     "Values are percent, not a decimal fraction."
-  ]
+  ],
+  "presentation": {
+    "sections": ["rates"],
+    "order": 10,
+    "summary": "Daily U.S. Treasury yield curve across all tenors, from FRED.",
+    "chart": {
+      "type": "curve",
+      "y": { "suffix": "%" },
+      "overlays": ["1w", "1m", "1y", "5y"],
+      "custom_date": true
+    },
+    "stats": false,
+    "table": true
+  }
 }

@@ -57,8 +57,14 @@ function decimalsFromFormat(format) {
     return m ? Number(m[1]) : 2;
 }
 
-function hoverXFormat(cadence) {
-    return cadence === 'monthly' ? '|%b %Y' : '';
+// A full date for daily cadence, month-and-year for monthly -- computed once
+// per point here rather than left to Plotly's own hover formatting, which is
+// zoom-adaptive (abbreviates at wide zoom) and so cannot satisfy the
+// chart-chrome spec's "hover x-format derives from meta.cadence" rule on its
+// own.
+function hoverDateLabel(iso, cadence) {
+    const full = formatDateLong(iso);
+    return cadence === 'monthly' ? full.replace(/^\d+\s+/, '') : full;
 }
 
 function plotlyTrace(trace, ctx, multi) {
@@ -66,8 +72,15 @@ function plotlyTrace(trace, ctx, multi) {
     const y = presentation.chart.y || {};
     const format = y.format || '.2f';
     const suffix = y.suffix || '';
-    const xfmt = hoverXFormat(meta.cadence);
     const prefix = multi ? `${trace.label}: ` : '';
+    // Hover text is built here, point by point, rather than via Plotly's own
+    // "%{y:<format>}" templating: that path is plain d3-format and does not
+    // accept our "+.2f" (forced-sign) convention the way formatValue() does,
+    // which silently drops the sign and logs a console warning on every
+    // hover for any trace using it (e.g. the spreads chart).
+    const text = trace.observations.map(o =>
+        `${hoverDateLabel(o.date, meta.cadence)}<br>${prefix}${formatValue(o.value, format)}${suffix}`
+    );
     return {
         x: trace.observations.map(o => o.date),
         y: trace.observations.map(o => o.value),
@@ -75,7 +88,8 @@ function plotlyTrace(trace, ctx, multi) {
         mode: 'lines',
         name: trace.label,
         line: { color: tokenColor(theme, trace.colorToken), width: 1.5 },
-        hovertemplate: `%{x${xfmt}}<br>${prefix}%{y:${format}}${suffix}<extra></extra>`,
+        text,
+        hovertemplate: '%{text}<extra></extra>',
     };
 }
 

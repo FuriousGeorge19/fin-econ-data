@@ -33,5 +33,19 @@
   "notes": [
     "A negative value indicates an inverted curve segment.",
     "10y-2y begins 1976-06-01 (DGS2's start); 10y-3m begins 1981-09-01 (DGS3MO's start)."
-  ]
+  ],
+  "presentation": {
+    "sections": ["economy"],
+    "order": 20,
+    "summary": "Daily 10-year minus 2-year and 10-year minus 3-month Treasury yield spreads, from FRED, with NBER recessions shaded.",
+    "chart": {
+      "type": "timeseries",
+      "y": { "suffix": "%", "format": "+.2f" },
+      "presets": ["1Y", "5Y", "10Y", "25Y", "All"],
+      "recessions": true,
+      "zeroline": true
+    },
+    "stats": false,
+    "table": { "kind": "changes", "windows": ["1M", "1Y"] }
+  }
 }
