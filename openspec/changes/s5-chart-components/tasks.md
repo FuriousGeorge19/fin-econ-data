@@ -13,7 +13,7 @@
 - [x] 2.1 `scripts/fetch_all.py`: for each `series_meta.ids()`, run `scripts/<fetcher or fetch_<id>.py>` as a subprocess inside `::group::<id>` … `::endgroup::` with elapsed seconds; try/except per series; write `data/fetch_status.json` (`{id: {ok, returncode, seconds}}`); always exit 0; per design decision 7
 - [x] 2.2 `.github/workflows/update-data.yml`: replace the five fetch steps (and the `OUTCOME_*` env and the id list in the summary step) with one `python scripts/fetch_all.py` step carrying `FRED_API_KEY`; replace the copy step with `python scripts/build_site.py`; the summary step and the final `if: always()` step read `data/fetch_status.json`; seed step, pytest gate, staleness step, deploy step unchanged
 - [x] 2.3 Rollback check: `git diff` of the workflow is confined to those steps and indentation matches siblings
-- [ ] 2.4 **Manual CI check (post-merge)**: `workflow_dispatch`; confirm five `::group::` blocks, `fetch_status.json` all `ok`, the summary table renders, the generated pages are on `gh-pages` beside the old `index.html`, and `http://joemirza.com/charts/dgs10/` loads. Then a forced failure on a throwaway branch (break `fetch_usrec.py`'s series id, as in S4a task 4.9) confirms the carried-forward file, the deploy, and the red job
+- [x] 2.4 **Manual CI check (post-merge)**: `workflow_dispatch`; confirm five `::group::` blocks, `fetch_status.json` all `ok`, the summary table renders, the generated pages are on `gh-pages` beside the old `index.html`, and `http://joemirza.com/charts/dgs10/` loads. Then a forced failure on a throwaway branch (break `fetch_usrec.py`'s series id, as in S4a task 4.9) confirms the carried-forward file, the deploy, and the red job
 
 ## 3. Tests (S6a)
 
