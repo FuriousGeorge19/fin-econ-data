@@ -11,12 +11,16 @@ The descriptor SHALL contain: `id`; `title`; `short_title`; `kind` (`timeseries`
 `curve`, or `intervals`); `units`; `cadence` (`daily`, `monthly`, or `quarterly`);
 `publication_lag_business_days` (integer); `revisions` (`none`, `occasional`,
 `regular`, or `retroactive`) with a `revision_note`; `source_line` (the short form
-drawn inside the chart); `sources` (a list of `{slug, name, url, licence}`); `inputs`
-(a list of `{id, label, source, series_id, cadence, publication_lag_business_days}`,
-each optionally `required` (default true), `manual`, and `status` (`active` by default,
-or `discontinued` with a `status_note`)); and `methodology` and `notes` (arrays of
-plain-text paragraphs). A `presentation` object MAY be present, with the schema defined
-by the `chart-components` capability; it SHALL NOT be embedded into the data file, and a
+drawn inside the chart, hand-written); `sources` (a list of catalogue references
+`{slug, dataset?, url?, note?}`, where `slug` names a file in `catalog/sources/` and
+`dataset` an id within it — `name` and `licence` SHALL NOT appear, since they come from
+the catalogue); `inputs` (a list of `{id, label, source, series_id, cadence,
+publication_lag_business_days}`, each optionally `dataset`, `required` (default true),
+`manual`, and `status` (`active` by default, or `discontinued` with a `status_note`)); and
+`methodology` and `notes` (arrays of plain-text paragraphs). An input's `cadence` is the
+cadence as used by the fetcher and need not equal the referenced dataset's native
+cadence. A `presentation` object MAY be present, with the schema defined by the
+`chart-components` capability; it SHALL NOT be embedded into the data file, and a
 descriptor without it is a data-only dataset with no page. A `fetcher` string MAY name
 the fetch script under `scripts/` (default `fetch_<id>.py`). The descriptor set SHALL be
 the single source of the list of site data files and fetch scripts: `scripts/dev.sh`,
@@ -26,11 +30,13 @@ carrying their own.
 
 #### Scenario: Descriptor validates
 
-- **WHEN** `pytest` runs `tests/test_series_metadata.py`
+- **WHEN** `pytest` runs `tests/test_series_metadata.py` and `tests/test_catalog.py`
 - **THEN** every `series/*.json` parses, carries every required field, uses only the
   enumerated values for `kind`, `cadence`, `revisions` and `inputs[].status`, every
-  `inputs[].source` names a slug present in `sources`, every `presentation` satisfies
-  the `chart-components` schema, and every `fetcher` names an existing script
+  `inputs[].source` names a slug present in `sources`, every `sources[].slug` names an
+  existing catalogue file and every `dataset` an id in it, no `sources[]` entry carries
+  `name` or `licence`, every `presentation` satisfies the `chart-components` schema, and
+  every `fetcher` names an existing script
 
 #### Scenario: File list derives from descriptors
 
@@ -42,10 +48,15 @@ carrying their own.
 ### Requirement: Header contract of meta, as_of and payload
 
 Each `data/<id>.json` SHALL consist of `meta` (the descriptor minus `presentation` and
-`fetcher`, copied verbatim at fetch time), `as_of` (runtime fields written by the
-fetcher), and the unchanged payload keys (`observations` as a list or a date-keyed
-object, `series`, `recessions`, `tenors`, `tenor_months`). `as_of` SHALL carry
-`fetched_at` (ISO 8601 UTC), `first_observation`, `last_observation`, `period_label`,
+`fetcher`, copied at fetch time, with each `sources[]` reference resolved through the
+catalogue into `{slug, dataset?, name, dataset_name?, url, licence, terms_status, via?,
+note?}` — `url` defaulting to the source's `homepage`, `licence` being the merged
+`terms.summary`, `via` the hosting source's `short_name`), `as_of` (runtime fields
+written by the fetcher), and the unchanged payload keys (`observations` as a list or a
+date-keyed object, `series`, `recessions`, `tenors`, `tenor_months`). A reference that
+does not resolve SHALL make the fetch fail with a message naming the descriptor and the
+slug. The browser SHALL NOT fetch the catalogue. `as_of` SHALL carry `fetched_at` (ISO
+8601 UTC), `first_observation`, `last_observation`, `period_label`,
 `observation_count`, and `due_by` (all dates `YYYY-MM-DD`). When the descriptor lists
 more than one input, `as_of.inputs` SHALL carry `{last_observation, period_label,
 due_by}` per input id. When the payload holds more than one series (spreads legs,
@@ -62,6 +73,20 @@ present. The descriptive fields formerly at the top level (`title`, `units`,
   the date of the last observation in the payload, an `as_of.period_label` such as
   `10 Sep 2026`, `as_of.due_by` per the data-freshness rule, and no top-level `title`,
   `units`, `frequency`, `source` or `series_id`
+
+#### Scenario: Resolved sources
+
+- **WHEN** `fetch_sp500_pe.py` writes `data/sp500_pe.json`
+- **THEN** `meta.sources` holds three entries — Shiller's `ie-data`, S&P Global's
+  `sp-500-eps` and S&P Global's `sp500-index` — each with `name`, `dataset_name`, `url`,
+  `licence` and `terms_status` filled from the catalogue, and the `sp500-index` entry
+  carrying `via: "FRED"`
+
+#### Scenario: Unresolvable reference
+
+- **WHEN** a descriptor's `sources[]` names a slug with no file under `catalog/sources/`
+- **THEN** the fetcher exits non-zero naming the descriptor and the slug, and
+  `scripts/fetch_all.py` records that series as failed
 
 #### Scenario: Multi-input dataset
 
