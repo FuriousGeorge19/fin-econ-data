@@ -15,39 +15,45 @@ drawn inside the chart); `sources` (a list of `{slug, name, url, licence}`); `in
 (a list of `{id, label, source, series_id, cadence, publication_lag_business_days}`,
 each optionally `required` (default true), `manual`, and `status` (`active` by default,
 or `discontinued` with a `status_note`)); and `methodology` and `notes` (arrays of
-plain-text paragraphs). A `presentation` object MAY be present and is reserved for
-chart configuration; it SHALL NOT be embedded into the data file. The descriptor set
-SHALL be the single source of the list of site data files: `scripts/dev.sh`, the
-workflow's copy and seed steps, and `scripts/staleness.py` SHALL derive their file
-lists from `series/*.json` rather than carrying their own.
+plain-text paragraphs). A `presentation` object MAY be present, with the schema defined
+by the `chart-components` capability; it SHALL NOT be embedded into the data file, and a
+descriptor without it is a data-only dataset with no page. A `fetcher` string MAY name
+the fetch script under `scripts/` (default `fetch_<id>.py`). The descriptor set SHALL be
+the single source of the list of site data files and fetch scripts: `scripts/dev.sh`,
+`scripts/build_site.py`, `scripts/fetch_all.py`, the workflow's seed step, and
+`scripts/staleness.py` SHALL derive their lists from `series/*.json` rather than
+carrying their own.
 
 #### Scenario: Descriptor validates
 
 - **WHEN** `pytest` runs `tests/test_series_metadata.py`
 - **THEN** every `series/*.json` parses, carries every required field, uses only the
-  enumerated values for `kind`, `cadence`, `revisions` and `inputs[].status`, and every
-  `inputs[].source` names a slug present in `sources`
+  enumerated values for `kind`, `cadence`, `revisions` and `inputs[].status`, every
+  `inputs[].source` names a slug present in `sources`, every `presentation` satisfies
+  the `chart-components` schema, and every `fetcher` names an existing script
 
 #### Scenario: File list derives from descriptors
 
 - **WHEN** a sixth descriptor `series/<new>.json` is added
-- **THEN** `scripts/dev.sh`, the workflow copy step, the workflow seed step and the
-  staleness check include `<new>.json` without any of them being edited
+- **THEN** `scripts/dev.sh`, `scripts/build_site.py`, `scripts/fetch_all.py`, the
+  workflow seed step and the staleness check include `<new>` without any of them being
+  edited
 
 ### Requirement: Header contract of meta, as_of and payload
 
-Each `data/<id>.json` SHALL consist of `meta` (the descriptor minus `presentation`,
-copied verbatim at fetch time), `as_of` (runtime fields written by the fetcher), and
-the unchanged payload keys (`observations` as a list or a date-keyed object, `series`,
-`recessions`, `tenors`, `tenor_months`). `as_of` SHALL carry `fetched_at` (ISO 8601
-UTC), `first_observation`, `last_observation`, `period_label`, `observation_count`,
-and `due_by` (all dates `YYYY-MM-DD`). When the descriptor lists more than one input,
-`as_of.inputs` SHALL carry `{last_observation, period_label, due_by}` per input id.
-When the payload holds more than one series (spreads legs, yield-curve tenors),
-`as_of.series` SHALL carry `{first_observation, last_observation, observation_count,
-period_label, due_by}` per series key. `as_of.latest_value` MAY be present. The
-descriptive fields formerly at the top level (`title`, `units`, `frequency`, `source`,
-`methodology`, `description`, `series_id`) SHALL live only under `meta`.
+Each `data/<id>.json` SHALL consist of `meta` (the descriptor minus `presentation` and
+`fetcher`, copied verbatim at fetch time), `as_of` (runtime fields written by the
+fetcher), and the unchanged payload keys (`observations` as a list or a date-keyed
+object, `series`, `recessions`, `tenors`, `tenor_months`). `as_of` SHALL carry
+`fetched_at` (ISO 8601 UTC), `first_observation`, `last_observation`, `period_label`,
+`observation_count`, and `due_by` (all dates `YYYY-MM-DD`). When the descriptor lists
+more than one input, `as_of.inputs` SHALL carry `{last_observation, period_label,
+due_by}` per input id. When the payload holds more than one series (spreads legs,
+yield-curve tenors), `as_of.series` SHALL carry `{first_observation, last_observation,
+observation_count, period_label, due_by}` per series key. `as_of.latest_value` MAY be
+present. The descriptive fields formerly at the top level (`title`, `units`,
+`frequency`, `source`, `methodology`, `description`, `series_id`) SHALL live only under
+`meta`.
 
 #### Scenario: Single-input daily series
 
@@ -75,8 +81,8 @@ descriptive fields formerly at the top level (`title`, `units`, `frequency`, `so
 
 - **WHEN** any fetcher writes its file under the new contract
 - **THEN** every existing read of `observations`, `series`, `recessions`, `tenors`
-  and `tenor_months` in `tests/` and `site/index.html` still finds those keys at the
-  top level with the same shape
+  and `tenor_months` in `tests/` and the chart type modules under `site/js/charts/`
+  still finds those keys at the top level with the same shape
 
 ### Requirement: Period labels are computed in Python
 

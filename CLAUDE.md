@@ -395,17 +395,35 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
   rewritten (it had described the March 2026 single-series build since S3, over five
   months stale). Verified locally before cutover: the generated `/` renders all four
   cards correctly (Claude in Chrome, `127.0.0.1:8899`), zero console errors, and —
-  after discovering `resize_window` doesn't shrink an already-loaded tab's real
-  viewport in this environment (window resizes but `window.innerWidth` doesn't
-  follow; a *fresh* tab resized before navigating does) — a genuine 400px-wide check
+  after discovering `resize_window` won't shrink a tab's real viewport below a
+  window's current size while more than one tab shares that window, but does work
+  reliably on a lone tab resized *before* it navigates — a genuine 400px-wide check
   confirmed no horizontal overflow (`scrollWidth` 388 at `innerWidth` 400) and
-  correct one-column stacking. Verified live after the deploy
-  (`gh workflow run "Update Data"`, run green): `/`, `/economy/`, `/markets/`,
-  `/rates/`, all four `/charts/<id>/` pages 200 (a ~30s CDN propagation window where
-  the new chart pages 404'd resolved on its own — confirmed via the `gh-pages`
-  branch content that the deploy itself was correct throughout). `openspec validate`
-  clean, `openspec archive` run — `s5-chart-components` moves to
-  `openspec/changes/archive/`, its delta specs merged into `openspec/specs/`.
+  correct one-column stacking. Committed as its own commit on top of S6b/S7 (not
+  amended into either), pushed, then deployed via `gh workflow run "Update Data"`
+  (run green, no correctness-test or build failure). Verified live afterward: `/`,
+  `/economy/`, `/markets/`, `/rates/`, all four `/charts/<id>/` pages 200 immediately
+  (no CDN propagation lag this time, unlike the S7 deploy); `/` in a fresh
+  narrow-window tab (converged to ~500px, not exactly 400 — good enough alongside
+  the exact-400px local check above) showed the same correct stacking with zero
+  console errors, and `/economy/` listed exactly `dgs10` + `spreads`, zero console
+  errors. `openspec archive` initially failed: the change's own `dashboard-site`
+  delta targeted a MODIFIED requirement named "Dark theme and per-tab data loading,"
+  a header that no longer existed — `s5b-theme-tokens` (archived 2026-09-13, before
+  this delta was ever exercised) had already renamed that same requirement to
+  "Light and dark theme, toggle defaults to system preference" when it actually
+  built the light palette and toggle this delta's own text still described as
+  future work. Fixed by editing the change's delta (not the merged spec) before
+  re-archiving: dropped the stale MODIFIED block — S5b's theme requirement needed
+  no change at all — and folded its one genuine fact (root-relative data fetch)
+  into the ADDED "Cards fetch at mount" requirement, where it belongs topically.
+  Checked all nine other spec deltas in the change for the same class of mismatch
+  first (none had it) rather than fixing them one archive-failure at a time.
+  `openspec archive -y s5-chart-components` then succeeded — archived as
+  `2026-09-15-s5-chart-components` (the archive tool stamps by UTC date; every
+  other date in this changelog entry is US-Pacific "today," 2026-09-14) — merging
+  23 added, 17 modified and 8 removed requirements across nine specs plus two new
+  capabilities (`chart-components`, `site-build`).
   **Open item, unchanged by this session, still not scheduled**: no theme toggle or
   anti-FOUC script exists on any generated page (see S6b's changelog entry for the
   full note) — `card.js`'s `themechange` listener is wired and tested via simulated

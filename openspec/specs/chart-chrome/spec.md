@@ -9,8 +9,11 @@ Every chart SHALL draw a single-line annotation inside its Plotly figure (paper
 coordinates, bottom-left, muted small type) reading `<meta.source_line> · data through
 <as_of.period_label>`. A multi-input dataset SHALL name each input's data-through in
 the same line. Because it is part of the figure, the line SHALL appear in PNG exports
-and cropped screenshots. No chart control (range slider, range buttons, legend, mode
-bar) SHALL overlap the line, and time-series charts SHALL NOT use Plotly's range slider.
+and cropped screenshots. The shared layout builder (`site/js/lib/plotly-layout.js`)
+SHALL reserve the bottom margin band for the line and SHALL be the only code that sets
+margins; no chart control (legend, mode bar) SHALL overlap the line, time-series charts
+SHALL NOT use Plotly's range slider, and range presets SHALL be HTML buttons outside the
+figure.
 
 #### Scenario: Single-input line
 
@@ -37,19 +40,20 @@ bar) SHALL overlap the line, and time-series charts SHALL NOT use Plotly's range
 
 ### Requirement: About tab
 
-Each chart SHALL have a sub-tab strip (`Chart | Table | About`). The About tab SHALL be
-rendered entirely from `meta` and `as_of` and SHALL show: title and description;
-sources (name, link, licence or republication note); an inputs table (label, source
-series ID, cadence, publication lag, last observation, status); the next update
-expected by (`due_by`, with the note that freshness is judged on the US Eastern
-date); last fetched (UTC); the revision sentence; coverage (first observation,
-observation count); methodology paragraphs; and notes. No About text SHALL be
-hard-coded in HTML.
+Each card SHALL have a sub-tab strip (`Chart | Table | About`) built by the card chrome
+(`site/js/lib/card.js`). The About tab SHALL be rendered entirely from `meta` and
+`as_of` and SHALL show: title and description; sources (name, link, licence or
+republication note); an inputs table (label, source series ID, cadence, publication
+lag, last observation, status); the next update expected by (`due_by`, with the note
+that freshness is judged on the US Eastern date); last fetched (UTC); the revision
+sentence; coverage (first observation, observation count); methodology paragraphs; and
+notes. No About text SHALL be hard-coded in HTML or in a generator template.
 
 #### Scenario: About rendered from data
 
 - **WHEN** a descriptor's `notes` paragraph is changed and the data file regenerated
-- **THEN** the About tab shows the new paragraph with no change to `site/index.html`
+- **THEN** the About tab shows the new paragraph with no change to any file under
+  `site/`
 
 #### Scenario: Discontinued input visible
 
@@ -60,11 +64,12 @@ hard-coded in HTML.
 ### Requirement: Time-series x-axis ends at today
 
 Charts for datasets with `kind: timeseries` SHALL set the x-axis range end to today's
-US Eastern date, so the gap between the last observation and today is visible. Range
-buttons SHALL count back from today. The "All" button, the mode bar's reset-axes button
-and a double-click on the plot SHALL each set the range to `[first observation, today]`,
-never to Plotly's padded data extent. An open-ended recession interval (`end: null`)
-SHALL be shaded through to today. Charts with `kind: curve` are exempt.
+US Eastern date, so the gap between the last observation and today is visible. The
+preset buttons SHALL count back from today. The "All" preset, the mode bar's
+reset-axes button and a double-click on the plot SHALL each set the range to `[first
+observation, today]`, never to Plotly's padded data extent, where the first observation
+is the earliest x over the chart's traces. An open-ended recession interval (`end:
+null`) SHALL be shaded through to today. Charts with `kind: curve` are exempt.
 
 #### Scenario: Gap visible
 
@@ -73,7 +78,7 @@ SHALL be shaded through to today. Charts with `kind: curve` are exempt.
 
 #### Scenario: All returns to full history through today
 
-- **WHEN** the user clicks "All" on the P/E chart on 2026-09-13
+- **WHEN** the user clicks the "All" preset on the P/E chart on 2026-09-13
 - **THEN** the x-axis range is `['1871-01-01', '2026-09-13']`
 
 #### Scenario: Reset matches All
@@ -109,11 +114,12 @@ latest value. One shared helper SHALL serve every tab.
 
 ### Requirement: Export buttons
 
-Each chart SHALL offer export of the underlying data as CSV and as the JSON file, and
-of the chart as PNG via `Plotly.toImage` or `toImageButtonOptions`. Filenames SHALL be
-`<id>_<as_of.last_observation>.<ext>`. The CSV SHALL contain one row per observation
-with a header row matching the payload's fields (date-keyed payloads flattened to one
-column per series). The Plotly logo SHALL be hidden (`displaylogo: false`).
+Each card SHALL offer export of the underlying data as CSV and as the JSON file, and of
+the chart as PNG via `Plotly.toImage` or `toImageButtonOptions`. Filenames SHALL be
+`<id>_<as_of.last_observation>.<ext>`. The CSV SHALL come from the chart type's `csv`
+function, or by default from an outer join of the chart's traces on date with a header
+row `date,<trace key>…` (one column per series, blank where a series has no value). The
+Plotly logo SHALL be hidden (`displaylogo: false`).
 
 #### Scenario: PNG filename carries as-of
 

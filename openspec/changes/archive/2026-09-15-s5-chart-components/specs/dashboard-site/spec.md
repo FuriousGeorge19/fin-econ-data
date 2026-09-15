@@ -32,9 +32,11 @@ the nav is agnostic to the series set.
 ### Requirement: Cards fetch at mount and plot into a visible container
 
 Each card SHALL fetch its series' JSON when the card is mounted, which happens as the
-page loads; stats, table, badge, About and exports SHALL render as the fetch resolves;
-the chart SHALL be drawn by the card chrome immediately after, into a container that is
-visible and laid out. No chart SHALL be drawn into a hidden (`display:none`) container,
+page loads, by requesting the corresponding `/data/<id>.json` with a root-relative
+path so pages nested under a section or chart URL resolve the same file as `/` does.
+Stats, table, badge, About and exports SHALL render as the fetch resolves; the chart
+SHALL be drawn by the card chrome immediately after, into a container that is visible
+and laid out. No chart SHALL be drawn into a hidden (`display:none`) container,
 because Plotly sizes a hidden container to a 700px fallback and keeps that size.
 
 #### Scenario: Chart fills the card on first draw
@@ -42,19 +44,13 @@ because Plotly sizes a hidden container to a 700px fallback and keeps that size.
 - **WHEN** any page's cards mount
 - **THEN** each chart's figure width equals its container's width on the first draw
 
+#### Scenario: Data fetched per series from any page depth
+
+- **WHEN** a card mounts on a nested page such as `/charts/dgs10/` or `/economy/`
+- **THEN** the page fetches `/data/<id>.json` (root-relative, not page-relative) for
+  that series and renders its chart, stats and table from that response
+
 ## MODIFIED Requirements
-
-### Requirement: Dark theme and per-tab data loading
-
-The site SHALL use a dark theme by default (S5b adds the light palette and the toggle)
-and SHALL load each card's data by fetching the corresponding `/data/<id>.json` with a
-root-relative path, so pages in subdirectories resolve the same file.
-
-#### Scenario: Data fetched per series
-
-- **WHEN** a card mounts on any page
-- **THEN** the page fetches `/data/<id>.json` for that series and renders its chart,
-  stats and table from that response
 
 ### Requirement: Fetch failure surfaces an error message
 
