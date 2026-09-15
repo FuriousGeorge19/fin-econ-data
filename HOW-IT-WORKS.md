@@ -1,169 +1,306 @@
 # How joemirza.com Works — Complete Technical Explanation
 
-This document explains every piece of the system end-to-end: how data is fetched, how the
-site is built, how it deploys, how the daily automation works, and how DNS routes your
-domain to the live site.
+This document explains every piece of the system end-to-end: how data is fetched, how
+the site is generated, how it deploys, how the daily automation works, and how DNS
+routes your domain to the live site.
+
+*Rewritten 2026-09-14 for the `s5-chart-components` rebuild (S6a→S7c) — the site is no
+longer a single HTML file. If you're looking for the version that described the
+original March 2026 single-series dashboard, it's in git history before this date.*
 
 ---
-
-
 
 ## Table of Contents
 
 1. [Overview](#overview)
 2. [The Data Pipeline](#the-data-pipeline)
-3. [The Website](#the-website)
-4. [GitHub Actions — Daily Automation](#github-actions--daily-automation)
-5. [GitHub Pages — Hosting](#github-pages--hosting)
-6. [DNS and Custom Domain](#dns-and-custom-domain)
-7. [HTTPS / SSL Certificate](#https--ssl-certificate)
-8. [What Happens When Someone Visits joemirza.com](#what-happens-when-someone-visits-joemiracom)
-9. [What Happens Every Day at Midnight UTC](#what-happens-every-day-at-midnight-utc)
-10. [Project File Structure](#project-file-structure)
-11. [How to Add a New Data Series](#how-to-add-a-new-data-series)
-12. [Troubleshooting](#troubleshooting)
+3. [The Site Generator](#the-site-generator)
+4. [The Frontend Runtime](#the-frontend-runtime)
+5. [GitHub Actions — Daily Automation](#github-actions--daily-automation)
+6. [GitHub Pages — Hosting](#github-pages--hosting)
+7. [DNS and Custom Domain](#dns-and-custom-domain)
+8. [HTTPS / SSL Certificate](#https--ssl-certificate)
+9. [What Happens When Someone Visits joemirza.com](#what-happens-when-someone-visits-joemirzacom)
+10. [What Happens Every Weekday Evening](#what-happens-every-weekday-evening)
+11. [Project File Structure](#project-file-structure)
+12. [How to Add a New Data Series](#how-to-add-a-new-data-series)
+13. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-The site is a **static website** — there is no server running, no database, no backend
-application. The entire site is a single HTML file plus a JSON data file, served directly
-by GitHub's free hosting service (GitHub Pages).
+The site is a **static website** — no server, no database, no backend application. It
+is a set of generated HTML pages plus JSON data files, served directly by GitHub's
+free hosting service (GitHub Pages).
 
-A **GitHub Actions workflow** runs on a schedule (daily on weekdays). It executes a Python
-script that calls the FRED API to get the latest 10-Year Treasury rate data, saves it as
-a JSON file, and then deploys the updated site to GitHub Pages.
+A **GitHub Actions workflow** runs on a schedule (weekday evenings). It fetches fresh
+data for five datasets from three different sources, runs the correctness test suite,
+**generates the site** from that data plus a set of hand-maintained descriptors, and
+deploys the result to GitHub Pages.
 
-The key insight: we separate **data fetching** (Python, runs in GitHub's cloud) from
-**data display** (HTML/JavaScript, runs in the visitor's browser). The Python script runs
-once a day and produces a static JSON file. The website reads that file and renders it.
+The key structural idea, carried over from the original build and sharpened by the
+rebuild: **data fetching** (Python, runs in GitHub's cloud) is separate from **how a
+chart is drawn** (a JS module in the visitor's browser), which is separate again from
+**which pages exist and what's on them** (a Python generator, reading JSON config).
+Three layers, each replaceable without touching the other two.
 
 ---
 
 ## The Data Pipeline
 
-### Source: FRED (Federal Reserve Economic Data)
+### Five datasets, one shape
 
-FRED is a free public API maintained by the Federal Reserve Bank of St. Louis. It provides
-thousands of economic data series. We use the **DGS10** series, which is the daily 10-Year
-Treasury Constant Maturity Rate — essentially the yield on 10-year U.S. government bonds.
+| id | Source | Cadence | Fetcher |
+|---|---|---|---|
+| `dgs10` | FRED (DGS10) | Daily | `scripts/fetch_treasury.py` |
+| `sp500_pe` | Shiller/Yale + S&P Global + FRED (SP500) | Monthly | `scripts/fetch_sp500_pe.py` |
+| `yield_curve` | FRED (DGS1MO–DGS30, 11 tenors) | Daily | `scripts/fetch_yield_curve.py` |
+| `spreads` | FRED (DGS10, DGS2, DGS3MO), computed | Daily | `scripts/fetch_spreads.py` |
+| `usrec` | FRED (USREC) | Monthly, collapsed to intervals | `scripts/fetch_usrec.py` |
 
-- FRED website: https://fred.stlouisfed.org/series/DGS10
-- API docs: https://fred.stlouisfed.org/docs/api/fred/
+Each fetcher is a standard Python script — four of the five use only the standard
+library; `fetch_sp500_pe.py` also needs `pandas`, `xlrd` and `openpyxl` to read
+Shiller's Excel file and the S&P Global earnings workbook. None of the scripts import
+each other's business logic directly, but `fetch_spreads.py`, `fetch_yield_curve.py`
+and `fetch_treasury.py` all share `scripts/fred_utils.py` for the actual FRED API call
+(URL construction, the `FRED_API_KEY` env var, `"."`-as-missing filtering, retry).
 
-### The Fetch Script: `scripts/fetch_treasury.py`
+### The descriptor: `series/<id>.json`
 
-This is a standard Python script with **no external dependencies** (uses only the standard
-library). Here's what it does step by step:
+Every dataset has a hand-maintained descriptor at `series/<id>.json` — this is the
+single source of truth for its metadata, and (since the rebuild) for whether and how
+it gets a page on the site. A descriptor holds:
 
-1. **Reads the FRED API key** from the `FRED_API_KEY` environment variable. The key is
-   never hardcoded in the script — it's stored as a GitHub Actions secret and passed in
-   at runtime.
+- **Identity and metadata**: `id`, `title`, `short_title`, `kind`, `units`, `cadence`,
+  `publication_lag_business_days`, `revisions`/`revision_note`, `source_line`,
+  `sources` (name/url/licence per source), `inputs` (one entry per underlying series
+  or input, with its own cadence/lag/status), `methodology` (paragraphs), `notes`
+  (paragraphs).
+- **`fetcher`** (optional): the script name under `scripts/`, if it doesn't match the
+  default `fetch_<id>.py`. Only `dgs10` needs this (`fetch_treasury.py` predates the
+  id-based naming convention).
+- **`presentation`** (optional): controls whether the dataset gets a page at all, and
+  if so, where and how. See [The Site Generator](#the-site-generator) below. `usrec`
+  has no `presentation` — it's a data-only dataset, consumed by other charts'
+  recession shading but with no page of its own.
 
-2. **Constructs the API URL** requesting the DGS10 series observations. Key parameters:
-   - `series_id=DGS10` — the specific data series
-   - `file_type=json` — return JSON (FRED also supports XML)
-   - `sort_order=desc` — newest first (so we can limit to ~10 years)
-   - `limit=2520` — approximately 10 years of trading days (252 trading days/year × 10)
+`scripts/series_meta.py` provides `ids()` (every descriptor id) and `load(id)` (the
+parsed descriptor) to every fetcher and to the test suite, so nothing hand-maintains a
+second copy of "which five datasets exist."
 
-3. **Makes the HTTP request** using Python's built-in `urllib` (no `requests` library
-   needed). Includes a `User-Agent` header as good API citizenship.
+### What a fetcher writes: `data/<id>.json`
 
-4. **Cleans the data**: FRED returns `"."` for dates with no data (weekends, holidays).
-   The script filters these out and converts the remaining values from strings to floats.
+Every fetcher writes `meta` + `as_of` + a payload, computed by
+`scripts/series_meta.py`'s `build_as_of(...)`:
 
-5. **Sorts chronologically** (oldest to newest) — FRED returns newest-first, but charts
-   need oldest-first.
+```json
+{
+  "meta": { "...the descriptor, verbatim, minus presentation and fetcher..." },
+  "as_of": {
+    "fetched_at": "2026-09-14T23:41:00Z",
+    "last_observation": "2026-09-11",
+    "period_label": "11 Sep 2026",
+    "first_observation": "2017-01-13",
+    "observation_count": 2416,
+    "due_by": "2026-09-15"
+  },
+  "observations": [ { "date": "2017-01-13", "value": 2.40 }, "..." ]
+}
+```
 
-6. **Writes a JSON file** to `data/dgs10.json` with this structure:
-   ```json
-   {
-     "series_id": "DGS10",
-     "title": "10-Year Treasury Constant Maturity Rate",
-     "units": "Percent",
-     "frequency": "Daily",
-     "source": "Federal Reserve Bank of St. Louis (FRED)",
-     "last_updated": "2026-03-05 08:14 UTC",
-     "observations": [
-       {"date": "2016-07-06", "value": 1.37},
-       {"date": "2016-07-07", "value": 1.36},
-       ...
-     ]
-   }
-   ```
+- `meta` is the descriptor embedded verbatim (so the frontend never hardcodes a
+  title, a methodology paragraph, or a source URL — see the About tab below).
+- `as_of` is computed fresh on every fetch: `due_by` is the descriptor's cadence and
+  `publication_lag_business_days` applied to `last_observation`, using a hand-rolled
+  US bond-market business-day calendar (`scripts/staleness.py`) — federal holidays by
+  rule, Good Friday always closed, plus an `extra_closures` list. Freshness is judged
+  by comparing `due_by` against `toLocaleDateString('en-CA', {timeZone: 'America/
+  New_York'})` in the browser — no business-day arithmetic in JS, so a stale pipeline
+  still reports correctly.
+- The **payload** shape depends on the dataset: `observations` (a flat array — most
+  datasets), `series` (a dict of named sub-series — `spreads`, which has two:
+  `10y2y` and `10y3m`), or `tenors` + `observations` keyed by date (`yield_curve`).
+  A multi-input dataset (`sp500_pe`, whose price and earnings inputs have separate
+  cadences and one is `status: discontinued`) has a per-input breakdown inside
+  `as_of.inputs` instead of one flat `as_of`.
 
-The metadata fields (`title`, `units`, `source`, etc.) are included so the frontend
-doesn't need to hardcode them — useful when we add more series later.
+### `scripts/fetch_all.py`: one runner, not five workflow steps
+
+Rather than the workflow calling each fetcher as its own step, `scripts/fetch_all.py`
+loops over `series_meta.ids()`, runs each one's fetcher (its `fetcher` key, or
+`fetch_<id>.py`) as a subprocess inside a GitHub Actions `::group::<id>` block, times
+it, and catches failures per series rather than letting one bad fetch kill the run. It
+writes `data/fetch_status.json` (`{id: {ok, returncode, seconds}}`) and always exits 0
+— the workflow decides what to do with a failure (see below), the runner's only job is
+"try each one, report what happened."
 
 ---
 
-## The Website
+## The Site Generator
 
-### `site/index.html`
+### `scripts/build_site.py`
 
-The entire site is a single HTML file with embedded CSS and JavaScript. No build step,
-no npm, no bundler. This is intentional — it keeps things simple and deployable as-is.
+This is the piece that didn't exist before the rebuild, and it's the reason a
+descriptor's `presentation` block matters. Given `pages/site.json` (the site name and
+three sections), every `series/<id>.json`, and every `pages/<slug>.json` manifest, it
+writes:
 
-#### CSS / Styling
+- `site/charts/<id>/index.html` — one full-chrome page per descriptor that carries a
+  `presentation` block.
+- `site/<section>/index.html` — one automatic grid per section (`economy`, `markets`,
+  `rates`), listing every chart whose `presentation.sections` includes it, sorted by
+  `presentation.order`, at `half` size.
+- `site/<section>/<slug>/index.html` or `site/index.html` — one page per curated
+  manifest (`pages/<slug>.json`); a manifest with no `section` key is the home page
+  (`pages/home.json` → `/`).
+- `site/data/<id>.json` — a copy of every `data/<id>.json`, since the deploy publishes
+  `site/` and nothing outside it.
 
-The site uses a dark theme with CSS custom properties (variables) defined in `:root`:
-- `--bg`: Deep navy background (`#0f172a`)
-- `--surface`: Card backgrounds (`#1e293b`)
-- `--accent`: Cyan highlight color (`#38bdf8`)
-- etc.
+It **fails the build**, naming the offending file, on: an unknown section in
+`presentation.sections`; a `presentation.chart.type` with no module at
+`site/js/charts/<type>.js`; a malformed preset (must match `^\d+[MY]$`, `YTD`, or
+`All`); a manifest block naming a chart with no `presentation`; an unknown manifest
+`section`; or a descriptor id colliding with a built-in type name (`timeseries`,
+`curve`). This runs inside the workflow's gating `pytest` step (see
+`tests/test_build_site.py`'s `test_real_repo_builds_into_tmp_path`), so a broken
+generator is caught before the deploy step, not after.
 
-This makes it easy to tweak the entire color scheme by changing a few values. The layout
-is responsive — it adjusts for mobile screens using a `@media` query at 640px.
+### The `presentation` block
 
-#### Tab Navigation
+```json
+"presentation": {
+  "sections": ["rates", "economy"],
+  "order": 5,
+  "summary": "Daily 10-year Treasury constant-maturity yield, from FRED.",
+  "chart": {
+    "type": "timeseries",
+    "y": { "suffix": "%", "format": ".2f" },
+    "presets": ["1M", "6M", "1Y", "5Y", "All"],
+    "recessions": false,
+    "zeroline": false
+  },
+  "stats": true,
+  "table": { "kind": "recent", "rows": 30 }
+}
+```
 
-The `<nav>` section has buttons for each data tab. Currently there's only "10Y Treasury",
-but the JavaScript tab-switching logic is already wired up. Adding a new tab means:
-1. Add a `<button>` in the `<nav>`
-2. Add a corresponding content `<div>` in `<main>`
-3. Update the click handler to show/hide tabs
+- `sections`: which of the three section pages this chart appears on (a series can be
+  on more than one — `dgs10` is on both `rates` and `economy`).
+- `order`: sort key within a section.
+- `summary`: one line shown under the chart's title.
+- `chart.type`: resolves to `site/js/charts/<type>.js`. Built-in: `timeseries`
+  (generic time-series traces) and `curve` (the yield-curve snapshot). A custom
+  module is named after the series id it serves (`sp500_pe`).
+- `stats` / `table`: whether the card shows a stats row and/or a table, and (for
+  `table`) which kind.
 
-#### Chart: Plotly.js
+A descriptor with no `presentation` key gets no page and no nav entry at all — this
+is how `usrec` stays a shared, page-less dataset.
 
-We use [Plotly.js](https://plotly.com/javascript/) loaded from a CDN. Plotly was chosen
-because:
-- **Interactive out of the box**: zoom, pan, hover tooltips, range selection
-- **Built-in range selector buttons**: the 1M / 6M / 1Y / 5Y / All buttons are a Plotly
-  feature, not custom code
-- **Range slider**: the minimap at the bottom of the chart is also built-in
-- **Dark theme support**: all colors are configurable
-- **No build step needed**: just a `<script>` tag
+### Every page is a thin shell
 
-The `renderChart()` function creates a Plotly trace from the JSON data and configures
-the layout (colors, axes, range selectors). Key settings:
-- `paper_bgcolor` and `plot_bgcolor` set to `'transparent'` so the card background shows
-- `rangeslider` enabled for the x-axis minimap
-- `rangeselector` with preset time range buttons
-- `hovertemplate` for clean tooltips showing date and rate
+A generated page is deliberately small: `<title>`, a link to `/css/site.css` (plus any
+`/css/charts/<type>.css`), the pinned Plotly `<script>` tag, a static two-row nav
+(site name + sections; on a chart/section/composite page, that section's charts and
+composite pages, current item marked), one `<div class="card" data-block="<id>">`
+placeholder per block, one inline `<script type="application/json" id="page">`
+carrying `{page, blocks: [...]}` (each block's id/title/summary/href/presentation/
+size/preset), and `<script type="module" src="/js/app.js">`. **Everything inside a
+card is built by JavaScript at runtime** — see the next section. All asset references
+are root-relative (`/css/...`, `/js/...`, `/data/...`), so a page nested under
+`/economy/` or `/charts/dgs10/` resolves the same files a page at `/` does.
 
-#### Summary Stats
+### What's committed vs. what's generated
 
-The `renderStats()` function computes:
-- **Latest**: most recent observation value
-- **1-Year High/Low**: max/min over the last ~252 trading days
-- **1-Year Change**: latest value minus value from ~252 trading days ago
+`series/*.json`, `pages/*.json`, `site/css/`, `site/js/` are committed sources. Every
+other path under `site/` — every generated `index.html`, and `site/data/` — is
+produced fresh by `build_site.py` and is gitignored (`site/**/index.html`,
+`site/data/` in `.gitignore`). Run `scripts/build_site.py` (or `scripts/dev.sh`, which
+calls it) after editing a descriptor, a manifest, or anything under `site/css`/
+`site/js`, before checking the result in a browser.
 
-The change is color-coded: red for increases (rates going up = bonds losing value) and
-green for decreases.
+---
 
-#### Data Table
+## The Frontend Runtime
 
-The `renderTable()` function shows the 30 most recent observations in reverse
-chronological order (newest first). Each row shows the date, rate, and daily change
-from the previous observation. Changes are color-coded the same way as the stats.
+### `site/js/app.js` — the entry point
 
-#### Data Loading
+Every generated page loads `/js/app.js` as a native ES module (no bundler — the
+browser loads exactly the files that are written). It parses the inline `#page` JSON,
+computes `todayET()` (today's date in US Eastern, once per page load), and calls
+`mount(block, today)` for every chart block on the page.
 
-The `loadData()` function fetches `data/dgs10.json` relative to the page URL. This works
-both locally (`http://localhost:8888/data/dgs10.json`) and in production
-(`https://joemirza.com/data/dgs10.json`). If the fetch fails, an error message is shown
-in place of the chart.
+### `site/js/lib/card.js` — the only code that plots into a card
+
+For each block, `mount()`:
+
+1. Builds the whole card DOM from the block's JSON (title linking to `/charts/<id>/`,
+   summary, badge, a `Chart | Table | About` sub-tab strip, a control row, the chart
+   container, stats/table/About panels) — everything starts in a loading state, so
+   titles show before any data arrives.
+2. Fetches `/data/<id>.json` eagerly (root-relative, so it resolves the same from any
+   page depth), plus `/data/usrec.json` — tolerating a 404 — if the chart config asks
+   for recession shading.
+3. Renders the freshness badge and the About tab (from `meta`/`as_of` alone — no
+   chart-type code needed for either).
+4. Dynamically imports the chart type module (`import('/js/charts/<type>.js')`), then
+   calls its `stats`/`table` (if the config and the module both provide them) and,
+   once, its `render(chartEl, ctx)` — the Chart sub-tab is the default and a card is
+   never `display:none` at mount, so the container has real width by construction
+   (this is what stopped a recurring bug from the single-file era, where a chart
+   drawn into a hidden tab got stuck at Plotly's 700px fallback size).
+5. Wires the CSV/JSON export buttons and, if the config lists `presets`, the HTML
+   range-preset row.
+6. On a `themechange` event (there's no toggle wired into generated pages yet — see
+   "Known gaps" below — but the listener is live and tested), destroys and
+   re-renders the chart with freshly-read theme colours.
+
+Every DOM query inside `card.js` is scoped to that card's own container element, so
+two cards — even two mounts of the same chart type — never collide.
+
+### `ctx`: what a chart type receives
+
+`render(el, ctx)`, and the optional pure `stats(ctx)`/`table(ctx)`/`csv(ctx)`, all
+receive the same context object: `id`, `data` (the parsed data file), `meta`, `as_of`,
+`presentation`, `today`, `theme` (resolved colour *values*, read from CSS custom
+properties — never a literal), `variant` (`full`/`half`/`third`), `recessions` (the
+interval list or `null`), `initialPreset`, and `slots.controls` (an empty element in
+the control row for a type's own DOM controls, like the yield curve's overlay
+toggles).
+
+### Chart types: `site/js/charts/`
+
+- **`timeseries.js`** — the generic type `dgs10` and `spreads` both use. Derives one
+  trace per key from a `series`-shaped payload, or one trace from an
+  `observations`-shaped payload, with no path adapter; supports recession shading,
+  a zero line, and two table kinds (`recent`, `changes`).
+- **`curve.js`** — the yield-curve type. Categorical, evenly-spaced tenor axis
+  (Bloomberg convention); overlay toggle buttons and a custom date picker as
+  *closure-scoped* per-mount state (never module-level, so a future second curve
+  mount on one page — e.g. nominal and TIPS — stays independent); redraws via
+  `Plotly.react` rather than a fresh plot on every toggle.
+- **`sp500_pe.js`** — the one chart with logic too bespoke for `timeseries`: a solid
+  confirmed-earnings trace and a dashed estimated trace (prepended with the last
+  confirmed point so the dash visually connects), a long-term-average stat, and
+  dagger-marked table rows for estimated months.
+
+Every type module is subject to the same rules, checked by
+`tests/test_build_site.py`: no module-level mutable state, no
+`document.getElementById`, no hex/rgb colour literal anywhere under `site/js`, and
+`margin`/legend position/`rangeslider`/height may only be set in
+`site/js/lib/plotly-layout.js` (its `baseLayout()` is what every type calls for that
+shared chrome).
+
+### Theming
+
+`site/css/tokens.css` defines a light and a dark palette under a frozen set of CSS
+custom property names (`--series-1`…`--series-6`, `--up`, `--down`,
+`--recession-fill`, plus the original six). `site/js/lib/theme.js`'s `getTheme()`
+reads them into `ctx.theme` at draw time. **Known gap**: the light/dark toggle and its
+anti-FOUC script exist only conceptually — no generated page has a working toggle
+control yet (see below); pages currently render whatever `prefers-color-scheme` says
+on load and stay that way for the session.
 
 ---
 
@@ -171,185 +308,143 @@ in place of the chart.
 
 ### `.github/workflows/update-data.yml`
 
-GitHub Actions is a free CI/CD service built into GitHub. You define workflows as YAML
-files in `.github/workflows/`. Our workflow does two things: fetches fresh data and
-deploys the site.
-
 #### Triggers
 
 ```yaml
 on:
   schedule:
-    - cron: '0 0 * * 2-6'  # Midnight UTC (7 PM ET), Tuesday–Saturday
-  workflow_dispatch:         # Manual trigger button in GitHub UI
+    - cron: '15 23 * * 1-5'   # 23:15 UTC Mon–Fri
+  workflow_dispatch:
 ```
 
-- **`schedule`**: Runs automatically on a cron schedule. `0 0 * * 2-6` means "at 00:00
-  UTC on days 2 (Tuesday) through 6 (Saturday)". This covers Monday–Friday market days
-  (Tuesday 00:00 UTC = Monday 7 PM ET, after markets close).
-- **`workflow_dispatch`**: Adds a "Run workflow" button in the GitHub Actions UI so you
-  can trigger it manually anytime.
+23:15 UTC is after FRED's own ~16:15 ET H.15 update, hours before the US Eastern
+midnight boundary freshness is judged against, and off the congested top-of-hour cron
+slot GitHub Actions itself gets busiest at.
 
-**Important caveat**: GitHub Actions cron is not precise. Jobs can be delayed by 5–60
-minutes. For daily financial data this doesn't matter — the data is the same whether
-we fetch it at midnight or 12:45 AM.
+#### Job steps
 
-#### Permissions
+1. **Checkout + Python 3.12 setup**, then `pip install pandas xlrd openpyxl -r
+   requirements-test.txt`.
+2. **Seed `data/` from `gh-pages`**: `git fetch --depth=1 origin gh-pages`, then for
+   every id in `series/*.json`, `git checkout FETCH_HEAD -- data/<id>.json`. This
+   matters because `main`'s `data/*.json` are test fixtures that can lag the live
+   site by months — seeding means a fetch failure below carries forward what's
+   actually live, not a stale fixture. Named files only, never the directory:
+   `data/earnings_overrides.json` is a fetch-time input that doesn't exist on
+   `gh-pages` at all, and a directory-level restore would delete it.
+3. **`python scripts/fetch_all.py`** (with `FRED_API_KEY` from GitHub Secrets) — every
+   series' fetcher, failures caught per-series into `data/fetch_status.json`.
+4. **`pytest -m "not staleness"`** (gates the deploy) — the correctness suite,
+   including `test_build_site.py`'s real-generator integration test. A *wrong*
+   number here blocks the deploy; a *late* one doesn't (see next step).
+5. **`pytest -m staleness`** (`continue-on-error: true`, `STALENESS_SOURCE=local`) —
+   reports overdue series without blocking.
+6. **Write a staleness summary table** to the GitHub Actions job summary.
+7. **`python scripts/build_site.py`** — generates the site from whatever data just
+   got fetched (or carried forward from the seed step).
+8. **Deploy to GitHub Pages** (`peaceiris/actions-gh-pages@v4`, force-pushing `./site`
+   to the `gh-pages` branch, `cname: joemirza.com`) — this step always runs; a fetch
+   failure never blocks it.
+9. **Report fetch failures and overdue series** (`if: always()`): reads
+   `data/fetch_status.json` and the staleness check, prints a GitHub Actions
+   `::warning::` for each problem, and — only in this final step, *after* the site
+   has already shipped — exits 1 if any fetch failed, so the job shows red and GitHub
+   notifies without having delayed the site update.
 
-```yaml
-permissions:
-  contents: write
-```
-
-The workflow needs write access to push to the `gh-pages` branch.
-
-#### Job Steps
-
-1. **`actions/checkout@v4`**: Checks out the repository code so the Python script and
-   site files are available.
-
-2. **`actions/setup-python@v5`**: Installs Python 3.12 on the GitHub runner. Our script
-   uses only the standard library, so no `pip install` step is needed.
-
-3. **Fetch latest data from FRED**: Runs the Python script with the `FRED_API_KEY`
-   environment variable pulled from GitHub Secrets (encrypted, never visible in logs).
-
-4. **Copy data to site directory**: Copies `data/dgs10.json` to `site/data/dgs10.json`
-   so it's included in the deployed site.
-
-5. **Deploy to GitHub Pages**: Uses the `peaceiris/actions-gh-pages@v4` action, which:
-   - Takes the contents of `./site`
-   - Force-pushes them to a branch called `gh-pages`
-   - Includes a `CNAME` file with `joemirza.com` (tells GitHub Pages the custom domain)
-   - GitHub Pages then serves the contents of `gh-pages` as the website
+This is a deliberate departure from "one failure blocks everything": the old
+all-or-nothing model meant one FRED hiccup froze every series with no badge. The
+current policy is seed → fetch what you can → gate only on correctness → always
+deploy → fail the job afterward if something needs attention.
 
 ### GitHub Secrets
 
-The FRED API key is stored as a secret in the repository settings:
-- Go to: GitHub repo → Settings → Secrets and variables → Actions
-- Secret name: `FRED_API_KEY`
-- This is the only secret needed. The `GITHUB_TOKEN` used for deploying is provided
-  automatically by GitHub Actions.
+- `FRED_API_KEY` — the only secret this project needs; does not expire.
+- `GITHUB_TOKEN` (for the Pages deploy) is provided automatically.
 
 ---
 
 ## GitHub Pages — Hosting
 
-GitHub Pages is a free static site hosting service. It serves files from a specific branch
-of your repository as a website.
+- **Source branch**: `gh-pages`, entirely managed by the deploy action — never edit
+  it directly.
+- **Source path**: `/` (root of the branch).
+- **Custom domain**: `joemirza.com`, set via the `CNAME` file the deploy action writes.
 
-### How It's Configured
-
-- **Source branch**: `gh-pages` (created and updated automatically by the deploy action)
-- **Source path**: `/` (root of the branch)
-- **Custom domain**: `joemirza.com` (set via the CNAME file in the deploy)
-
-The `gh-pages` branch is completely managed by the deploy action — you should never edit
-it directly. It contains only the built/deployable files:
-- `index.html`
-- `data/dgs10.json`
-- `CNAME`
-- `.nojekyll` (tells GitHub not to process files through Jekyll)
-
-Your working code lives on the `main` branch. The `gh-pages` branch is just a deployment
-artifact.
+The `gh-pages` branch holds exactly what `build_site.py` wrote into `site/` that run:
+every generated `index.html`, `site/data/*.json`, plus `CNAME` and `.nojekyll`. Your
+working code — the sources `build_site.py` reads — lives on `main`.
 
 ---
 
 ## DNS and Custom Domain
 
-DNS (Domain Name System) translates human-readable domain names into IP addresses that
-computers use to find servers.
-
-### The Chain: Browser → DNS → GitHub → Your Site
-
-1. Someone types `joemirza.com` in their browser
-2. Their computer asks DNS "what IP address is joemirza.com?"
-3. DNS returns one of the four GitHub Pages IP addresses (configured in Porkbun)
-4. The browser connects to that GitHub server
-5. GitHub looks at the `Host: joemirza.com` header in the request
-6. GitHub finds your repository because it has a CNAME file matching `joemirza.com`
-7. GitHub serves `index.html` from your `gh-pages` branch
-
-### DNS Records (Configured in Porkbun)
+Unchanged since the original build. DNS (Porkbun) points `joemirza.com` at GitHub
+Pages:
 
 | Type | Host | Value | Purpose |
 |------|------|-------|---------|
-| A | *(root)* | 185.199.108.153 | Points joemirza.com to GitHub |
-| A | *(root)* | 185.199.109.153 | Redundancy — GitHub has 4 servers |
+| A | *(root)* | 185.199.108.153 | GitHub Pages IP |
+| A | *(root)* | 185.199.109.153 | Redundancy |
 | A | *(root)* | 185.199.110.153 | Redundancy |
 | A | *(root)* | 185.199.111.153 | Redundancy |
-| CNAME | www | FuriousGeorge19.github.io | Points www.joemirza.com to GitHub |
+| CNAME | www | FuriousGeorge19.github.io | `www.joemirza.com` support |
 
-**A records** map a domain directly to an IP address. We have four for redundancy — if
-one GitHub server is down, browsers will try the others.
-
-**CNAME record** maps `www.joemirza.com` to `FuriousGeorge19.github.io`, which GitHub
-then resolves to the same site. This ensures both `joemirza.com` and `www.joemirza.com`
-work.
+GitHub matches the `Host` header of an incoming request against the `CNAME` file on
+`gh-pages` and serves that branch's content.
 
 ---
 
 ## HTTPS / SSL Certificate
 
-GitHub Pages automatically provisions a free SSL/TLS certificate from Let's Encrypt for
-custom domains. This enables `https://joemirza.com`.
-
-The certificate was in "pending" state right after DNS was configured (GitHub needs to
-verify it can reach the domain before issuing a cert). It typically takes 5–15 minutes.
-
-Once issued, "Enforce HTTPS" can be enabled in the repo's Settings → Pages section. This
-redirects all `http://` requests to `https://`.
+**Still an open item, unresolved since the initial 2026-03-05 deploy.**
+`https://joemirza.com` serves GitHub's `*.github.io` wildcard certificate, not one
+issued for `joemirza.com` — `gh api repos/FuriousGeorge19/fin-econ-data/pages` shows
+`https_enforced: false`. Only `http://` reliably works. The likely fix is removing and
+re-adding the custom domain in **Settings → Pages** to force GitHub to re-request a
+Let's Encrypt certificate — a UI action, not something scriptable from here.
 
 ---
 
 ## What Happens When Someone Visits joemirza.com
 
-Here's the complete sequence:
+1. DNS resolves `joemirza.com` to one of GitHub's four IPs.
+2. The browser requests, e.g., `GET /charts/dgs10/`.
+3. GitHub matches the `Host` header to the `CNAME` on `gh-pages` and serves
+   `charts/dgs10/index.html` — a small generated shell (see "Every page is a thin
+   shell" above).
+4. The browser parses the HTML, applies `/css/site.css` (which itself pulls in
+   `/css/tokens.css` for colour values), and loads Plotly.js from its CDN.
+5. `/js/app.js` (a native ES module) runs: parses the inline `#page` JSON, calls
+   `mount()` for the one card on this page.
+6. `mount()` fetches `/data/dgs10.json`, then dynamically imports
+   `/js/charts/timeseries.js` and calls its `render`, `stats`, `table`.
+7. Plotly draws the chart into a container that was visible the whole time — no
+   hidden-tab sizing bug, since there are no tabs to hide behind.
 
-1. **DNS resolution**: Browser resolves `joemirza.com` → `185.199.108.153` (or one of
-   the other three IPs)
-2. **TLS handshake**: Browser establishes an HTTPS connection using GitHub's certificate
-3. **HTTP request**: Browser sends `GET / HTTP/2` with `Host: joemirza.com`
-4. **GitHub routing**: GitHub matches the Host header to the CNAME in your `gh-pages`
-   branch and serves `index.html`
-5. **HTML parsing**: Browser receives the HTML and starts parsing it
-6. **CSS rendering**: The embedded `<style>` block renders the dark theme layout
-7. **Plotly.js load**: Browser fetches `plotly-2.35.0.min.js` from Plotly's CDN (~3.5 MB)
-8. **Data fetch**: The `loadData()` JavaScript function fetches `data/dgs10.json` from
-   your site (~150 KB)
-9. **Chart rendering**: Plotly creates the interactive SVG chart in the browser
-10. **Stats & table**: JavaScript computes summary stats and populates the HTML table
-
-Total load time is typically 1–2 seconds, dominated by the Plotly.js library download
-(which gets cached after the first visit).
+A section page (`/economy/`) or the home page (`/`) does the same thing once per card
+— each card's `mount()` call is independent, so one card's fetch failing doesn't
+affect the others on the same page.
 
 ---
 
-## What Happens Every Day at Midnight UTC
+## What Happens Every Weekday Evening
 
-1. **GitHub Actions scheduler** wakes up and sees the cron trigger matches
-2. A **fresh Ubuntu virtual machine** (called a "runner") is provisioned in GitHub's cloud
-3. The runner **checks out** the latest code from the `main` branch
-4. Python 3.12 is **installed** on the runner
-5. The **fetch script** runs:
-   - Reads `FRED_API_KEY` from the encrypted GitHub secret
-   - Makes an HTTPS request to `api.stlouisfed.org`
-   - Receives ~2500 observations as JSON
-   - Cleans the data (removes missing values, converts types)
-   - Writes `data/dgs10.json`
-6. The **copy step** puts the JSON file into `site/data/`
-7. The **deploy action** takes the entire `site/` directory and force-pushes it to the
-   `gh-pages` branch, including the CNAME file
-8. GitHub Pages detects the new commit on `gh-pages` and **rebuilds the site** (takes
-   ~30 seconds)
-9. The runner is **destroyed** — nothing persists between runs
-10. The site at `joemirza.com` now shows the updated data
-
-If the FRED API is down or returns an error, the Python script exits with a non-zero
-status code, the workflow step fails, and the deploy step is skipped — so the site
-continues serving the last successful data. You'll see a red X on the workflow run in
-the GitHub Actions tab.
+1. GitHub Actions wakes at 23:15 UTC and provisions a fresh Ubuntu runner.
+2. The runner checks out `main`, installs Python 3.12 and the fetch dependencies.
+3. `data/` is seeded from the live `gh-pages` copy (see above).
+4. `scripts/fetch_all.py` runs every fetcher; each writes its own `data/<id>.json` (or
+   leaves the seeded copy in place if it failed).
+5. `pytest -m "not staleness"` gates; if it fails, the job stops here — **no
+   deploy happens** on a correctness failure.
+6. The staleness report runs and gets written to the job summary, without gating.
+7. `scripts/build_site.py` regenerates every page from whatever `data/` now
+   contains.
+8. The deploy action force-pushes `./site` to `gh-pages`; GitHub Pages picks up the
+   new commit and serves it within roughly 30 seconds.
+9. The final step reports any fetch failure or overdue series and fails the job
+   (after the deploy already happened) if there's something to flag.
+10. The runner is destroyed. Nothing persists between runs except what got committed
+    to `gh-pages`.
 
 ---
 
@@ -357,87 +452,88 @@ the GitHub Actions tab.
 
 ```
 fin-econ-data/
-├── .github/
-│   └── workflows/
-│       └── update-data.yml      # GitHub Actions: daily fetch + deploy
-├── data/
-│   └── dgs10.json               # Raw data from FRED (~2400 observations)
+├── .github/workflows/update-data.yml   Daily fetch + build + deploy
+├── data/                                Raw fetcher output (test fixtures on main;
+│   ├── dgs10.json                       gh-pages is the deploy history — see above)
+│   ├── sp500_pe.json
+│   ├── yield_curve.json
+│   ├── spreads.json
+│   ├── usrec.json
+│   └── earnings_overrides.json          Manually maintained input, not a fetcher output
+├── series/                              One hand-maintained descriptor per dataset
+│   ├── dgs10.json                       (meta fields + an optional presentation block)
+│   ├── sp500_pe.json
+│   ├── yield_curve.json
+│   ├── spreads.json
+│   └── usrec.json                       No presentation — data-only, no page
+├── pages/
+│   ├── site.json                        Site name + the three sections
+│   └── home.json                        Curated manifest for /
 ├── scripts/
-│   └── fetch_treasury.py        # Python script to fetch DGS10 from FRED
+│   ├── fetch_treasury.py, fetch_sp500_pe.py, fetch_yield_curve.py,
+│   │   fetch_spreads.py, fetch_usrec.py    One fetcher per dataset
+│   ├── fetch_all.py                     Runs every fetcher, non-fatal per series
+│   ├── build_site.py                    The site generator
+│   ├── series_meta.py, staleness.py,
+│   │   build_earnings_overrides.py, fred_utils.py    Shared helpers
+│   └── dev.sh                           Local iteration loop
 ├── site/
-│   ├── data/
-│   │   └── dgs10.json           # Copy of data for the live site
-│   └── index.html               # The entire website (HTML + CSS + JS)
-├── .gitignore                   # Ignores __pycache__, .env
-├── CLAUDE.md                    # Context file for Claude AI sessions
-└── HOW-IT-WORKS.md              # This file
+│   ├── css/
+│   │   ├── site.css                     Committed — nav, card grid, chrome
+│   │   └── tokens.css                   Committed — light/dark colour tokens
+│   ├── js/
+│   │   ├── app.js                       Committed — page entry point
+│   │   ├── lib/                         Committed — shared runtime (card.js, etc.)
+│   │   └── charts/                      Committed — chart-type modules
+│   ├── data/                            GENERATED, gitignored
+│   └── **/index.html                    GENERATED, gitignored (every page)
+├── tests/                                Pytest correctness suite
+├── openspec/                             Design history (specs, changes, archive)
+├── .gitignore
+├── CLAUDE.md                             Context file for Claude Code sessions
+└── HOW-IT-WORKS.md                       This file
 ```
-
-**Why are there two copies of `dgs10.json`?**
-
-- `data/dgs10.json` is the "source of truth" — written by the Python script
-- `site/data/dgs10.json` is the copy that gets deployed to GitHub Pages
-
-The deploy action only publishes the `site/` directory. We keep the original in `data/`
-so scripts can read/write there without worrying about the site structure. The workflow
-copies it over before deploying.
 
 ---
 
 ## How to Add a New Data Series
 
-This architecture was designed to make adding new series straightforward:
+The whole point of the rebuild was making this file-additive for the common case.
 
-### 1. Create a New Fetch Script
+### 1. Fits an existing chart type (`timeseries` or `curve`) — most series will
 
-Copy `scripts/fetch_treasury.py` as a starting point. For example, for the Fama-French
-3-factor data from Kenneth French's website:
+1. **Write `series/<id>.json`**: the metadata fields (title, units, cadence, sources,
+   methodology, notes) plus a `presentation` block — `sections`, `order`, `summary`,
+   `chart` (`type` + options; see `timeseries.js`'s payload convention above), `stats`,
+   `table`.
+2. **Write `scripts/fetch_<id>.py`** (or reuse an existing script via a `"fetcher"`
+   key, as `dgs10` does).
+3. **Write `tests/test_<id>.py`** and run the fetcher once locally to produce a
+   `data/<id>.json` fixture.
+4. **Run `python3 scripts/build_site.py`.** The chart's page, its entries on every
+   section page it's assigned to, and the nav are all derived from the descriptor —
+   no workflow edit, no HTML file, no nav edit needed.
 
-```
-scripts/fetch_fama_french.py
-```
+Curating the new series onto `/` (or a future composite page) is a separate,
+deliberate edit to `pages/*.json` — never automatic.
 
-The script should:
-- Fetch data from the source (API call, CSV download, etc.)
-- Clean and normalize it
-- Write a JSON file to `data/<series_name>.json` with the same structure (metadata +
-  observations array)
+### 2. Needs a genuinely new chart type
 
-### 2. Update the GitHub Actions Workflow
+Only necessary when the drawing logic can't be expressed as `timeseries`/`curve`
+config — write `site/js/charts/<type>.js` exporting `render(el, ctx)` and optional
+pure `stats`/`table`/`csv`. Read `timeseries.js` or `curve.js` first as a worked
+example, and follow the same rules every type must: no module-level mutable state, no
+`document.getElementById`, no colour literal, and never set Plotly `margin`/legend
+position/`rangeslider`/height directly (call `baseLayout()` from
+`site/js/lib/plotly-layout.js` instead). `tests/test_build_site.py` greps for
+violations of the last three.
 
-Add the new fetch command and copy step to `.github/workflows/update-data.yml`:
-
-```yaml
-- name: Fetch Fama-French factors
-  run: python scripts/fetch_fama_french.py
-
-- name: Copy data to site directory
-  run: |
-    mkdir -p site/data
-    cp data/dgs10.json site/data/
-    cp data/fama_french.json site/data/    # ← add this
-```
-
-### 3. Add a Tab to the Website
-
-In `site/index.html`:
-1. Add a new `<button>` in the `<nav>` section
-2. Add a new content `<div>` for the tab
-3. Add a `loadData()` variant that fetches the new JSON file
-4. Add chart/table rendering functions for the new data
-
-### 4. Test Locally
+### 3. Test locally
 
 ```bash
-# Fetch both datasets
-FRED_API_KEY=your_key python3 scripts/fetch_treasury.py
-python3 scripts/fetch_fama_french.py
-
-# Copy to site
-cp data/*.json site/data/
-
-# Preview
-cd site && python3 -m http.server 8888
+FRED_API_KEY=your_key python3 scripts/fetch_all.py   # or one fetcher at a time
+scripts/dev.sh                                        # regenerates + serves
+# open http://127.0.0.1:8888/ (use 127.0.0.1, not localhost — see Troubleshooting)
 ```
 
 ---
@@ -446,40 +542,47 @@ cd site && python3 -m http.server 8888
 
 ### The site shows old data
 
-- Check the GitHub Actions tab: did the latest workflow run succeed?
-- If it failed, click into the run to see which step failed and the error message
-- If the FRED API was temporarily down, just re-run the workflow manually (Actions tab →
-  "Run workflow" button)
+- Check the GitHub Actions tab: did the latest "Update Data" run succeed?
+- If it failed at the `pytest` step, the deploy didn't happen at all — the site is
+  serving whatever it last successfully deployed.
+- If a specific series' fetch failed but the run otherwise succeeded (a red job with
+  a green-looking deploy history), that series is serving its last live value — check
+  the job's `::warning::` annotations for which one and why.
 
 ### The site is completely down
 
-- Check if GitHub Pages is having an outage: https://www.githubstatus.com/
-- Check DNS: run `dig joemirza.com` and verify it returns GitHub's IPs
-- Check the repo Settings → Pages to make sure it's still configured
+- Check GitHub Pages status: https://www.githubstatus.com/
+- Check DNS: `dig joemirza.com` should return GitHub's four IPs.
+- Check repo Settings → Pages is still configured with the `gh-pages` source.
 
 ### I want to force a data refresh right now
 
-Go to the GitHub repo → Actions tab → "Update Data" workflow → "Run workflow" button.
-Or from the command line:
-
 ```bash
-cd "/path/to/fin-econ-data"
-gh workflow run update-data.yml
-gh run watch  # watch it complete
+gh workflow run "Update Data"
+gh run watch --exit-status
 ```
 
-### I changed the site locally but it's not updating online
+Or: GitHub repo → Actions tab → "Update Data" → "Run workflow".
 
-Local changes need to be committed and pushed to `main`. But note: the site is deployed
-from `gh-pages`, not `main`. After pushing to `main`, you need to either:
-- Wait for the next scheduled workflow run, or
-- Trigger the workflow manually (`gh workflow run update-data.yml`)
+### I changed the site locally but it's not showing up online
 
-The workflow will check out `main`, run the scripts, and deploy to `gh-pages`.
+Local changes need to be committed and pushed to `main` — but the live site deploys
+from `gh-pages`, generated by the workflow, not from whatever you pushed to `main`
+directly. After pushing to `main`, either wait for the next scheduled run or trigger
+one manually (above). Editing `site/*.html` directly does nothing lasting — it's
+gitignored and gets regenerated (and overwritten) by `scripts/build_site.py` on the
+next run.
 
-### DNS isn't resolving / site shows Porkbun parking page
+### `localhost` is showing stale content during local iteration
 
-- Verify A records in Porkbun point to GitHub's four IPs
-- Make sure the old ALIAS and wildcard CNAME records pointing to Porkbun were deleted
-- DNS propagation can take up to 48 hours (though usually minutes with Porkbun)
-- Test with: `dig +short joemirza.com A`
+A recurring gotcha on this machine, across several sessions: `http://localhost:PORT`
+has repeatedly served a stale cached response even after restarting `scripts/dev.sh`
+and hard-reloading. Use `http://127.0.0.1:PORT/` instead — it has reliably shown the
+current file contents every time this has come up.
+
+### DNS isn't resolving / site shows Porkbun's parking page
+
+- Verify the four A records in Porkbun point to GitHub's IPs.
+- Confirm no old ALIAS or wildcard CNAME record pointing at Porkbun survived.
+- Propagation is usually minutes with Porkbun, but can take up to 48 hours.
+- Test with `dig +short joemirza.com A`.

@@ -44,9 +44,9 @@
 
 ## 7. Cutover and docs
 
-- [ ] 7.1 `pages/home.json`: `slug home`, grid, the four charts at `half` in the order 10Y, yield curve, spreads, P/E
-- [ ] 7.2 `git rm --cached site/index.html site/data/*.json`; run the generator; confirm `/` is the generated home page and `git status` is clean
-- [ ] 7.3 Docs: `CLAUDE.md` (architecture block, key files, dev pattern "adding a series", iteration loop, changelog), `ARCHITECTURE.md` (decision-log entry; §5/§6 marked done), `HOW-IT-WORKS.md` rewrite (stale since S3)
+- [x] 7.1 `pages/home.json`: `slug home`, grid, the four charts at `half` in the order 10Y, yield curve, spreads, P/E
+- [x] 7.2 `git rm --cached site/index.html site/data/*.json`; run the generator; confirm `/` is the generated home page and `git status` is clean
+- [x] 7.3 Docs: `CLAUDE.md` (architecture block, key files, dev pattern "adding a series", iteration loop, changelog), `ARCHITECTURE.md` (decision-log entry; §5/§6 marked done), `HOW-IT-WORKS.md` rewrite (stale since S3)
 - [ ] 7.4 **Manual browser check** — live site after the deploy: `/`, each section page, each chart page, one composite page if any; phone width 400 px on `/` (manual browser check)
 
 ## 8. Validate

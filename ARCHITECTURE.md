@@ -6,22 +6,20 @@ handful of charts toward the full vision described in
 
 ---
 
-## Current Architecture (as of 2026-04-01, 3 tabs)
+## Current Architecture
 
-```
-scripts/fetch_<name>.py   →   data/<name>.json   →   site/data/<name>.json
-                                                          ↓
-                                              site/index.html (single file,
-                                              all CSS + JS + HTML inline)
-```
+**See `CLAUDE.md`'s Architecture section for the up-to-date description** — this
+document tracks the *evolution*, not the current state, and the diagram that used to
+live here (a single `site/index.html`, one tab per series) was retired by the
+`s5-chart-components` rebuild (S6a→S7c, 2026-09-13–14; see the Decision Log). In
+short, as of 2026-09-14: `series/<id>.json` descriptors carry a `presentation` block,
+`scripts/build_site.py` generates a multi-page site from them plus `pages/*.json`
+manifests, and `site/js/charts/<type>.js` modules do the actual drawing — Sections 5
+and 6 below, "Frontend: Splitting index.html" and "Navigation: Section-Based
+Grouping," are both marked done rather than rewritten in place, so the reasoning
+that led there stays intact.
 
-- One independent Python script per data source
-- One JSON file per data source
-- One monolithic `index.html` with all chart/table rendering inline
-- GitHub Actions workflow calls each script sequentially, copies JSON, deploys
-
-This works well at the current scale. The notes below describe when and why
-each piece will need to evolve.
+The notes below describe when and why each remaining piece will need to evolve.
 
 ---
 
@@ -115,7 +113,13 @@ Shiller's data can be fetched from his Excel file at Yale (similar to how
 `fetch_sp500_pe.py` already does it — that script already pulls Shiller data).
 Factor out Shiller fetching into a shared utility if multiple charts need it.
 
-### 5. Frontend: Splitting index.html
+### 5. Frontend: Splitting index.html — **Done 2026-09-14** (`s5-chart-components`)
+
+Landed as a full generated-multi-page-site rebuild rather than the lighter options
+below — see the Decision Log entry for why the design went further than "split into
+files." `site/index.html` no longer exists; each chart is `site/js/charts/<type>.js`
+plus a `presentation` block in `series/<id>.json`, assembled by `scripts/build_site.py`
+into `site/charts/<id>/index.html` and the section pages.
 
 **When:** Around 5–6 tabs (charts 2–4 timeframe).
 
@@ -135,7 +139,13 @@ Options (in order of simplicity):
 Recommendation: option 1 first. It's a 30-minute refactor and buys a lot of
 headroom.
 
-### 6. Navigation: Section-Based Grouping
+### 6. Navigation: Section-Based Grouping — **Done 2026-09-14** (`s5-chart-components`)
+
+The three sections below are exactly what shipped: `pages/site.json` names them
+(`economy`, `markets`, `rates`), each descriptor's `presentation.sections` places it
+on one or more, and `scripts/build_site.py` generates `/economy/`, `/markets/`,
+`/rates/` automatically, sorted by `presentation.order`. `dgs10` is the one series on
+two sections (rates and economy) — the cross-section case this section anticipated.
 
 **When:** Around 6–8 charts, when flat tabs become unwieldy.
 
@@ -360,3 +370,45 @@ Decisions made during implementation that future work should be aware of:
   `Plotly.newPlot`, so a chart hidden during a toggle can't reproduce S4c's 700px
   fallback. Also fixed: `nav button` (no filter) would have wired the new toggle
   button into tab-switching; narrowed to `nav button[data-tab]`.
+
+- **Generated multi-page site replaces the single-file dashboard; component
+  contract for chart types** (2026-09-13–14, `s5-chart-components`, five sessions:
+  S5 design, S6a Python half, S6b JS half, S7 the other three charts, S7c cutover):
+  Section 5's "split index.html into files" and Section 6's "section-based nav"
+  were both subsumed into a larger rebuild rather than done as the smaller steps
+  either section originally described, because `series/<id>.json` already reserved
+  a `presentation` block (S3) that nothing read — a generator had to exist regardless,
+  and once it does, per-page files and per-section nav come for free rather than as
+  separate migrations. `scripts/build_site.py` (stdlib Python, no templating
+  library) reads every descriptor's `presentation` and every `pages/*.json`
+  manifest and writes `site/charts/<id>/`, `site/<section>/` (automatic grids sorted
+  by `order`), and curated pages (`pages/home.json` → `/`); it fails the build,
+  naming the file, on a malformed `presentation`, a missing chart-type module, or an
+  unresolved manifest reference — this runs inside the gating `pytest` step, so a
+  broken generator cannot ship an empty deploy. `site/css/` and `site/js/` are
+  committed sources; every other path under `site/` is generated and gitignored.
+  Chart types are ES modules in `site/js/charts/` exporting `render(el, ctx)` plus
+  optional pure `stats`/`table`/`csv`; `site/js/lib/card.js`'s `mount(block, today)`
+  is the only code that plots into a card, and `site/js/lib/plotly-layout.js` is the
+  only file allowed to set Plotly `margin`, legend position, a range slider, or a
+  chart height — both enforced by greps in `tests/test_build_site.py`, not just
+  convention. `scripts/fetch_all.py` replaced five per-series workflow steps (and
+  their three-place-edit conflict risk for parallel agents) with one runner that
+  catches failures into `data/fetch_status.json`. Adding a series with an existing
+  chart type is now genuinely file-additive: a descriptor, a fetcher, a test fixture
+  — no shared file touched, verified in practice by S7's three-agent parallel port
+  (spreads by config only; `sp500_pe` and `curve` as new modules) hitting zero
+  merge conflicts. One deviation from the general design surfaced during S7's
+  verification and was fixed in the same session, not deferred: `timeseries.js`'s
+  hover text had been built through Plotly's own `%{y:<format>}`/`%{x}` templating,
+  which doesn't accept the repo's `"+.2f"` forced-sign convention and defaults to a
+  zoom-adaptive date format rather than a fixed one — both replaced with
+  precomputed per-point hover text once a second chart (`spreads`) exercised a code
+  path `dgs10` alone never had. Cutover (S7c): `pages/home.json` curates the
+  original four charts onto `/`; `git rm --cached site/index.html site/data/*.json`
+  stopped tracking the now-generated files (both were already gitignored going
+  forward, per S6a's `.gitignore` change — untracking is what actually stops
+  git from following them). Rollback before cutover was one commit's revert at any
+  point, because the old `site/index.html` was never touched until this step;
+  rollback after cutover is restoring that file from its last commit before the
+  `git rm --cached` and deleting `pages/home.json`.
