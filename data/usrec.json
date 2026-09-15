@@ -13,15 +13,21 @@
     "sources": [
       {
         "slug": "fred",
+        "dataset": "usrec",
         "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "NBER-based recession indicator, monthly",
         "url": "https://fred.stlouisfed.org/series/USREC",
-        "licence": "Public domain (U.S. government data)"
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
       },
       {
         "slug": "nber",
+        "dataset": "chronology",
         "name": "National Bureau of Economic Research (NBER), Business Cycle Dating Committee",
+        "dataset_name": "U.S. business cycle expansions and contractions",
         "url": "https://www.nber.org/research/business-cycle-dating",
-        "licence": "Public domain (U.S. government-funded research); dates are NBER's official recession chronology"
+        "licence": "Permission to copy is granted, provided attribution of source is given (NBER)",
+        "terms_status": "verified"
       }
     ],
     "inputs": [
@@ -29,6 +35,7 @@
         "id": "usrec",
         "label": "NBER-based monthly recession indicator (1 = recession)",
         "source": "fred",
+        "dataset": "usrec",
         "series_id": "USREC",
         "cadence": "monthly",
         "publication_lag_business_days": 5
@@ -44,7 +51,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-15T01:24:33Z",
+    "fetched_at": "2026-09-15T03:12:53Z",
     "last_observation": "2026-08-01",
     "period_label": "Aug 2026",
     "latest_value": 0.0,

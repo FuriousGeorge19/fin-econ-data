@@ -12,29 +12,41 @@
     "source_line": "Shiller/Yale \u00b7 S&P Global \u00b7 FRED SP500",
     "sources": [
       {
-        "slug": "fred",
-        "name": "Federal Reserve Bank of St. Louis (FRED)",
-        "url": "https://fred.stlouisfed.org/series/SP500",
-        "licence": "S&P Dow Jones Indices terms via FRED"
-      },
-      {
         "slug": "shiller",
-        "name": "Robert Shiller / Yale",
+        "dataset": "ie-data",
+        "name": "Robert J. Shiller (Yale) \u2014 U.S. Stock Markets 1871\u2013Present and CAPE Ratio",
+        "dataset_name": "U.S. stock markets 1871\u2013present and CAPE, monthly",
         "url": "http://www.econ.yale.edu/~shiller/data.htm",
-        "licence": "Free download; no republication restriction found"
+        "licence": "Free download; no terms of use or republication statement found on the Yale data page or shillerdata.com",
+        "terms_status": "unknown"
       },
       {
         "slug": "spglobal",
-        "name": "S&P Global, sp-500-eps-est.xlsx (manual)",
-        "url": "https://www.spglobal.com/spdji/",
-        "licence": "Unverified; only the derived TTM EPS is published"
+        "dataset": "sp-500-eps",
+        "name": "S&P Global (S&P Dow Jones Indices)",
+        "dataset_name": "S&P 500 quarterly earnings per share (as-reported and operating)",
+        "url": "https://www.spglobal.com/spdji/en/indices/equity/sp-500/",
+        "licence": "S&P Dow Jones Indices terms of use, not yet read (the page returned 403 to automated fetches)",
+        "terms_status": "unverified",
+        "note": "Only the derived trailing-twelve-month EPS figure is published here"
+      },
+      {
+        "slug": "spglobal",
+        "dataset": "sp500-index",
+        "name": "S&P Global (S&P Dow Jones Indices)",
+        "dataset_name": "S&P 500 index level, daily",
+        "url": "https://fred.stlouisfed.org/series/SP500",
+        "licence": "S&P Dow Jones Indices copyright, via FRED: reproduction of the S&P 500 in any form is prohibited without S&P's prior written permission",
+        "terms_status": "restricted",
+        "via": "FRED"
       }
     ],
     "inputs": [
       {
         "id": "price",
         "label": "Monthly average S&P 500 price",
-        "source": "fred",
+        "source": "spglobal",
+        "dataset": "sp500-index",
         "series_id": "SP500",
         "cadence": "monthly",
         "publication_lag_business_days": 1
@@ -43,6 +55,7 @@
         "id": "earnings",
         "label": "Trailing 12-month as-reported EPS",
         "source": "spglobal",
+        "dataset": "sp-500-eps",
         "cadence": "quarterly",
         "publication_lag_business_days": 60,
         "manual": true,
@@ -62,7 +75,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-15T01:24:31Z",
+    "fetched_at": "2026-09-15T03:12:52Z",
     "last_observation": "2026-08-01",
     "period_label": "Aug 2026",
     "first_observation": "1871-01-01",

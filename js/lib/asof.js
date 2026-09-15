@@ -57,9 +57,16 @@ export function freshnessBadgeText(meta, as_of, today) {
 }
 
 export function renderAboutHTML(meta, as_of) {
+    // Each entry is a catalogue reference resolved at fetch time
+    // (scripts/series_meta.py); data files written before the catalogue
+    // carry only slug/name/url/licence and render as before.
     const sourcesHTML = meta.sources.map(s => {
+        const label = s.dataset_name ? `${s.name} — ${s.dataset_name}` : s.name;
+        const via = s.via ? ` (via ${s.via})` : '';
         const licence = s.licence ? ` — ${s.licence}` : '';
-        return `<li><a href="${s.url}" target="_blank" rel="noopener">${s.name}</a>${licence}</li>`;
+        const status = (s.terms_status && s.terms_status !== 'verified') ? ` · terms ${s.terms_status}` : '';
+        const note = s.note ? ` — ${s.note}` : '';
+        return `<li><a href="${s.url}" target="_blank" rel="noopener">${label}</a>${via}${licence}${status}${note}</li>`;
     }).join('');
 
     const inputsHTML = meta.inputs.map(inp => {

@@ -13,9 +13,12 @@
     "sources": [
       {
         "slug": "fred",
+        "dataset": "dgs",
         "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Treasury constant-maturity yields, daily (H.15)",
         "url": "https://fred.stlouisfed.org/series/DGS10",
-        "licence": "Public domain (U.S. government data)"
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
       }
     ],
     "inputs": [
@@ -23,6 +26,7 @@
         "id": "dgs10",
         "label": "10-Year Treasury Constant Maturity Rate",
         "source": "fred",
+        "dataset": "dgs",
         "series_id": "DGS10",
         "cadence": "daily",
         "publication_lag_business_days": 1
@@ -37,7 +41,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-15T01:24:30Z",
+    "fetched_at": "2026-09-15T03:12:49Z",
     "last_observation": "2026-09-11",
     "period_label": "11 Sep 2026",
     "first_observation": "2017-01-17",
