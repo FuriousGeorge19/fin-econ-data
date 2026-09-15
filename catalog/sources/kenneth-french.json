@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "slug": "kenneth-french",
+  "role": "data",
+  "name": "Kenneth R. French Data Library (Dartmouth Tuck)",
+  "short_name": "Ken French Data Library",
+  "homepage": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+  "description": "Kenneth R. French's data library at Dartmouth's Tuck School of Business: the Fama/French benchmark factor returns (market, size, value, profitability, investment, momentum) constructed from CRSP stock data, plus a large set of portfolios sorted on size, book-to-market, operating profitability, investment and momentum, in US and international/regional variants. This file catalogues the core US factor files only; the portfolio-sort families are noted but not itemized as separate datasets.",
+  "access": {
+    "method": "file-download",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+    "format": "zip",
+    "auth": "none",
+    "notes": [
+      "Each dataset is a zip archive of a fixed-width/CSV text file, linked from the data library page under https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/<file>. TXT and CSV builds are both offered for most files; ids below name the CSV build.",
+      "Site notes that CRSP's Stock and Indexes Legacy Format (FIZ) files were discontinued after the December 2024 data release; beginning with the January 2025 data release the library uses CRSP's new Flat File Format 2.0 (CIZ), which changed how monthly returns compound (holding-period vs. daily-compounded with dividends reinvested on ex-dates). Historical data built on the old format is archived separately (data_library_202412_archive.html) and not catalogued here."
+    ],
+    "read_from": ["https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html"]
+  },
+  "terms": {
+    "summary": "The live data library page carries only a copyright notice (\"Copyright [year, generated client-side] Eugene F. Fama and Kenneth R. French\"), with no separate terms-of-use or redistribution statement — a bare copyright notice, not a stated limit. A page-source HTML comment (not rendered live) reads \"All images and code are property of Ken French. Use in part or whole is illegal -- except by permission of Ken French or Dimensional Fund Advisors,\" but it is commented out and scoped to images/code, not the data files, so it does not settle whether the factor values themselves may be republished. Treated as unverified pending further research; the session owner should weigh whether the commented-out text extends to the data.",
+    "status": "unverified",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+    "quote": "Copyright Eugene F. Fama and Kenneth R. French",
+    "read_from": ["https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html"]
+  },
+  "datasets": [
+    {
+      "id": "ff3-factors-monthly",
+      "name": "Fama/French 3 Factors, monthly",
+      "gives": "Monthly Rm-Rf (excess return on the US market), SMB (Small Minus Big, size factor) and HML (High Minus Low, value factor), plus the risk-free rate (one-month T-bill) used to compute Rm-Rf",
+      "ids": ["F-F_Research_Data_Factors_CSV.zip"],
+      "topics": ["equity-returns"],
+      "units": "percent",
+      "cadence": "monthly",
+      "coverage": {"start": "1926-07", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "access": {"url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip"},
+      "read_from": [
+        "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+        "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/f-f_factors.html"
+      ],
+      "notes": [
+        "SMB and HML are built from the 6 value-weight size/book-to-market portfolios; the market return is value-weight CRSP NYSE/AMEX/NASDAQ common stock (share codes 10-11) minus the one-month T-bill rate (Ibbotson Associates through May 2024, a different source from June 2024 per the description page).",
+        "Description page read 2026-09-15 showed coverage through July 2026 (today's date in this session is 2026-09-15), consistent with a roughly monthly-to-bimonthly update rather than same-day publication; no explicit lag policy is stated, so publication_lag_business_days is unknown rather than guessed."
+      ]
+    },
+    {
+      "id": "ff3-factors-daily",
+      "name": "Fama/French 3 Factors, daily",
+      "gives": "Daily Rm-Rf, SMB and HML, plus the daily risk-free rate, same construction as the monthly file",
+      "ids": ["F-F_Research_Data_Factors_daily_CSV.zip"],
+      "topics": ["equity-returns"],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {"start": "1926-07-01", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "access": {"url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip"},
+      "read_from": [
+        "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+        "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/f-f_factors.html"
+      ],
+      "notes": [
+        "Description page's Daily Returns line reads \"July 1, 1926 - July 31, 2026\" as of 2026-09-15."
+      ]
+    },
+    {
+      "id": "ff5-factors-2x3-monthly",
+      "name": "Fama/French 5 Factors (2x3), monthly",
+      "gives": "Monthly Rm-Rf, SMB, HML, RMW (Robust Minus Weak, profitability factor) and CMA (Conservative Minus Aggressive, investment factor), plus the risk-free rate",
+      "ids": ["F-F_Research_Data_5_Factors_2x3_CSV.zip"],
+      "topics": ["equity-returns"],
+      "units": "percent",
+      "cadence": "monthly",
+      "coverage": {"start": "1963-07", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "access": {"url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_5_Factors_2x3_CSV.zip"},
+      "read_from": [
+        "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+        "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/f-f_5_factors_2x3.html"
+      ],
+      "notes": [
+        "SMB in this version is the average of three size legs (from the book-to-market, operating-profitability and investment sorts); RMW and CMA use the same 2x3 sort structure as SMB/HML.",
+        "A daily build (F-F_Research_Data_5_Factors_2x3_daily_CSV.zip) is also offered from the library page, but the description page's own Daily/Weekly Returns rows are commented out of the page's HTML (last stated dates, no longer shown live, read \"July 1, 1963-May 31, 2014\") — daily coverage for this dataset is left unknown rather than taken from that stale, hidden text. Monthly is the only cadence this file catalogues for FF5.",
+        "Description page's Monthly Returns line reads \"July 1963 - July 2026\" as of 2026-09-15."
+      ]
+    },
+    {
+      "id": "momentum-factor-monthly",
+      "name": "Momentum Factor (Mom), monthly",
+      "gives": "Monthly Mom, the momentum factor: average return on two high prior-(2-12)-month-return portfolios minus two low prior-return portfolios, formed on size and prior return",
+      "ids": ["F-F_Momentum_Factor_CSV.zip"],
+      "topics": ["equity-returns"],
+      "units": "percent",
+      "cadence": "monthly",
+      "coverage": {"start": "1927-01", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "access": {"url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_CSV.zip"},
+      "read_from": [
+        "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+        "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/det_mom_factor.html"
+      ],
+      "notes": [
+        "A daily build (F-F_Momentum_Factor_daily_CSV.zip) is also offered but not catalogued as a separate dataset here, per the task scope.",
+        "\"The momentum and short term reversal portfolios are reconstituted monthly and the other research portfolios are reconstituted annually. We reconstruct the full history of returns each month when we update the portfolios.\" (library page, quoted for the update-cadence claim, not a terms statement)."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent kenneth-french): data_library.html, Data_Library/f-f_factors.html, Data_Library/f-f_5_factors_2x3.html, and Data_Library/det_mom_factor.html read"
+  },
+  "notes": [
+    "The library also offers a much larger set of portfolio-sort research data beyond the four factor files catalogued above: industry portfolios (5/10/12/17/30/38/48/49 industries), portfolios formed on size, book-to-market, operating profitability, investment, and momentum (individually and in 2x3/5x5/2x2x2x2 combinations), and international/regional variants (Developed, Developed ex US, Europe, Japan, Asia Pacific ex Japan, North America, Emerging). None of these portfolio families is itemized as its own dataset in this file; add one if a future chart needs a specific portfolio file."
+  ]
+}

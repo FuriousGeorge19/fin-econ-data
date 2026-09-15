@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "slug": "damodaran",
+  "role": "data",
+  "name": "Aswath Damodaran (NYU Stern) — Data Page",
+  "short_name": "Damodaran/NYU Stern",
+  "homepage": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datacurrent.html",
+  "description": "Aswath Damodaran's public data page at NYU Stern: annual spreadsheets on implied equity risk premiums, historical asset-class returns, industry valuation multiples, and bond-rating credit spreads, compiled from multiple data services and refreshed once a year in early January (a few items, like the implied ERP, more often).",
+  "access": {
+    "method": "file-download",
+    "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datacurrent.html",
+    "format": "xls",
+    "auth": "none",
+    "notes": [
+      "Each dataset is one .xls workbook under https://pages.stern.nyu.edu/~adamodar/pc/datasets/ or https://pages.stern.nyu.edu/~adamodar/pc/ (ratings.xls), linked from datacurrent.html.",
+      "Most datasets refresh once a year in the first two weeks of January; the implied ERP history is one of the items the author says he updates more frequently. histretSP.xls's HTTP Last-Modified header read 2026-08-24 at check time (mid-year revision), while histimpl.xls read 2026-01-08 (the stated January refresh)."
+    ],
+    "read_from": [
+      "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datacurrent.html",
+      "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datahistory.html"
+    ]
+  },
+  "terms": {
+    "summary": "Free to use; the author states he has almost no rules governing use of the data and does not require attribution, though he welcomes it.",
+    "status": "verified",
+    "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datahistory.html",
+    "quote": "I am not good at making rules and thus have very few related to the use of my data. I want the data to be widely used and to be a help, rather than a hindrance.",
+    "read_from": [
+      "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datahistory.html"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "implied-erp-history",
+      "name": "Implied equity risk premiums, United States, annual history",
+      "gives": "Annual implied equity risk premium for the US market, estimated from a two-stage dividend discount / FCFE model against the current S&P 500 level, cash yield, expected earnings growth and the Treasury bond rate; the workbook also carries the year's S&P 500 index level, earnings, dividends, and smoothed growth inputs used in the calculation",
+      "ids": ["histimpl.xls"],
+      "topics": ["equity-valuation", "expectations", "equity-returns"],
+      "units": "percent",
+      "cadence": "annual",
+      "coverage": {"start": "1960", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histimpl.html",
+        "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datahistory.html"
+      ],
+      "notes": [
+        "The author lists the implied ERP among the 'few data items... that I update more frequently' than the once-a-year January refresh, without stating an exact cadence for the extra updates — this history workbook itself was last modified 2026-01-08 at check time.",
+        "This is the annual history workbook (1960-present), not the separate current/monthly implied-ERP figure the site also publishes elsewhere."
+      ]
+    },
+    {
+      "id": "historical-returns",
+      "name": "Historical returns on stocks, bonds, bills, real estate & gold, United States",
+      "gives": "Annual total returns for the US: S&P 500 (with dividends), US small-cap stocks, 3-month T-bill, 10-year T-bond, Baa corporate bonds, real estate, and gold, plus a cumulative $100-invested-at-1928 growth column for each series",
+      "ids": ["histretSP.xls"],
+      "topics": ["equity-returns", "rates", "credit", "real-estate"],
+      "units": "percent",
+      "cadence": "annual",
+      "coverage": {"start": "1928", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html"
+      ],
+      "notes": [
+        "Page text states the T-bill leg now uses the average T-bill rate during the year rather than an end-of-period rate, a methodology change the author made to better reflect realized returns.",
+        "HTTP Last-Modified on the .xls read 2026-08-24 at check time, later than the January-refresh date the page states (2026-01-05) — an off-cycle revision, cause not established."
+      ]
+    },
+    {
+      "id": "industry-pe",
+      "name": "PE ratios by industry sector, United States",
+      "gives": "Current, trailing and forward P/E, PEG, and growth-expectation figures aggregated by industry sector (100+ sectors plus a market total) across roughly 6,000 US firms, sourced from multiple commercial data services and recomputed at each refresh",
+      "ids": ["pedata.xls"],
+      "topics": ["equity-valuation"],
+      "units": "ratio",
+      "cadence": "annual",
+      "coverage": {"start": "unknown", "end": "unknown"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/pedata.html"
+      ],
+      "notes": [
+        "A cross-sectional snapshot refreshed each January (page footer read 'Last Updated in January 2026' at check time), not a time series — coverage start/end left unknown rather than guessed. Global and regional variants (Europe, Japan, emerging markets) exist as separate files on the same page but were not researched.",
+        "Not fetched or used by any series/*.json as of 2026-09-15; recorded for the roadmap only."
+      ]
+    },
+    {
+      "id": "credit-spreads",
+      "name": "Ratings, default spreads and interest coverage ratios",
+      "gives": "Interest-coverage-ratio bands mapped to a synthetic Moody's/S&P bond rating and a default spread over the risk-free rate, given separately for large non-financial firms and financial-service firms, covering all rated US companies",
+      "ids": ["ratings.xls"],
+      "topics": ["credit"],
+      "units": "percent",
+      "cadence": "annual",
+      "coverage": {"start": "unknown", "end": "unknown"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ratings.html"
+      ],
+      "notes": [
+        "A cross-sectional snapshot ('as of January 2026' at check time), not a time series — coverage start/end left unknown rather than guessed. The page notes spreads can be cross-checked against bondsonline.com.",
+        "Not fetched or used by any series/*.json as of 2026-09-15; recorded for the roadmap only."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent damodaran): datacurrent.html (dataset index), datahistory.html (usage rules and update-timing statements), datafile/histimpl.html, datafile/histretSP.html, datafile/ratings.html, datafile/pedata.html read; HEAD/GET on histimpl.xls and histretSP.xls for Last-Modified"
+  },
+  "notes": [
+    "No S&P 500 earnings (EPS) dataset, annual or quarterly, as-reported or operating, was found anywhere on datacurrent.html or in a site search of the linked dataset pages — see the S9 report's open-question answer. This source cannot replace the discontinued S&P Global quarterly EPS workbook.",
+    "industry-pe and credit-spreads are current-snapshot workbooks (overwritten in place at each refresh, not an append-only history) — unlike implied-erp-history and historical-returns, which are cumulative annual time series."
+  ]
+}

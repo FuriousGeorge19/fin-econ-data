@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "slug": "koyfin",
+  "role": "reference",
+  "name": "Koyfin",
+  "short_name": "Koyfin",
+  "homepage": "https://www.koyfin.com/",
+  "description": "A cross-asset charting and dashboard platform for advisors and investors: stocks, ETFs, mutual funds, government yields, indices, currencies, commodities, global macro data, earnings transcripts and crypto in one workspace, with customizable dashboards, watchlists and an equity screener. Useful here as a design reference for macro dashboard layout and multi-asset chart presentation, not as a data feed.",
+  "access": {
+    "method": "web-page",
+    "url": "https://app.koyfin.com/",
+    "format": "html",
+    "auth": "login",
+    "notes": [
+      "Free registration required (work or personal email, or Google/Apple sign-in); no credit card. New sign-ups get a 7-day trial of paid features that then downgrades automatically to the free plan.",
+      "Free plan (as marketed on the pricing page): advanced charting, market and macro dashboards, 'My Portfolios' tracking, 2 years of financial data plus 1 year of estimates, 2 watchlists, 2 screens, 2 custom dashboards, limited company snapshots and restricted news access. No ETF holdings data, stock/ETF screeners or premium research (press releases, SEC filings) on the free tier.",
+      "The marketing site (koyfin.com) is reachable without login; the working app (app.koyfin.com) requires a signed-in session."
+    ],
+    "read_from": [
+      "https://www.koyfin.com/",
+      "https://www.koyfin.com/pricing/"
+    ]
+  },
+  "terms": {
+    "summary": "A Terms and Conditions page exists (app.koyfin.com/terms-and-conditions) but the page renders client-side and could not be fetched as text; a paraphrase found via search describes a no-redistribution/no-reproduction clause covering the site's own content and third-party (e.g. Morningstar) data, but that paraphrase is not a verbatim quote and is not used as a citation here.",
+    "status": "unverified",
+    "url": "https://app.koyfin.com/terms-and-conditions",
+    "read_from": "https://app.koyfin.com/terms-and-conditions"
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-b): koyfin.com homepage and koyfin.com/pricing read for description/access; app.koyfin.com/terms-and-conditions fetched but is a client-rendered app shell with no server-rendered terms text, so terms.status is unverified rather than verified/restricted"
+  },
+  "notes": [
+    "role: reference — a chartbook/dashboard app looked at for UI and presentation framing, not a fetchable data source. datasets is empty by rule."
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "slug": "federal-reserve-board",
+  "role": "data",
+  "name": "Board of Governors of the Federal Reserve System — Z.1 Financial Accounts of the United States",
+  "short_name": "Fed Z.1",
+  "homepage": "https://www.federalreserve.gov/releases/z1/",
+  "description": "The Federal Reserve Board's quarterly Financial Accounts of the United States (formerly the Flow of Funds Accounts): balance sheets, by sector and financial instrument, for households, nonfinancial corporate business, and the other major sectors of the U.S. economy, plus levels/transactions tables for individual instruments such as corporate equities.",
+  "access": {
+    "method": "file-download",
+    "url": "https://www.federalreserve.gov/releases/z1/",
+    "format": "csv",
+    "auth": "none",
+    "notes": [
+      "Each quarterly release also ships a single release PDF, an HTML table per table id (e.g. b101.htm, l224.htm), and a compressed set of CSV files with accompanying data-dictionary text files.",
+      "The Data Download Program (DDP, https://www.federalreserve.gov/datadownload/Build.aspx?rel=z1) lets a user build a custom CSV/XML package by table and series; as of this release the Board's site says the DDP's 'Build Your Package' feature is being removed in preparation for the DDP's eventual retirement, and points users to FRED for expanded download options instead.",
+      "Every series/table can also be reached individually on FRED (release id 52, https://fred.stlouisfed.org/release?rid=52) under the Board's own public-domain terms — catalogued here, not as a separate fred.json dataset, since the Board is the originating agency and rule 1 names the agency rather than splitting by host.",
+      "With each quarterly release the source may revise prior quarters' data and, occasionally, table structure (see the release's own Release Highlights page)."
+    ],
+    "read_from": [
+      "https://www.federalreserve.gov/releases/z1/",
+      "https://www.federalreserve.gov/releases/z1/current/",
+      "https://www.federalreserve.gov/datadownload/Build.aspx?rel=z1"
+    ]
+  },
+  "terms": {
+    "summary": "Unless otherwise indicated, information on the Board's website is in the public domain and may be copied and distributed without permission; cite the Board as the source.",
+    "status": "verified",
+    "url": "https://www.federalreserve.gov/disclaimer.htm",
+    "quote": "Unless otherwise indicated, information on Board's website is in the public domain and may be copied and distributed without permission.",
+    "read_from": ["https://www.federalreserve.gov/disclaimer.htm"]
+  },
+  "datasets": [
+    {
+      "id": "b101-household-balance-sheet",
+      "name": "B.101 Balance Sheet of Households and Nonprofit Organizations",
+      "gives": "Total assets, liabilities and net worth of the household and nonprofit sector, including direct holdings of corporate equities (line 23) and mutual fund shares (line 25) at market value, so a household equity-allocation share (equities + fund shares as a fraction of total assets or net worth) can be computed",
+      "ids": ["B.101"],
+      "topics": ["equity-returns", "macro"],
+      "units": "usd-bn",
+      "cadence": "quarterly",
+      "coverage": {"start": "1945-10", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "roadmap": ["household equity allocation"],
+      "read_from": [
+        "https://www.federalreserve.gov/releases/z1/20260109/html/b101.htm"
+      ],
+      "notes": [
+        "FRED mirror series for the household equity-allocation calc: HNOCEAQ027S (Households and Nonprofit Organizations; Corporate Equities; Asset, Level, from 1945-10-01) and TNWBSHNO (Households and Nonprofit Organizations; Net Worth, Level, from 1945-10-01), both release id 52 on FRED. A HEAD/API check of HNOCEAQ027S confirmed observation_start 1945-10-01.",
+        "The HTML table page itself only prints the most recent few years of quarters; the full historical run is what FRED (or a DDP CSV package) exposes."
+      ]
+    },
+    {
+      "id": "l224-corporate-equities",
+      "name": "L.224/F.224 Corporate Equities (Market Value and Transactions)",
+      "gives": "Market value level (and quarterly transactions/issuance) of U.S. corporate equities outstanding across all issuing and holding sectors — the aggregate stock-market capitalization proxy the Buffett-indicator numerator would use if built from the Financial Accounts rather than an index provider",
+      "ids": ["L.224"],
+      "topics": ["equity-returns", "macro"],
+      "units": "usd-bn",
+      "cadence": "quarterly",
+      "coverage": {"start": "1945-10", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "roadmap": ["Buffett indicator (total market cap / GDP)"],
+      "read_from": [
+        "https://www.federalreserve.gov/releases/z1/20201210/html/l223.htm"
+      ],
+      "notes": [
+        "Renumbered from L.223/F.223 to L.224/F.224 in a recent release; both table names refer to the same series. Mutual fund shares are shown separately on L.225/F.225 and excluded here.",
+        "FRED mirror for the nonfinancial-corporate-business piece of this table: NCBEILQ027S (Nonfinancial Corporate Business; Corporate Equities; Liability, Level, release id 52), observation_start confirmed 1945-10-01 via the FRED API. This is a commonly used total-market-cap proxy for a Fed-data-only Buffett indicator, but it is the nonfinancial-corporate-business liability line, not the whole-economy total on L.224 itself — which line the roadmap wants needs deciding before a fetcher is written."
+      ]
+    },
+    {
+      "id": "b103-nonfinancial-corporate-leverage",
+      "name": "B.103 Balance Sheet of Nonfinancial Corporate Business",
+      "gives": "Nonfinancial corporate business balance sheet: debt securities and loans (liabilities) and total equity (liabilities, at market value), the inputs to a corporate-leverage ratio (debt / equity or debt / total assets)",
+      "ids": ["B.103"],
+      "topics": ["credit", "equity-returns", "macro"],
+      "units": "usd-bn",
+      "cadence": "quarterly",
+      "coverage": {"start": "1945-10", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "roadmap": ["corporate leverage"],
+      "read_from": [
+        "https://www.federalreserve.gov/releases/Z1/20250612/html/b103.htm"
+      ],
+      "notes": [
+        "Debt is conventionally line 31 (debt securities) plus line 35 (loans); equity is line 43 (total equity, at market value); FRED mirrors include NCBDBIQ027S (Nonfinancial Corporate Business; Debt Securities; Liability, Level, observation_start confirmed 1945-10-01 via the FRED API) and NCBEILQ027S (see the l224-corporate-equities dataset above, same sector's equity liability line)."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent federal-reserve-board): federalreserve.gov Z.1 current-release page, disclaimer.htm (terms), z1_technical_qa.htm, b101.htm, l223.htm (now l224), b103.htm, and the FRED API for HNOCEAQ027S/TNWBSHNO/NCBEILQ027S/NCBDBIQ027S observation_start"
+  },
+  "notes": [
+    "This file covers the Board of Governors as a direct publisher (the Z.1 release itself, its DDP, and its own site's terms). It is deliberately not fred.json: rule 1 names the originating agency for public-domain data reached only through FRED, and every dataset above is public-domain Board data the Board also publishes directly, not a third party's data merely hosted by FRED.",
+    "Publication lag after quarter-end is left unknown rather than guessed: the visible pattern (Q2 2026 released 2026-09-11, Q3 2026 due 2026-12-10) is roughly ten weeks, but the Board's release-schedule page states specific calendar dates per quarter rather than a fixed lag rule, so a numeric business-day lag was not established from an official statement.",
+    "Which exact line/table best serves the Buffett-indicator numerator (whole-economy L.224 total vs. the nonfinancial-corporate-business NCBEILQ027S proxy) is an open modeling choice, not a catalogue fact — left for whoever designs that chart."
+  ]
+}

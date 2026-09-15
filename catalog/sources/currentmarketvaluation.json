@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "slug": "currentmarketvaluation",
+  "role": "reference",
+  "name": "Current Market Valuation",
+  "short_name": "CurrentMarketValuation.com",
+  "homepage": "https://www.currentmarketvaluation.com/",
+  "description": "A small independent site of long-term U.S. stock-market valuation and recession-indicator models (Buffett Indicator, CAPE, price/sales, an interest-rate model, a mean-reversion model, an earnings-yield gap, the yield curve, the Sahm Rule, and others), each framed as a current reading's standard-deviation distance from its own historical norm. Used here as a design/framing reference for how a small dashboard site presents a battery of \"is the market over/undervalued\" models side by side.",
+  "access": {
+    "method": "web-page",
+    "url": "https://www.currentmarketvaluation.com/models/",
+    "format": "html",
+    "auth": "none",
+    "notes": [
+      "The core set of valuation and recession-indicator models is free and updates quarterly.",
+      "A paid membership adds weekly (instead of quarterly) updates across all models, interactive graphs and correlation data, and a members-only aggregate valuation model; a 7-day free trial is offered.",
+      "No robots.txt/paywall block was hit reading the public model pages in this session."
+    ],
+    "read_from": [
+      "https://www.currentmarketvaluation.com/"
+    ]
+  },
+  "terms": {
+    "summary": "No dedicated terms-of-use page was found. The About page's Contact section grants only a narrow reuse permission: press outlets, research analysts and publications may use quotes or images from the site, provided attribution (with a hyperlink) is made to currentmarketvaluation.com — not a general reuse grant for other users.",
+    "status": "restricted",
+    "url": "https://www.currentmarketvaluation.com/about.php",
+    "quote": "Press outlets and/or research analysts or publications may use any quotes or images from the site, given attribution is made (with a hyperlink) to www.currentmarketvaluation.com.",
+    "read_from": [
+      "https://www.currentmarketvaluation.com/",
+      "https://www.currentmarketvaluation.com/about.php"
+    ]
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 fix step): currentmarketvaluation.com homepage and about.php re-read; found a press/analyst reuse-with-attribution statement in the Contact section that the prior pass missed"
+  },
+  "notes": [
+    "Reference only — no chart on this site fetches data from Current Market Valuation.",
+    "No dedicated terms-of-use page exists, but about.php's Contact section states press outlets, research analysts and publications may use quotes or images with attribution — a limited, not general, reuse grant, hence terms.status restricted rather than unknown."
+  ]
+}

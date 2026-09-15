@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "slug": "blackrock-student-of-the-market",
+  "role": "reference",
+  "name": "BlackRock — Student of the Market",
+  "short_name": "BlackRock Student of the Market",
+  "homepage": "https://www.blackrock.com/us/financial-professionals/insights/student-of-the-market",
+  "description": "BlackRock's monthly market-commentary chart deck for financial advisors, published as a downloadable PDF (plus a video and a customizable presentation deck) reviewing current market and economic trends against historical patterns. Used here as a design/framing reference for how a large asset manager frames a monthly market-conditions chart pack.",
+  "access": {
+    "method": "file-download",
+    "url": "https://www.blackrock.com/us/financial-professionals/insights/student-of-the-market",
+    "format": "pdf",
+    "auth": "none",
+    "notes": [
+      "The monthly PDF and video are viewable/downloadable from the advisor-facing page without login.",
+      "A \"Brand & Share Tool\" that lets advisors customize the presentation deck with their own branding requires login to BlackRock's Advisor Center; that customization step is not needed to view or download the base PDF.",
+      "Published monthly."
+    ],
+    "read_from": [
+      "https://www.blackrock.com/us/financial-professionals/insights/student-of-the-market"
+    ]
+  },
+  "terms": {
+    "summary": "BlackRock's site terms and conditions prohibit copying, distributing, modifying, reposting, or using site/document content for public or commercial purposes, and prohibit automated (robot/spider) copying of site content, without BlackRock's written permission.",
+    "status": "restricted",
+    "url": "https://www.blackrock.com/corporate/compliance/terms-and-conditions",
+    "quote": "You may not distribute, modify, transmit, reuse, repost, or use the content of this Website for public or commercial purposes, including all text, images, audio, and video, without BlackRock's written permission.",
+    "read_from": [
+      "https://www.blackrock.com/corporate/compliance/terms-and-conditions"
+    ]
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-a): Student of the Market advisor page and blackrock.com/corporate/compliance/terms-and-conditions read"
+  },
+  "notes": [
+    "Reference only — no chart on this site fetches data from BlackRock; the entry records that reuse of its charts/decks for public or commercial purposes is restricted without written permission."
+  ]
+}

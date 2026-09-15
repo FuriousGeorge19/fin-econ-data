@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "slug": "philadelphia-fed",
+  "role": "data",
+  "name": "Federal Reserve Bank of Philadelphia — Survey of Professional Forecasters",
+  "short_name": "Philadelphia Fed SPF",
+  "homepage": "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",
+  "description": "The oldest quarterly survey of macroeconomic forecasts in the United States. Begun in 1968:Q4 by the American Statistical Association and the National Bureau of Economic Research, taken over by the Federal Reserve Bank of Philadelphia in 1990:Q2 (first survey conducted in real time by the Philadelphia Fed: 1990:Q3). Each quarter's panel of professional forecasters projects dozens of macro variables; the Philadelphia Fed publishes median, mean, individual (anonymized) and cross-sectional-dispersion files per variable.",
+  "access": {
+    "method": "file-download",
+    "url": "https://www.philadelphiafed.org/surveys-and-data/data-files",
+    "format": "xlsx",
+    "auth": "none",
+    "notes": [
+      "Each variable has its own landing page (e.g. /surveys-and-data/cpi-spf) linking four single-variable workbooks: Individual_<VAR>.xlsx, Mean_<VAR>_Level.xlsx, Median_<VAR>_Level.xlsx, Dispersion_<VAR>.xlsx. Multi-variable master workbooks (MedianLevel.xlsx, MeanLevel.xlsx, MedianGrowth.xlsx, MeanGrowth.xlsx, SPFmicrodata.xlsx, Inflation.xlsx, Dispersion_1/2/3.xlsx) are also offered, one worksheet per variable, per the SPF documentation PDF.",
+      "First two columns of every file give the year and quarter in which the survey was conducted (the conduct-quarter), not the quarter a value describes — forecasts are forward-looking (quarterly and annual horizons out from the survey quarter), so there is no single 'as-of' lag the way a backward-looking series like CPI itself has.",
+      "Missing values are the string \"#N/A\", not a numeric sentinel."
+    ],
+    "read_from": [
+      "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",
+      "https://www.philadelphiafed.org/surveys-and-data/data-files",
+      "https://www.philadelphiafed.org/-/media/frbp/assets/surveys-and-data/survey-of-professional-forecasters/spf-documentation.pdf"
+    ]
+  },
+  "terms": {
+    "summary": "No dedicated data-terms page found; the site-wide privacy notice (which doubles as the Philadelphia Fed's terms of use) says some site content may be copyrighted and permission is required to use it, and restricts commercial use of the Federal Reserve's name.",
+    "status": "restricted",
+    "url": "https://www.philadelphiafed.org/about-us/privacy-notice",
+    "quote": "Some of the content on this website may be copyrighted. Permission to use such copyrighted material must be obtained from the owner.",
+    "read_from": [
+      "https://www.philadelphiafed.org/about-us/privacy-notice"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "cpi",
+      "name": "Headline CPI inflation rate forecasts (CPI)",
+      "gives": "Quarterly and fourth-quarter/fourth-quarter annual forecasts of the annualized headline CPI inflation rate (percentage points): median, mean, individual (anonymized) responses, and cross-sectional (75th minus 25th percentile) dispersion",
+      "ids": ["Median_CPI_Level.xlsx", "Mean_CPI_Level.xlsx", "Individual_CPI.xlsx", "Dispersion_CPI.xlsx"],
+      "topics": ["inflation", "expectations"],
+      "units": "percent",
+      "cadence": "quarterly",
+      "coverage": {"start": "1981", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://www.philadelphiafed.org/surveys-and-data/cpi-spf",
+        "https://www.philadelphiafed.org/-/media/frbp/assets/surveys-and-data/survey-of-professional-forecasters/spf-documentation.pdf"
+      ],
+      "notes": [
+        "Documentation PDF (Table 2, p.14): 'First survey to include this variable: 1981:Q3.' Month within 1981:Q3 not confirmed — the documentation says pre-1990:Q2 survey timing is uncertain (\"our reference dates do not cover surveys prior to that of 1990:Q2\") — so coverage.start is given at year granularity only.",
+        "Survey conducted quarterly; each release is named for the calendar quarter in which the survey ran (not the quarter forecast), and results are published mid-to-late in the middle month of that same quarter (e.g. the 'First Quarter' survey ships in February) — see spf-documentation.pdf Table 1A."
+      ]
+    },
+    {
+      "id": "corecpi",
+      "name": "Core CPI inflation rate forecasts (CORECPI)",
+      "gives": "Quarterly and fourth-quarter/fourth-quarter annual forecasts of the annualized core CPI inflation rate (percentage points): median, mean, individual (anonymized) responses, and cross-sectional dispersion",
+      "ids": ["Median_CORECPI_Level.xlsx", "Mean_CORECPI_Level.xlsx", "Individual_CORECPI.xlsx", "Dispersion_CORECPI.xlsx"],
+      "topics": ["inflation", "expectations"],
+      "units": "percent",
+      "cadence": "quarterly",
+      "coverage": {"start": "2007-02", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://www.philadelphiafed.org/surveys-and-data/corecpi",
+        "https://www.philadelphiafed.org/-/media/frbp/assets/surveys-and-data/survey-of-professional-forecasters/spf-documentation.pdf"
+      ],
+      "notes": [
+        "Documentation PDF (Table 2, p.15): 'First survey to include this variable: 2007:Q1.' Added alongside PCE and COREPCE inflation forecasts in the same survey.",
+        "coverage.start month (2007-02, i.e. February 2007) follows the Table 1A release pattern for the First Quarter survey (results released middle-to-late February) rather than a per-dataset confirmed date."
+      ]
+    },
+    {
+      "id": "cpi10",
+      "name": "10-year-ahead CPI inflation expectations (CPI10)",
+      "gives": "Forecast of the annual-average rate of headline CPI inflation over the next 10 years (the current survey year plus the following nine years), from the fourth quarter of the year before the survey to the fourth quarter 10 years beyond it: median, mean, individual (anonymized) responses, and cross-sectional dispersion. Collected every quarter (not restricted to first-quarter surveys, unlike the 10-year real GDP/productivity/asset-return projections RGDP10/PROD10/STOCK10/BOND10/BILL10).",
+      "ids": ["Median_CPI10_Level.xlsx", "Mean_CPI10_Level.xlsx", "Individual_CPI10.xlsx", "Dispersion_CPI10.xlsx"],
+      "topics": ["inflation", "expectations"],
+      "units": "percent",
+      "cadence": "quarterly",
+      "coverage": {"start": "1991-11", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://www.philadelphiafed.org/surveys-and-data/cpi10",
+        "https://www.philadelphiafed.org/-/media/frbp/assets/surveys-and-data/survey-of-professional-forecasters/spf-documentation.pdf"
+      ],
+      "notes": [
+        "Documentation PDF (Table 2, p.13): 'First survey to include this variable: 1991:Q4.'",
+        "A separate, derived one-worksheet file (Inflation.xlsx, documentation section 5) also carries this series as INFCPI10YR alongside one-year-ahead inflation expectations by the GDP price index (INFPGDP1YR) and by the CPI (INFCPI1YR); all three are median-response only.",
+        "coverage.start month (1991-11) follows the Table 1A release pattern for the Fourth Quarter survey (results released middle-to-late November under the pre-2005 timing then in effect) rather than a confirmed exact date."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent philadelphia-fed): read the SPF landing page, the data-files index, the CPI/CORECPI/CPI10 variable pages (and their Individual/Mean/Median/Dispersion download links), the full spf-documentation.pdf (Overview, Table 1/1A timing, Table 2 variable definitions including CPI/CORECPI/CPI10, and the one-year/10-year inflation section), and the site-wide privacy notice serving as terms of use"
+  },
+  "notes": [
+    "Scope limited to CPI, CORECPI and CPI10 per the task; the SPF's dozens of other variables (GDP, unemployment, probability/density projections, implied forecasts, the Anxious Index, etc.) are not catalogued here.",
+    "The Livingston Survey (also run by the Philadelphia Fed, semiannual, since 1946) was considered as a second dataset but not added — it was not clearly more relevant to inflation expectations than what CPI10 already covers, and adding it without reading its own documentation page in this session would risk an under-researched entry; see the research log for the search."
+  ]
+}

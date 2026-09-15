@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "slug": "ofr",
+  "role": "data",
+  "name": "Office of Financial Research (U.S. Treasury) — Financial Stress Index",
+  "short_name": "OFR",
+  "homepage": "https://www.financialresearch.gov/",
+  "description": "The Office of Financial Research, a bureau of the U.S. Treasury Department created by the Dodd-Frank Act. Its public-facing OFR Financial Stress Index (FSI) is a daily market-based snapshot of stress in global financial markets, built from 33 financial market variables (yield spreads, valuation measures, interest rates) split into five stress categories and three regions.",
+  "access": {
+    "method": "file-download",
+    "url": "https://www.financialresearch.gov/financial-stress-index/data/fsi.csv",
+    "format": "csv",
+    "auth": "none",
+    "notes": [
+      "One CSV holds the national FSI plus all eight sub-indexes as columns: Date, OFR FSI, Credit, Equity valuation, Safe assets, Funding, Volatility, United States, Other advanced economies, Emerging markets.",
+      "Checked 2026-09-15: 6,757 daily rows from 2000-01-03 through 2026-09-11 (today minus 2 business days), 200 OK, content-type text/csv, no auth or key required.",
+      "No API for the FSI itself: /financial-stress-index/api/ and /financial-stress-index/download/ both 404. The OFR does run separate APIs for its Short-Term Funding Monitor and Hedge Fund Monitor (financialresearch.gov/data/), unrelated products not otherwise researched here.",
+      "The FSI page states 'The FSI publishes with data that is current from two business days prior' and 'The index is calculated after each U.S. trading day.'"
+    ],
+    "read_from": [
+      "https://www.financialresearch.gov/financial-stress-index/",
+      "https://www.financialresearch.gov/financial-stress-index/regions/",
+      "https://www.financialresearch.gov/data/",
+      "https://www.financialresearch.gov/financial-stress-index/data/fsi.csv"
+    ]
+  },
+  "terms": {
+    "summary": "No explicit copyright or reuse/redistribution statement found for the FSI data itself. The FSI page carries only a suggested citation ('Office of Financial Research, \"OFR Financial Stress Index,\" refreshed daily, https://www.financialresearch.gov/financial-stress-index/ (accessed ).') and a general liability disclaimer; a separate disclaimer on the same page about copyrighted material with reuse restrictions is explicitly scoped to non-OFR external sites the OFR links to, not to the FSI's own published values. As a U.S. Treasury bureau, OFR's own works are presumptively U.S. government works (17 U.S.C. 105), but no page states this.",
+    "status": "unknown",
+    "url": "https://www.financialresearch.gov/financial-stress-index/",
+    "read_from": [
+      "https://www.financialresearch.gov/financial-stress-index/",
+      "https://www.financialresearch.gov/about/policies/"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "fsi",
+      "name": "OFR Financial Stress Index (national, category and region sub-indexes)",
+      "gives": "The national OFR FSI, its five stress-category sub-indexes (credit, equity valuation, safe assets, funding, volatility), and its three region sub-indexes (United States, other advanced economies, emerging markets), all in one CSV keyed by date",
+      "ids": ["fsi.csv"],
+      "topics": ["credit", "equity-valuation", "macro", "global"],
+      "units": "index (standard deviations from average stress)",
+      "cadence": "daily",
+      "coverage": {"start": "2000-01-03", "end": "ongoing"},
+      "publication_lag_business_days": 2,
+      "status": "active",
+      "read_from": [
+        "https://www.financialresearch.gov/financial-stress-index/",
+        "https://www.financialresearch.gov/financial-stress-index/data/fsi.csv"
+      ],
+      "notes": [
+        "Positive reads above-average stress, negative below-average, per the FSI page's own description.",
+        "The 33 underlying market variables (rates, spreads, implied vol, etc.) are themselves drawn from a mix of sources (e.g. market data vendors, other agencies); the FSI page does not itemize their individual licences, and whether any restrict republication of the derived index values was not established here — see catalog/research-log.md.",
+        "'unit' inferred from the page's own description of the index as standard-deviation-style stress readings around zero, not stated verbatim as a unit label; treat as approximate."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent ofr): read financialresearch.gov/financial-stress-index/, /financial-stress-index/regions/, /data/, /about/policies/, and fetched fsi.csv directly (200 OK, checked headers and content)"
+  },
+  "notes": [
+    "Short-Term Funding Monitor (data.financialresearch.gov API, five datasets: money market funds, repo markets, NY Fed reference rates, NY Fed primary dealer statistics, Treasury constant maturity rates) was checked but not catalogued as a dataset here — out of scope for this pass (only the FSI was assigned); its API auth/rate-limit/terms are unresearched.",
+    "Hedge Fund Monitor API (financialresearch.gov/hedge-fund-monitor/api/) exists but is unrelated to the FSI and was not researched."
+  ]
+}

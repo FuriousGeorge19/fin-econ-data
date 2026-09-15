@@ -17,13 +17,17 @@
       "All requests need an API key, issued through a FRED account (fredaccount.stlouisfed.org); the docs state no fee. This repo reads it from the FRED_API_KEY environment variable and calls the API through scripts/fred_utils.py.",
       "A missing observation is the string '.', never zero; scripts/fred_utils.py drops it.",
       "No numeric request limit is published; the API terms say the Bank may impose or adjust bandwidth and transaction limits. scripts/fred_utils.py retries on HTTP 429 and 5xx with exponential backoff, honouring Retry-After.",
-      "Series metadata (observation_start, frequency, units, notes) is available from /fred/series?series_id={id}; the dataset facts below were read from it on 2026-09-14."
+      "Series metadata (observation_start, frequency, units, notes) is available from /fred/series?series_id={id}; the dataset facts below were read from it on 2026-09-14.",
+      "Vintage (real-time) access: ALFRED (alfred.stlouisfed.org, 'Economic data time travel since 2006') exposes the same series at past revision states through the ordinary API — realtime_start/realtime_end (YYYY-MM-DD) is documented for /fred/series/observations and, per FRED's own realtime_period page, defaults to today on almost all FRED API URLs, selecting the data as known during that closed interval; /fred/series/vintagedates?series_id={id} lists the release dates a series was actually revised on (excludes releases where the data didn't change; up to 10,000 per call, paginated via limit/offset). No separate ALFRED API or key is needed — the FRED key and endpoints serve both. Not used by any fetcher in this repo as of 2026-09-15; this repo always reads current values (no realtime_start/realtime_end sent, i.e. 'today mode')."
     ],
     "read_from": [
       "https://fred.stlouisfed.org/docs/api/fred/",
       "https://fred.stlouisfed.org/docs/api/api_key.html",
       "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
-      "https://fred.stlouisfed.org/docs/api/terms_of_use.html"
+      "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+      "https://alfred.stlouisfed.org/",
+      "https://fred.stlouisfed.org/docs/api/fred/realtime_period.html",
+      "https://fred.stlouisfed.org/docs/api/fred/series_vintagedates.html"
     ]
   },
   "terms": {
@@ -432,6 +436,51 @@
       ]
     },
     {
+      "id": "moodys-corporate",
+      "name": "Moody's seasoned corporate bond yields, daily and monthly",
+      "gives": "Seasoned Aaa- and Baa-rated corporate bond yields (20+ year maturities) from Moody's Investors Service: daily averages from the 1980s and monthly averages back to 1919",
+      "ids": [
+        "DAAA",
+        "DBAA",
+        "AAA",
+        "BAA"
+      ],
+      "topics": [
+        "credit",
+        "rates"
+      ],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {
+        "start": "1919-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": [
+        "item 11"
+      ],
+      "terms": {
+        "summary": "Copyrighted: Citation Required (Moody's Investors Service) via FRED; usable with attribution to FRED and Moody's",
+        "status": "verified",
+        "url": "https://fred.stlouisfed.org/legal/",
+        "quote": "Public Domain: Citation requested — These series may be under copyright or in the public domain and may be used without permission, provided you do not engage in any prohibited use. … Series with the following copyright labels—Public Domain: Citation requested and Copyrighted: Citation required—may be used for internal commercial uses and may be displayed in textbooks, newsletters, or reports to clients provided that appropriate attribution is given to FRED as well as the original source of the data."
+      },
+      "read_from": [
+        "https://fred.stlouisfed.org/series/DAAA",
+        "https://fred.stlouisfed.org/series/DBAA",
+        "https://fred.stlouisfed.org/series/AAA",
+        "https://fred.stlouisfed.org/series/BAA"
+      ],
+      "verified_on": "2026-09-15",
+      "notes": [
+        "All four series' badge (checked at the top of each series page, not the Notes section) reads 'Copyrighted: Citation Required', source 'Moody's'; FRED's legal page permits display with attribution for that label, so this dataset carries a verified terms override like NFCI and T10YIE, following the S8 precedent.",
+        "DAAA (Aaa, daily) starts 1983-01-03; DBAA (Baa, daily) starts 1986-01-02; AAA (Aaa, monthly) and BAA (Baa, monthly) both start 1919-01 — checked via the FRED API /fred/series endpoint on 2026-09-15.",
+        "Each series' own FRED 'notes' field (distinct from the usage-rights badge) carries Moody's own restrictive copyright boilerplate ('MAY NOT BE COPIED OR OTHERWISE REPRODUCED ... WITHOUT MOODY'S PRIOR WRITTEN CONSENT'), the same tension the S8 session already recorded for NFCI/T10YIE: FRED's own citation-required label is what governs display through FRED, per FRED's legal page.",
+        "Series cover only 20-year-and-above maturities per FRED's series notes; DAAA/DBAA are daily, AAA/BAA are monthly averages of the same underlying Moody's index."
+      ]
+    },
+    {
       "id": "t10y-spreads",
       "name": "Treasury term spreads, daily (10y−2y, 10y−3m)",
       "gives": "The 10-year minus 2-year and 10-year minus 3-month constant-maturity spreads, computed by the St. Louis Fed from Treasury data",
@@ -461,8 +510,8 @@
     }
   ],
   "verified": {
-    "on": "2026-09-14",
-    "by": "Claude (S8 session): access from the FRED API docs pages, terms from the FRED legal and API terms pages; dataset start dates, frequencies and notes from the API's /fred/series endpoint; copyright labels checked on the EXPINF1YR, NFCI, HQMCB10YR and T10YIE pages"
+    "on": "2026-09-15",
+    "by": "Claude (S8 session, 2026-09-14): access from the FRED API docs pages, terms from the FRED legal and API terms pages; dataset start dates, frequencies and notes from the API's /fred/series endpoint; copyright labels checked on the EXPINF1YR, NFCI, HQMCB10YR and T10YIE pages. Claude (S9 workflow agent fred-additions, 2026-09-15): ALFRED vintage access added to access.notes from alfred.stlouisfed.org, the realtime_period and series_vintagedates API docs; moodys-corporate dataset added, copyright labels checked on the DAAA/DBAA/AAA/BAA series pages and start dates/frequencies from the API's /fred/series endpoint"
   },
   "notes": [
     "The FRED API Terms of Use require the notice 'This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.' Every generated page carries it in a footer (scripts/build_site.py) since 2026-09-14.",

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "slug": "umich-surveys",
+  "role": "data",
+  "name": "University of Michigan Surveys of Consumers",
+  "short_name": "U. Michigan Surveys of Consumers",
+  "homepage": "https://data.sca.isr.umich.edu/",
+  "description": "The Surveys of Consumers, run by the University of Michigan's Survey Research Center: the monthly household survey behind the Index of Consumer Sentiment and consumers' median expected inflation rate. Both headline series are also carried on FRED under the University's copyright.",
+  "access": {
+    "method": "web-page",
+    "url": "https://data.sca.isr.umich.edu/",
+    "format": "html",
+    "auth": "none",
+    "notes": [
+      "The data portal (data.sca.isr.umich.edu) shows current index values, charts (image/PDF/Excel) and historical tables directly; the portal's Log In link is for sponsors seeking extended/detailed data, not required to view the headline series. (The formerly-listed sca.isr.umich.edu does not resolve — no DNS A or CNAME record as of 2026-09-15 — and is not used as a citation here.)",
+      "Both headline series below are also mirrored on FRED (via: fred) under FRED's own API and copyright label; each dataset's access override below is the route this repo would actually fetch from, not this direct site."
+    ],
+    "read_from": [
+      "https://data.sca.isr.umich.edu/"
+    ]
+  },
+  "terms": {
+    "summary": "University of Michigan usage agreement for the Surveys of Consumers site: displaying, reformatting and printing for your own organization's use is allowed; reproducing, retransmitting, distributing, selling, publishing or broadcasting the data requires the University's express written consent",
+    "status": "restricted",
+    "url": "https://data.sca.isr.umich.edu/agreement.php",
+    "quote": "You agree not to reproduce, retransmit, distribute, sell, publish, or broadcast the data and materials from the Surveys of Consumers website without the express written consent of the University of Michigan.",
+    "read_from": [
+      "https://data.sca.isr.umich.edu/agreement.php"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "mich-inflation-expectations",
+      "name": "Median expected inflation, next 12 months",
+      "gives": "Median expected percent change in prices during the next 12 months, from the University of Michigan Surveys of Consumers",
+      "ids": ["MICH"],
+      "topics": ["expectations", "inflation"],
+      "units": "percent",
+      "cadence": "monthly",
+      "coverage": {"start": "1978-01", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "access": {
+        "method": "api",
+        "url": "https://fred.stlouisfed.org/series/MICH",
+        "format": "json",
+        "auth": "free-key",
+        "via": "fred"
+      },
+      "terms": {
+        "summary": "Copyrighted: Citation Required, via FRED: may be displayed with attribution to FRED and the original source (Surveys of Consumers, University of Michigan)",
+        "status": "verified",
+        "url": "https://fred.stlouisfed.org/legal/",
+        "quote": "Series with the following copyright labels—Public Domain: Citation requested and Copyrighted: Citation required—may be used for internal commercial uses and may be displayed in textbooks, newsletters, or reports to clients provided that appropriate attribution is given to FRED as well as the original source of the data.",
+        "read_from": [
+          "https://fred.stlouisfed.org/series/MICH",
+          "https://fred.stlouisfed.org/legal/"
+        ]
+      },
+      "read_from": [
+        "https://fred.stlouisfed.org/series/MICH",
+        "https://api.stlouisfed.org/fred/series?series_id=MICH"
+      ],
+      "notes": [
+        "FRED's series notes (read via the API, 2026-09-15): 'The most recent value is not shown due to an agreement with the source.' FRED withholds the latest survey month's reading rather than delaying it by a fixed number of days, so publication_lag_business_days is recorded as unknown rather than guessed.",
+        "FRED's citation: 'Surveys of Consumers, University of Michigan, University of Michigan: Inflation Expectation© [MICH], retrieved from FRED, Federal Reserve Bank of St. Louis https://fred.stlouisfed.org/series/MICH/, (Accessed on date)'.",
+        "The source's own data portal (data.sca.isr.umich.edu) also serves this series directly, but under the more restrictive usage agreement recorded in this file's source-level terms; this repo would fetch via FRED instead."
+      ]
+    },
+    {
+      "id": "umcsent-consumer-sentiment",
+      "name": "Index of Consumer Sentiment",
+      "gives": "The headline Index of Consumer Sentiment (1966 Q1 = 100), from the University of Michigan Surveys of Consumers",
+      "ids": ["UMCSENT"],
+      "topics": ["expectations", "macro"],
+      "units": "index",
+      "cadence": "monthly",
+      "coverage": {"start": "1952-11", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "access": {
+        "method": "api",
+        "url": "https://fred.stlouisfed.org/series/UMCSENT",
+        "format": "json",
+        "auth": "free-key",
+        "via": "fred"
+      },
+      "terms": {
+        "summary": "Copyrighted: Citation Required, via FRED: may be displayed with attribution to FRED and the original source (Surveys of Consumers, University of Michigan)",
+        "status": "verified",
+        "url": "https://fred.stlouisfed.org/legal/",
+        "quote": "Series with the following copyright labels—Public Domain: Citation requested and Copyrighted: Citation required—may be used for internal commercial uses and may be displayed in textbooks, newsletters, or reports to clients provided that appropriate attribution is given to FRED as well as the original source of the data.",
+        "read_from": [
+          "https://fred.stlouisfed.org/series/UMCSENT",
+          "https://fred.stlouisfed.org/legal/"
+        ]
+      },
+      "read_from": [
+        "https://fred.stlouisfed.org/series/UMCSENT",
+        "https://api.stlouisfed.org/fred/series?series_id=UMCSENT"
+      ],
+      "notes": [
+        "FRED's series notes (read via the API, 2026-09-15): 'At the request of the source, the data is delayed by 1 month. To obtain historical data prior to January 1978, please see FRED data series UMCSENT1.' The exact business-day count behind the one-month delay is not stated, so publication_lag_business_days is recorded as unknown rather than guessed.",
+        "The API's own observation_start for UMCSENT is 1952-11-01, despite the note directing users to the separate UMCSENT1 series for data before January 1978; not resolved further here since no descriptor uses this series yet.",
+        "FRED's citation: 'Surveys of Consumers, University of Michigan, University of Michigan: Consumer Sentiment © [UMCSENT], retrieved from FRED, Federal Reserve Bank of St. Louis (https://fred.stlouisfed.org/series/UMCSENT/), (Accessed on date)'.",
+        "The source's own data portal (data.sca.isr.umich.edu) also serves this series directly, but under the more restrictive usage agreement recorded in this file's source-level terms; this repo would fetch via FRED instead."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent umich-surveys): FRED API /fred/series for MICH and UMCSENT (observation_start, frequency, notes); FRED series pages https://fred.stlouisfed.org/series/MICH and https://fred.stlouisfed.org/series/UMCSENT (copyright tag); data.sca.isr.umich.edu (site description and access); data.sca.isr.umich.edu/agreement.php (usage agreement quote); sca.isr.umich.edu checked and found not to resolve (no DNS record), so it is not cited"
+  },
+  "notes": [
+    "This repo's CLAUDE.md (Licence Notes, written 2026-09-14) lists 'University of Michigan MICH' among FRED's third-party 'Pre-approval required' series needing the owner's permission beyond personal use. This session re-checked both MICH and UMCSENT's FRED series pages directly and found the copyright tag on each is 'Copyrighted: Citation Required', not 'Pre-Approval Required' — flagged here rather than silently overridden; the CLAUDE.md line may need correcting."
+  ]
+}

@@ -5,21 +5,31 @@
   "name": "S&P Global (S&P Dow Jones Indices)",
   "short_name": "S&P Global",
   "homepage": "https://www.spglobal.com/spdji/en/",
-  "description": "S&P Dow Jones Indices, the S&P Global division that owns the S&P 500. Two things reach this site from it: the quarterly S&P 500 earnings workbook, downloaded by hand until its publisher discontinued the public file, and the S&P 500 index level, which FRED carries under S&P DJI's copyright.",
+  "description": "S&P Dow Jones Indices, the S&P Global division that owns the S&P 500 and the S&P CoreLogic Case-Shiller home price indices (branded S&P Cotality Case-Shiller on FRED as of 2026, reflecting CoreLogic's rename to Cotality). Three things reach this site from it: the quarterly S&P 500 earnings workbook, downloaded by hand until its publisher discontinued the public file; the S&P 500 index level, which FRED carries under S&P DJI's copyright; and the Case-Shiller home price indices, also carried by FRED under S&P DJI's copyright.",
   "access": {
     "method": "manual-download",
     "url": "https://www.spglobal.com/spdji/en/indices/equity/sp-500/",
     "format": "xlsx",
     "auth": "none",
     "notes": [
-      "The index page and the terms page both returned HTTP 403 to automated fetches on 2026-09-14; read them in a browser. The workbook link lives under the index page's Additional Info section.",
-      "The workbook is committed as reference_resources/sp-500-eps-est.xlsx and turned into data/earnings_overrides.json by scripts/build_earnings_overrides.py (see CLAUDE.md, quarterly update)."
+      "The index page and S&P DJI's pages return HTTP 403 to automated fetches (WebFetch, and curl with a browser user-agent, on 2026-09-14 and 2026-09-15); read them in a browser. Read in Claude in Chrome on 2026-09-15: the terms URL catalogued in S8 (https://www.spglobal.com/spdji/en/terms-of-use/) is a 404 page, so the 403 was hiding a dead link. S&P DJI's footer links to its Legal Disclaimer page (https://www.spglobal.com/spdji/en/disclaimers/, which carries the reproduction terms for index data) and to S&P Global's corporate Terms of Use (https://www.spglobal.com/en/terms-of-use, whose copying restriction is about credit ratings).",
+      "The workbook is committed as reference_resources/sp-500-eps-est.xlsx and turned into data/earnings_overrides.json by scripts/build_earnings_overrides.py (see CLAUDE.md, quarterly update).",
+      "The index page's Additional Info section, expanded in a browser on 2026-09-15, lists four documents: At a Glance: SPIVA After-Tax Scorecard; S&P 500® The Gauge of the U.S. Large-Cap Market; S&P 500 GICS Scorecard; S&P 500 Stock Buybacks. No earnings workbook is listed. A search index still shows https://www.spglobal.com/spdji/en/documents/additional-material/sp-500-eps-est.xlsx, which returns 403 to curl; it was not downloaded, so whether that URL serves anything after the 31 Jan 2026 discontinuation is unconfirmed."
+    ],
+    "read_from": [
+      "https://www.spglobal.com/spdji/en/indices/equity/sp-500/",
+      "https://www.spglobal.com/spdji/en/disclaimers/"
     ]
   },
   "terms": {
-    "summary": "S&P Dow Jones Indices terms of use, not yet read (the page returned 403 to automated fetches)",
-    "status": "unverified",
-    "url": "https://www.spglobal.com/spdji/en/terms-of-use/"
+    "summary": "S&P Dow Jones Indices prohibits redistributing or reproducing its content, including index data, in whole or in part without its written permission",
+    "status": "restricted",
+    "url": "https://www.spglobal.com/spdji/en/disclaimers/",
+    "quote": "Redistribution or reproduction in whole or in part are prohibited without written permission of S&P Dow Jones Indices LLC.",
+    "read_from": [
+      "https://www.spglobal.com/spdji/en/disclaimers/",
+      "https://www.spglobal.com/en/terms-of-use"
+    ]
   },
   "datasets": [
     {
@@ -92,10 +102,74 @@
         "Lag observed: the 2026-09-14 close was on FRED at 7:01 PM CDT the same day.",
         "series/sp500_pe.json takes FRED's monthly average of this series (frequency=m, aggregation_method=avg) as its price input; the P/E chart's table and CSV export include that monthly average price. Whether that is within S&P's terms is an open item in catalog/research-log.md."
       ]
+    },
+    {
+      "id": "case-shiller",
+      "name": "S&P CoreLogic Case-Shiller home price indices, monthly",
+      "gives": "S&P DJI's repeat-sales home price indices, carried by FRED: the U.S. National index (not seasonally adjusted and seasonally adjusted variants) and the 20-City and 10-City Composite indices (seasonally adjusted)",
+      "ids": [
+        "CSUSHPINSA",
+        "CSUSHPISA",
+        "SPCS20RSA",
+        "SPCS10RSA"
+      ],
+      "topics": [
+        "real-estate"
+      ],
+      "units": "index (Jan 2000=100)",
+      "cadence": "monthly",
+      "coverage": {
+        "start": "1987-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 42,
+      "status": "active",
+      "access": {
+        "method": "api",
+        "url": "https://fred.stlouisfed.org/series/CSUSHPINSA",
+        "format": "json",
+        "auth": "free-key",
+        "via": "fred",
+        "read_from": [
+          "https://fred.stlouisfed.org/series/CSUSHPINSA",
+          "https://api.stlouisfed.org/fred/series?series_id=CSUSHPINSA"
+        ]
+      },
+      "terms": {
+        "summary": "S&P Dow Jones Indices copyright, via FRED: reproduction of the S&P Case-Shiller indices in any form is prohibited without S&P's prior written permission; FRED labels every Case-Shiller series \"Copyrighted: Pre-Approval Required\". The 20-City and 10-City Composite series (SPCS20RSA, SPCS10RSA) carry this explicit prohibition sentence; the National index (CSUSHPINSA, CSUSHPISA) instead carries the shorter \"Copyright, 2016, Standard & Poor's Financial Services LLC. Reprinted with permission.\" — see notes.",
+        "status": "restricted",
+        "url": "https://fred.stlouisfed.org/series/SPCS20RSA",
+        "quote": "Copyright © 2016, S&P Dow Jones Indices LLC. All rights reserved. Reproduction of S&P Case-Shiller 20-City Home Price Index in any form is prohibited except with the prior written permission of S&P Dow Jones Indices LLC \"S&P\".",
+        "read_from": [
+          "https://fred.stlouisfed.org/series/SPCS20RSA",
+          "https://fred.stlouisfed.org/series/CSUSHPINSA",
+          "https://fred.stlouisfed.org/series/SPCS10RSA",
+          "https://fred.stlouisfed.org/series/CSUSHPISA"
+        ]
+      },
+      "read_from": [
+        "https://api.stlouisfed.org/fred/series?series_id=CSUSHPINSA",
+        "https://api.stlouisfed.org/fred/series?series_id=CSUSHPISA",
+        "https://api.stlouisfed.org/fred/series?series_id=SPCS20RSA",
+        "https://api.stlouisfed.org/fred/series?series_id=SPCS10RSA",
+        "https://fred.stlouisfed.org/series/CSUSHPINSA",
+        "https://fred.stlouisfed.org/series/SPCS20RSA",
+        "https://fred.stlouisfed.org/series/SPCS10RSA",
+        "https://fred.stlouisfed.org/series/CSUSHPISA"
+      ],
+      "notes": [
+        "FRED API (2026-09-15): CSUSHPINSA and CSUSHPISA (both titled \"S&P Cotality Case-Shiller U.S. National Home Price Index\", not-seasonally-adjusted and seasonally-adjusted) and SPCS10RSA cover 1987-01 onward; SPCS20RSA (20-City Composite) covers 2000-01 onward — later than the other three. `coverage.start` above is the earliest of the four; the 20-city series starts 13 years later.",
+        "FRED's own series titles now read \"S&P Cotality Case-Shiller ...\" rather than \"S&P CoreLogic Case-Shiller ...\" — CoreLogic rebranded to Cotality; the index methodology and rights holder (S&P Dow Jones Indices) are unchanged.",
+        "All four series are seasonally adjusted except CSUSHPINSA (NSA) and CSUSHPISA (SA) are the same National index in each variant; SPCS20RSA and SPCS10RSA are SA-only on FRED.",
+        "publication_lag_business_days (42) is the observed gap between the FRED API's last_updated (2026-08-27) and the period the newest observation covers (month ending 2026-06-30), not a published release schedule from S&P DJI (their site is 403 to automated fetches — see access.notes).",
+        "Each FRED series page's own copyright label reads \"Copyrighted: Pre-Approval Required\" (checked via WebFetch for CSUSHPINSA, CSUSHPISA, SPCS20RSA, SPCS10RSA on 2026-09-15) — the same label FRED uses for the S&P 500 (SP500) dataset above.",
+        "Re-checked 2026-09-15 (S9 fix): the four series' copyright notices are not identical. CSUSHPINSA and CSUSHPISA (the National index) carry only \"Copyright, 2016, Standard & Poor's Financial Services LLC. Reprinted with permission.\" — no explicit reproduction-prohibition sentence. SPCS20RSA and SPCS10RSA each carry the longer \"Reproduction of S&P Case-Shiller <20-City|10-City> Home Price Index in any form is prohibited except with the prior written permission...\" sentence, naming their own index. `terms.quote` above is SPCS20RSA's wording (verbatim there); `terms.url` points to SPCS20RSA rather than CSUSHPINSA for that reason. `status: restricted` is kept for all four series under one entry since none of the four is unrestricted, but no single quote is verbatim across all four series' pages.",
+        "Not yet used by any series/*.json descriptor as of 2026-09-15 (roadmap item, not built)."
+      ]
     }
   ],
   "verified": {
-    "on": "2026-09-14",
-    "by": "Claude (S8 session): SP500 copyright notice and agreement text read from the FRED series page and API; S&P's own terms and index pages could not be fetched (403)"
+    "on": "2026-09-15",
+    "by": "Claude (S9 main session, Claude in Chrome): S&P DJI's Legal Disclaimer page, S&P Global's Terms of Use and the S&P 500 index page's Additional Info section read in a browser; source-level terms set from the disclaimer. Claude (S9 workflow agent spglobal): re-checked S&P DJI's terms and index pages (still 403 to automated fetches, WebFetch and curl both tried); read the FRED API series endpoint and FRED series pages for CSUSHPINSA, CSUSHPISA, SPCS20RSA, SPCS10RSA; web-searched for a live public S&P 500 EPS workbook post-discontinuation (inconclusive, see catalog/research-log.md). sp-500-eps and sp500-index datasets carry over unchanged from the 2026-09-14 S8 verification."
   }
 }

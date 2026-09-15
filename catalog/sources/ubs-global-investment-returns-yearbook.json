@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "slug": "ubs-global-investment-returns-yearbook",
+  "role": "reference",
+  "name": "UBS Global Investment Returns Yearbook (Dimson-Marsh-Staunton)",
+  "short_name": "UBS/DMS Yearbook",
+  "homepage": "https://www.ubs.com/global/en/investment-bank/insights-and-data/articles/global-investment-returns-yearbook-2026.html",
+  "description": "The annual long-run global asset-returns study by Elroy Dimson, Paul Marsh and Mike Staunton (London Business School / Cambridge), published by UBS: equity, bond, bill, inflation, currency and gold returns back to 1900 across 35 markets and five world composite indices, now in its 26th (2026) edition. UBS publishes a free public 'Public summary edition' PDF (extracted charts and key findings from the full 310-page report); the full report and underlying DMS dataset are commercial (contact the authors / a UBS representative). Useful here as the reference standard for long-run, cross-asset, cross-country annualized-return presentation, not as a data feed.",
+  "access": {
+    "method": "file-download",
+    "url": "https://www.ubs.com/content/dam/assets/wm/static/cio/documents/giry2026-summary-public.pdf",
+    "format": "pdf",
+    "auth": "none",
+    "notes": [
+      "The 2026 public summary edition (19 pages) downloads directly with no registration. It is extracts only: 'This report contains extracts from the full 310-page UBS Global Investment Returns Yearbook 2026 ... The table and chart numbers in the Summary Edition are not therefore consecutive but reflect the numbering in the full report.'",
+      "The full 310-page Yearbook is distributed to UBS clients by UBS; non-clients who want to purchase it are directed to contact Paul Marsh at London Business School (pmarsh@london.edu). The underlying DMS dataset is licensed separately (subscription info at https://tiny.cc/DMS), also via the authors, not UBS.",
+      "The homepage URL above is UBS's 2026 Yearbook landing page; UBS republishes a new landing page and a new summary PDF path each edition year, so the exact URL may need re-deriving in a future year."
+    ],
+    "read_from": [
+      "https://www.ubs.com/content/dam/assets/wm/static/cio/documents/giry2026-summary-public.pdf"
+    ]
+  },
+  "terms": {
+    "summary": "All rights reserved by the authors; no part of the (summary) document may be reproduced or used in any form without prior written permission, and any quotation requires contacting the authors for permission and using the specified copyright acknowledgement.",
+    "status": "restricted",
+    "url": "https://www.ubs.com/content/dam/assets/wm/static/cio/documents/giry2026-summary-public.pdf",
+    "quote": "Copyright © 2026 Elroy Dimson, Paul Marsh and Mike Staunton. All rights reserved. No part of this document may be reproduced or used in any form, including graphic, electronic, photocopying, recording or information storage and retrieval systems, without prior written permission from the copyright holders.",
+    "read_from": "https://www.ubs.com/content/dam/assets/wm/static/cio/documents/giry2026-summary-public.pdf"
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-b): the 2026 public summary edition PDF (giry2026-summary-public.pdf) downloaded and read directly, including its Imprint page (copyright/quotation terms) and General disclaimer page"
+  },
+  "notes": [
+    "role: reference — a long-run cross-asset returns study looked at for framing (methodology, presentation of century-scale annualized returns across countries), not a fetchable data source. datasets is empty by rule.",
+    "The 'To quote from this publication' clause (Imprint page) permits quoting extracts/charts/tables with prior permission from the authors and a specific copyright acknowledgement on the reused material — narrower than a blanket restriction but still requires asking first, hence terms.status restricted rather than verified."
+  ]
+}

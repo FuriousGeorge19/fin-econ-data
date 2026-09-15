@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "slug": "novel-investor",
+  "role": "reference",
+  "name": "Novel Investor — Annual Asset Class Returns",
+  "short_name": "Novel Investor",
+  "homepage": "https://novelinvestor.com/asset-class-returns/",
+  "description": "A 15-year 'quilt' chart on the personal-finance site Novel Investor ranking annual returns across eight asset classes (large cap, small cap, international, emerging markets, REITs, high-grade bonds, high-yield bonds, cash) plus a diversified portfolio blend, from best to worst each year. Useful here as an alternate reference design for a ranked annual asset-class returns chart (the quilt/heatmap-grid form, as opposed to Callan's tile-table form), not as a data feed.",
+  "access": {
+    "method": "web-page",
+    "url": "https://novelinvestor.com/asset-class-returns/",
+    "format": "html",
+    "auth": "none",
+    "notes": [
+      "The site also offers embed code and a downloadable image of the chart for reuse elsewhere, with an explicit 'Source: NovelInvestor.com' attribution requirement on the embedded version — narrower than, and an explicit exception to, the general no-reproduction Terms of Use below."
+    ],
+    "read_from": "https://novelinvestor.com/asset-class-returns/"
+  },
+  "terms": {
+    "summary": "General site Terms of Use: except for a single personal-use copy, content may not be copied, reproduced, modified, republished, or distributed without prior written permission — the asset-class-returns chart itself offers a narrower, explicit embed/attribution exception (see access.notes) but the general terms are restrictive.",
+    "status": "restricted",
+    "url": "https://novelinvestor.com/terms-of-use/",
+    "quote": "Except for a single copy made for personal use only, you may not copy, reproduce, modify, republish, upload, post, transmit, or distribute any documents or information from this site in any form or by any means without prior written permission from us or the specific content provider, and you are solely responsible for obtaining permission before reusing any copyrighted material that is available on this site.",
+    "read_from": "https://novelinvestor.com/terms-of-use/"
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-b): novelinvestor.com/asset-class-returns/ and novelinvestor.com/terms-of-use/ both fetched and read directly"
+  },
+  "notes": [
+    "role: reference — a chart looked at for design framing (the asset-class quilt form), not a fetchable data source. datasets is empty by rule."
+  ]
+}

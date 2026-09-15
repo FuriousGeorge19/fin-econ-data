@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "slug": "treasury-gov",
+  "role": "data",
+  "name": "U.S. Department of the Treasury — Interest Rate Statistics",
+  "short_name": "Treasury",
+  "homepage": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
+  "description": "The Treasury Department's own interest-rate data center: daily par yield curve rates (nominal Constant Maturity Treasury) and daily par real yield curve rates (TIPS-derived Real CMT), each served as one CSV per calendar year, plus the High Quality Market (HQM) corporate bond yield curve used for pension discounting, published as downloadable Excel workbooks.",
+  "access": {
+    "method": "file-download",
+    "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/{year}/all?type={dataset}",
+    "format": "csv",
+    "auth": "none",
+    "read_from": [
+      "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve",
+      "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_real_yield_curve"
+    ],
+    "notes": [
+      "type is daily_treasury_yield_curve for nominal or daily_treasury_real_yield_curve for real; {year} is the four-digit calendar year.",
+      "The current-year file is server-cached: a plain request returns Drupal cache header X-Drupal-Cache: HIT, and adding an unrecognized query parameter (e.g. &junk=1) returns X-Drupal-Cache: MISS. Verified by comparing response headers on 2026-09-15 for the 2026 nominal file; on that check the cached and freshly-generated copies held identical data (latest row was already the newest business day), so this confirms the cache exists, not that it ever serves a stale current-year file. A fetcher pulling same-day data should still add a cache-busting parameter as a precaution.",
+      "Prior-year files (type={dataset}, {year} < current year) are static once the year closes and are not known to have this caching behavior."
+    ]
+  },
+  "terms": {
+    "summary": "U.S. federal government work; Treasury's site policies state no copyright may be claimed for federal-employee work and that images and text on the site may be freely copied, with a caveat that some third-party material embedded on the site may carry its own copyright.",
+    "status": "unverified",
+    "url": "https://home.treasury.gov/subfooter/site-policies-and-notices",
+    "read_from": [
+      "https://home.treasury.gov/subfooter/site-policies-and-notices"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "yield-curve",
+      "name": "Daily Treasury Par Yield Curve Rates (nominal CMTs)",
+      "gives": "Par (Constant Maturity Treasury) yields read off Treasury's daily nominal yield curve, at maturities that have grown from 9 tenors in 1990 to 14 today (1, 1.5, 2, 3, 4, 6 months; 1, 2, 3, 5, 7, 10, 20, 30 years), computed from over-the-counter closing bid quotations compiled by the Federal Reserve Bank of New York",
+      "ids": ["daily_treasury_yield_curve"],
+      "topics": ["rates"],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {"start": "1990-01-02", "end": "ongoing"},
+      "publication_lag_business_days": 0,
+      "status": "active",
+      "read_from": [
+        "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+        "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/1990/all?type=daily_treasury_yield_curve",
+        "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/1989/all?type=daily_treasury_yield_curve"
+      ],
+      "notes": [
+        "Verified the 1990-01-02 start directly: the 1990 CSV returns data (last row 12/31/1990) while the 1989 CSV returns an empty body (header row only, no data rows).",
+        "1990 file carries only 9 tenors (3mo, 6mo, 1yr, 2yr, 3yr, 5yr, 7yr, 10yr, 30yr); the 2026 file carries 14 (1mo, 1.5mo, 2mo, 3mo, 4mo, 6mo, 1yr, 2yr, 3yr, 5yr, 7yr, 10yr, 20yr, 30yr) — Treasury has added tenors over time (e.g. 1-month in 2001, 20-year resumed in 2020, 1.5-month/2-month/4-month added later); which tenor appears in which year was not fully mapped, only the 1990 and 2026 endpoints checked.",
+        "Publication lag observed as same business day: the CSV requested 2026-09-15 already carried the 09/14/2026 row as its latest observation.",
+        "Same underlying data as FRED's DGS* constant-maturity series (catalog/sources/fred.json), fetched here directly from Treasury instead of via FRED."
+      ]
+    },
+    {
+      "id": "real-yield-curve",
+      "name": "Daily Treasury Par Real Yield Curve Rates (Real CMTs / R-CMTs)",
+      "gives": "Par real yields (TIPS-derived) read off Treasury's daily real yield curve at 5 maturities (5, 7, 10, 20, 30 years), interpolated with a monotone convex spline from indicative secondary-market TIPS quotations compiled by the Federal Reserve Bank of New York",
+      "ids": ["daily_treasury_real_yield_curve"],
+      "topics": ["rates", "inflation"],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {"start": "2003-01-02", "end": "ongoing"},
+      "publication_lag_business_days": 0,
+      "status": "active",
+      "read_from": [
+        "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
+        "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2003/all?type=daily_treasury_real_yield_curve",
+        "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2002/all?type=daily_treasury_real_yield_curve"
+      ],
+      "notes": [
+        "Verified the 2003-01-02 start directly: the 2003 CSV returns data (last row 12/31/2003, only 5yr/7yr/10yr present that year) while the 2002 CSV returns an empty body.",
+        "2003 file carries only 3 tenors (5yr, 7yr, 10yr); the 2026 file carries all 5 (5yr, 7yr, 10yr, 20yr, 30yr) — 20-year and 30-year were added later, exact addition year not checked.",
+        "Publication lag observed as same business day: the CSV requested 2026-09-15 already carried the 09/14/2026 row as its latest observation.",
+        "Shares the same current-year caching behavior noted in access.notes (checked against the nominal file, not independently reverified for this dataset)."
+      ]
+    },
+    {
+      "id": "hqm-corporate-par-yields",
+      "name": "HQM Corporate Bond Yield Curve, par yields",
+      "gives": "Par yields on the High Quality Market (HQM) corporate bond yield curve (AAA/AA/A-rated corporates), used for Pension Protection Act discounting; a single workbook spanning 1984 to present, plus a separate end-of-month-only workbook",
+      "ids": ["hqm_qh_pars.xls", "hqmeom_qh_pars.xls"],
+      "topics": ["credit", "rates"],
+      "units": "percent",
+      "cadence": "unknown",
+      "coverage": {"start": "1984", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "access": {
+        "method": "manual-download",
+        "format": "xls"
+      },
+      "read_from": [
+        "https://home.treasury.gov/data/treasury-coupon-issues-and-corporate-bond-yield-curve/corporate-bond-yield-curve"
+      ],
+      "notes": [
+        "Treasury also publishes HQM spot rates (not par yields) as separate .xls workbooks chunked into 5-year windows (e.g. hqm_84_88.xls ... hqm_24_28.xls, plus end-of-month equivalents hqmeom_84_88.xls ...); not catalogued as a separate dataset here since we don't use spot rates.",
+        "A related but distinct HQM series (HQMCB1YR-HQMCB30YR, spot rates, monthly, from 1984) is catalogued as dataset hqmcb in catalog/sources/fred.json; that is a spot-rate curve, not par yields, and is the dataset series_meta.py resolves today (confirmed against FRED's HQMCB10YR series page: 'This series represents a spot rate, not a par yield... The spot rate for any maturity is defined as the yield on a bond that gives a single payment at that maturity.'). This entry records Treasury's own par-yield workbooks as the direct, non-FRED alternative.",
+        "File format read from filenames and link titles only (page is heavily JavaScript-instrumented; no page prose describing update frequency was found near the hqm_qh_pars.xls link, reconfirmed 2026-09-15), so both cadence and publication_lag_business_days are unknown rather than guessed."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent treasury-gov): home.treasury.gov TextView pages for nominal and real yield curves, the daily-treasury-rates.csv endpoint fetched directly for 1989/1990/2002/2003/2026 (nominal and real) to confirm start dates and tenor counts, response headers compared with and without a cache-busting query parameter, home.treasury.gov/subfooter/site-policies-and-notices for terms, and the corporate-bond-yield-curve page for HQM file links"
+  },
+  "notes": [
+    "home.treasury.gov/policies-and-guidance/other-policies/website-policies-and-major-links (the URL form expected from Treasury's usual policy-page pattern) returned HTTP 404; the working policies page found by search is /subfooter/site-policies-and-notices, used above.",
+    "That policies page's fetched text listed links to a Privacy Policy, Accessibility statement and FOIA information but did not itself contain a copyright/public-domain sentence in the portion retrieved, so terms.status is unverified rather than verified: a policy page exists and is linked, but no on-page quotable copyright sentence was found through it. General U.S. federal-government-work public-domain status likely applies but was not confirmed with a verbatim quote from this specific Treasury page."
+  ]
+}

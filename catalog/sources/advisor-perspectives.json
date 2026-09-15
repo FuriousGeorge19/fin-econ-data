@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "slug": "advisor-perspectives",
+  "role": "reference",
+  "name": "Advisor Perspectives — dshort (formerly dshort.com)",
+  "short_name": "Advisor Perspectives (dshort)",
+  "homepage": "https://www.advisorperspectives.com/dshort",
+  "description": "The dshort section of Advisor Perspectives (the archive of Doug Short's long-running market/economic charts, now maintained under the Advisor Perspectives brand) publishes long-term charts and commentary on market valuation, margin debt, housing, and other economic series, typically framed against their own historical trend or regression line. Used here as a design/framing reference for how a long-running independent chart series is labeled and updated, not as a data source.",
+  "access": {
+    "method": "web-page",
+    "url": "https://www.advisorperspectives.com/dshort",
+    "format": "html",
+    "auth": "none",
+    "notes": [
+      "Charts and commentary are free to view on the public site; a paid AP Premium membership adds member-only features (PDF creation, a \"forward to a friend\" tool) per the membership terms of use.",
+      "The site returned HTTP 403 to both an automated WebFetch and a curl request with a standard browser user agent during this research session, so its terms-of-use page could not be read and quoted directly; the summary below is drawn from indexed search-result text, not a verbatim page read, and terms.status is set accordingly."
+    ],
+    "read_from": [
+      "https://www.advisorperspectives.com/dshort"
+    ]
+  },
+  "terms": {
+    "summary": "Advisor Perspectives' membership terms of use restrict copying, reproducing, or redistributing site materials without prior written permission, with limited sharing allowed through member features.",
+    "status": "unverified",
+    "url": "https://www.advisorperspectives.com/member/terms-of-use",
+    "read_from": [
+      "https://www.advisorperspectives.com/member/terms-of-use"
+    ]
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-a): advisorperspectives.com/dshort and the terms-of-use URL located via search; both blocked automated fetches (403) so the terms page itself was not read directly"
+  },
+  "notes": [
+    "Reference only — no chart on this site fetches data from Advisor Perspectives.",
+    "terms.status is unverified rather than restricted because the terms page could not be fetched and quoted directly in this session (site returns 403 to automated requests); a future session with browser access should confirm the quote."
+  ]
+}

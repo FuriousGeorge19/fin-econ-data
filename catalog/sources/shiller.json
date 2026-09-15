@@ -8,16 +8,18 @@
   "description": "Robert Shiller's online data page: the monthly U.S. stock market dataset behind Irrational Exuberance and the CAPE ratio, plus annual long-term series and the home-price series from the book. The monthly stock dataset is this site's confirmed P/E history through Shiller's last confirmed month.",
   "access": {
     "method": "file-download",
-    "url": "http://www.econ.yale.edu/~shiller/data/ie_data.xls",
+    "url": "https://img1.wsimg.com/blobby/go/e5e77e0b-59d1-44d9-ab25-4763ac982e53/downloads/70fec4f5-727f-4e53-b5f1-179af109c5fa/ie_data.xls",
     "format": "xls",
     "auth": "none",
     "notes": [
       "One workbook; the Data sheet has several header rows above the monthly table. Parsed by scripts/fetch_sp500_pe.py (needs pandas and xlrd).",
-      "A HEAD request on 2026-09-14 returned 200, 1,628,672 bytes, Last-Modified 2023-10-17, so the Yale copy may no longer be refreshed. shillerdata.com describes the same ie_data.xls; whether it is the maintained copy is an open item in catalog/research-log.md."
+      "Confirmed 2026-09-15: the Yale copy (http://www.econ.yale.edu/~shiller/data/ie_data.xls) is frozen — downloaded file's OLE metadata reads Last Saved 2023-09-17, and its last monthly row with a price is 2023.09 (price 4515.77) with earnings only through 2023.06 (181.17). shillerdata.com is the maintained copy: the visible \"download\" button's target is not the page's obvious link text but an img1.wsimg.com CDN asset URL, findable in the page's raw HTML (a plain curl fetch suffices — no JS execution needed) via its `data-aid=\"DOWNLOAD_DOCUMENT_LINK_RENDERED\"` anchor, with a `?ver=<timestamp>` cache-busting query param that may change; it resolves to a workbook last saved 2026-09-02 whose last row with a price is 2026.09 (price 7631.47) and with earnings through 2026.06 (295.3881) — i.e. current. scripts/fetch_sp500_pe.py still points at the Yale URL as of this check; repointing it is a code change out of this catalogue entry's scope.",
+      "The query-string version tag on the shillerdata.com URL was observed as ver=1788371540009 on 2026-09-15; if a future fetch gets a 404, re-derive the current link from https://shillerdata.com/ (Compilation of Cape Ratio -> ie_data.xls download link in the page's HTML)."
     ],
     "read_from": [
       "http://www.econ.yale.edu/~shiller/data.htm",
-      "https://shillerdata.com/"
+      "https://shillerdata.com/",
+      "https://img1.wsimg.com/blobby/go/e5e77e0b-59d1-44d9-ab25-4763ac982e53/downloads/70fec4f5-727f-4e53-b5f1-179af109c5fa/ie_data.xls"
     ]
   },
   "terms": {
@@ -49,15 +51,17 @@
       "notes": [
         "Used by series/sp500_pe.json as confirmed history; months after Shiller's last confirmed month come from FRED SP500 and data/earnings_overrides.json.",
         "Shiller periodically restates historical earnings; the site shows the latest revision (series/sp500_pe.json revision_note).",
-        "Refresh cadence is not stated on either page; the Yale file's Last-Modified header suggests irregular updates, so the lag is unknown rather than guessed."
+        "Refresh cadence is not stated on either page; irregular updates confirmed directly (see access.notes): the shillerdata.com copy carries monthly price through 2026-09 and monthly earnings through 2026-06, so the lag is unknown rather than guessed.",
+        "scripts/fetch_sp500_pe.py fetches from the Yale URL as of 2026-09-15, which is frozen at 2023-09 (price) / 2023-06 (earnings) — repointing it to the shillerdata.com URL above would restore live monthly updates; recorded here, not made, per this task's scope."
       ]
     }
   ],
   "verified": {
-    "on": "2026-09-14",
-    "by": "Claude (S8 session): Yale data page and shillerdata.com read; both searched for a terms statement; xls checked with a HEAD request"
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent shiller-freshness): Yale data page, shillerdata.com and its rendered download link read; both ie_data.xls workbooks (Yale and shillerdata.com) downloaded and parsed with pandas/xlrd to compare last populated month; terms re-searched on both pages, still no statement found"
   },
   "notes": [
-    "The pre-catalogue descriptor text said 'no republication restriction found'. Recorded here as terms.status unknown rather than verified: there is no terms statement to quote."
+    "The pre-catalogue descriptor text said 'no republication restriction found'. Recorded here as terms.status unknown rather than verified: there is no terms statement to quote.",
+    "2026-09-15 freshness check: shillerdata.com is the maintained copy of ie_data.xls (monthly price through 2026-09, earnings through 2026-06); the Yale copy is frozen at its 2023-10-17 Last-Modified date (monthly price through 2023-09, earnings through 2023-06). See access.notes and the ie-data dataset's notes for the file URLs and evidence."
   ]
 }

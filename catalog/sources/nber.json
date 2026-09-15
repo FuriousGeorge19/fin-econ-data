@@ -58,6 +58,65 @@
         "Most recent peak February 2020 (2019Q4), most recent trough April 2020 (2020Q2), as shown on 2026-09-14.",
         "Referenced by series/usrec.json as the authority behind FRED's USREC; the fetcher reads USREC, not this file."
       ]
+    },
+    {
+      "id": "macrohistory",
+      "name": "NBER Macrohistory Database",
+      "gives": "Pre-WWI and interwar era U.S. (with partial U.K., France and Germany coverage) economic series across 16 topic chapters: production and construction, employment, money and banking, prices, asset-market transactions, foreign trade, government activity, and interest rates. Chapter XIII (Interest Rates) alone has ~80 series (78 counted): call money and commercial paper rates, Federal Reserve and foreign central-bank discount rates, open-market rates, corporate/municipal/government bond yields, equity and mortgage yields, and rate spreads; Chapter IV (Prices) has wholesale/retail commodity prices and broad price indices (e.g. BLS wholesale price index, CPI all items). Most series are highly disaggregated and many are US-only.",
+      "ids": [
+        "m13001a",
+        "m13002",
+        "m13009",
+        "m04048c",
+        "m04129"
+      ],
+      "topics": ["rates", "inflation", "macro"],
+      "units": "percent, index points, dollars, varies by series",
+      "cadence": "monthly",
+      "coverage": {"start": "1824-01", "end": "1972-08"},
+      "publication_lag_business_days": "unknown",
+      "status": "discontinued",
+      "access": {
+        "notes": [
+          "16 chapters, each a directory of series files under https://data.nber.org/databases/macrohistory/data/<chapter-number>/ (chapter 13 = interest rates, chapter 04 = prices, etc.); a chapter's own page (e.g. nber.org/research/data/nber-macrohistory-xiii-interest-rates) lists that chapter's series with a series id, date range and cadence.",
+          "Series id convention: a one-letter cadence prefix (m = monthly, q = quarterly, a = annual) + two-digit chapter number + three-digit series number, with an optional letter suffix for a revised/alternate vintage of the same underlying series (e.g. m13001 vs m13001a, m13029a vs m13029b).",
+          "Each series is offered as a Micro-TSP .db file (data + comment lines together, readable by TSP/Micro-TSP/RATS) and a rectangular .dat file (year/period/value columns, produced from the .db files by Jean Roth in May 2001) plus an accompanying .txt comment file; missing values are 'NA' in .db and '.' in .dat.",
+          "A HEAD request on 2026-09-15 to data.nber.org/databases/macrohistory/data/13/m13001a.db returned 200, 9,482 bytes, Last-Modified Fri 2005-08-26 — consistent with a static historical archive, not a series still being extended."
+        ],
+        "read_from": [
+          "https://www.nber.org/research/data/nber-macrohistory-database",
+          "https://www.nber.org/research/data/nber-macrohistory-xiii-interest-rates",
+          "https://www.nber.org/research/data/nber-macrohistory-iv-prices",
+          "https://data.nber.org/databases/macrohistory/data/"
+        ]
+      },
+      "terms": {
+        "summary": "No dataset-specific reuse permission found; the macrohistory database pages carry only the site-wide '© 2026 National Bureau of Economic Research. All Rights Reserved.' footer, not the chronology dataset's explicit 'permission to copy is granted' sentence",
+        "status": "restricted",
+        "url": "https://www.nber.org/research/data/nber-macrohistory-database",
+        "quote": "© 2026 National Bureau of Economic Research. All Rights Reserved.",
+        "read_from": [
+          "https://www.nber.org/research/data/nber-macrohistory-database",
+          "https://www.nber.org/research/data/nber-macrohistory-xiii-interest-rates",
+          "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"
+        ]
+      },
+      "roadmap": ["chart 5 (pre-1934 short rate)"],
+      "verified_on": "2026-09-15",
+      "read_from": [
+        "https://www.nber.org/research/data/nber-macrohistory-database",
+        "https://www.nber.org/research/data/nber-macrohistory-xiii-interest-rates",
+        "https://www.nber.org/research/data/nber-macrohistory-iv-prices",
+        "https://data.nber.org/databases/macrohistory/data/"
+      ],
+      "notes": [
+        "Cadence set to 'monthly' as the dominant native cadence within the interest-rate and price chapters checked (most series monthly; a handful quarterly or annual, e.g. q13020 Municipal Bond Yields quarterly, a13049 Earnings Yield annual) rather than 'irregular', since irregular is meant for genuinely event-driven cadence (the chronology dataset), not a mixed-but-mostly-regular one.",
+        "Coverage {1824-01, 1972-08} is the outer span actually verified (Chapter XIII's earliest series, Great Britain Open Market Rates of Discount, London (m13016), starts 1824-01; Chapter XIII's latest-ending series, Industrial Bonds Aaa Rating m13026, ends 1972-08). Individual series each cover a narrower window within this; do not treat the whole span as populated for any one series.",
+        "Pre-1934 short-rate coverage for chart 5 confirmed directly: Call Money Rates (m13001a) runs 1857-01 through 1934-04, and Commercial Paper Rates NYC (m13002) runs 1857-01 through 1971-12, both spanning the pre-1934 window.",
+        "status 'discontinued' is inferred from the 2005 file Last-Modified date and the chapter series' end dates clustering in the 1930s-1970s, plus no discontinuation notice or update log found on any page read — there is no explicit 'this database is no longer updated' statement, only the absence of any newer activity.",
+        "'restricted' terms status is a conservative read: 'All Rights Reserved' is NBER's standard site-wide footer (confirmed present on the chronology dataset's own page too, alongside its separate explicit permission sentence), not a macrohistory-specific denial of reuse — but since no permission sentence exists for this dataset the way it does for the chronology, it is not treated as verified/permitted either.",
+        "Complementary/successor projects surfaced on the macrohistory page, not catalogued here: the Jordà-Schularick-Taylor Macrohistory Database (macrohistory.net) and the Gordon-Balke American Business Cycle dataset — candidates for their own catalogue files if a future series needs them."
+      ]
     }
   ],
   "verified": {

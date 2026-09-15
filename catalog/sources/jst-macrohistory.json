@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "slug": "jst-macrohistory",
+  "role": "data",
+  "name": "Jordà-Schularick-Taylor Macrohistory Database",
+  "short_name": "JST Macrohistory",
+  "homepage": "https://www.macrohistory.net/database/",
+  "description": "A long-run macroeconomic and financial dataset for 18 advanced economies from 1870 to the present, assembled by Òscar Jordà, Moritz Schularick and Alan M. Taylor (hosted by the MacroFinance & MacroHistory Lab at the Kiel Institute, led by Schularick). Covers real economy, credit, house price, asset return and financial crisis variables previously dispersed across many national sources.",
+  "access": {
+    "method": "file-download",
+    "url": "https://www.macrohistory.net/app/download/9834512569/JSTdatasetR6.xlsx",
+    "format": "xlsx",
+    "auth": "none",
+    "notes": [
+      "Also distributed as Stata .dta (JSTdatasetR6.dta), including a direct `use` URL for loading into Stata without downloading first.",
+      "One workbook covering all 18 countries and all 48 variables, annual observations, no API."
+    ],
+    "read_from": [
+      "https://www.macrohistory.net/database/",
+      "https://www.macrohistory.net/data/",
+      "https://www.macrohistory.net/"
+    ]
+  },
+  "terms": {
+    "summary": "Free download for non-commercial (e.g. academic) use under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International; commercial data providers may not integrate or resell it; requires attribution/citation and identical (ShareAlike) licensing of derivatives",
+    "status": "restricted",
+    "url": "https://www.macrohistory.net/database/",
+    "quote": "Commercial data providers are thus strictly forbidden to integrate all or parts of the dataset into their services and/or resell the data.",
+    "read_from": [
+      "https://www.macrohistory.net/database/"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "jst-dataset-r6",
+      "name": "JST Macrohistory Database, Release 6 (R.6)",
+      "gives": "48 annual variables per country: real GDP, consumption, investment, unemployment, wages; current account, trade, exchange rates; government revenue/expenditure/debt; money supply, short- and long-term interest rates, consumer prices; total/mortgage/household/business bank loans; house prices; financial crisis dates; equity, housing, bond and bill total returns; exchange-rate peg status; bank capital and balance-sheet ratios",
+      "ids": ["JSTdatasetR6.xlsx", "JSTdatasetR6.dta"],
+      "topics": ["credit", "real-estate", "equity-returns", "macro", "rates", "inflation", "recession-dating", "global"],
+      "units": "percent, index, national currency, ratio (varies by variable)",
+      "cadence": "annual",
+      "coverage": {"start": "1870", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://www.macrohistory.net/database/",
+        "https://www.macrohistory.net/data/"
+      ],
+      "notes": [
+        "Release R.6 (2022) is the latest of an irregular release series (R1 through R6); no dated release-history page was found, so the cadence between releases is 'irregular' at the file level, not a fixed schedule.",
+        "18 countries (advanced economies only, ~90% of advanced-economy output, >50% of world output as of R.6); Ireland was the most recent addition per the database page.",
+        "Citation is per-variable-group, not one blanket citation: Jordà/Schularick/Taylor 2017 for general use, Jordà/Knoll/Kuvshinov/Schularick/Taylor 2019 for returns data, and Jordà/Richter/Schularick/Taylor 2021 for bank balance-sheet ratios; the page also asks users to note the consultation date since statistics are subject to revision.",
+        "Not yet used by any series/*.json descriptor as of 2026-09-15 — roadmap only."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent jst-macrohistory): read https://www.macrohistory.net/database/ (license, citations, downloads), https://www.macrohistory.net/data/ (release/download URLs), and https://www.macrohistory.net/ (homepage/nav)"
+  },
+  "notes": [
+    "No public API; single workbook/Stata-file download covering the whole database, not per-variable or per-country files.",
+    "terms.status is restricted (not verified) because the CC BY-NC-SA licence forbids commercial use/resale — this repo publishes republished values on a public page, so any future use of this data needs the non-commercial and attribution/ShareAlike conditions checked against how the value would be shown, not assumed compatible by default."
+  ]
+}

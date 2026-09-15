@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "slug": "crestmont",
+  "role": "reference",
+  "name": "Crestmont Research",
+  "short_name": "Crestmont Research",
+  "homepage": "https://www.crestmontresearch.com/",
+  "description": "Ed Easterling's Crestmont Research publishes free PDF (and some Excel) research on secular stock-market cycles, P/E and profit-margin analysis, and interest-rate patterns (e.g. its P/E-vs-inflation \"decade of years\" chart and its \"6/50 Rule\" for rate-change frequency). Used here as a design/framing reference for how it presents long-run cyclical valuation charts.",
+  "access": {
+    "method": "file-download",
+    "url": "https://www.crestmontresearch.com/stock-market/",
+    "format": "pdf",
+    "auth": "none",
+    "notes": [
+      "PDFs (and a few Excel workbooks) are downloadable free of charge from the site's Stock Market, Interest Rates and Economy sections.",
+      "Update cadence is not stated as a fixed schedule on the site; charts appear to be refreshed periodically, not on a fixed calendar (not established as daily/monthly/quarterly)."
+    ],
+    "read_from": [
+      "https://www.crestmontresearch.com/"
+    ]
+  },
+  "terms": {
+    "summary": "Crestmont retains copyright over all site content, but broadly permits use or reference of its material (charts, graphs, analyses) as long as the user attributes it to Crestmont Research and the site address, e.g. \"Copyright 2026, www.CrestmontResearch.com\" — no personal/noncommercial-only or one-copy-per-page limitation. Crestmont asks (not requires) that published material referencing the research be sent to them, and retains all property rights to its research.",
+    "status": "restricted",
+    "url": "https://www.crestmontresearch.com/about/",
+    "quote": "The entire content of Crestmont's website, including but not limited to charts, graphs, analyses, etc., is subject to copyright with all rights reserved. All material available on this site may be used or referenced if the user references and acknowledges Crestmont Research and our website address (i.e. \"Copyright 2026, www.CrestmontResearch.com\" or \"as presented by Crestmont Research (www.CrestmontResearch.com), …\"). Please send a copy of the published material to Info[at]CrestmontResearch.com to assist in further developing the research. All property rights to Crestmont's research shall remain with Crestmont.",
+    "read_from": [
+      "https://www.crestmontresearch.com/about/"
+    ]
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 fix step): crestmontresearch.com homepage and crestmontresearch.com/about/ re-read to correct a misquoted terms.quote"
+  },
+  "notes": [
+    "Reference only — no chart on this site fetches data from Crestmont; the entry records that reuse of its charts is permitted with attribution."
+  ]
+}

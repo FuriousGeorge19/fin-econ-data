@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "slug": "callan-periodic-table",
+  "role": "reference",
+  "name": "Callan Periodic Table of Investment Returns",
+  "short_name": "Callan Periodic Table",
+  "homepage": "https://www.callan.com/periodic-table/",
+  "description": "An annual chart, published by the institutional investment consultant Callan since 1999, ranking major asset-class index returns from best to worst for each of the last 20 years — the best-known example of a 'periodic table' / ranked-tile asset-class return chart. Useful here as the reference design for a ranked annual asset-class returns chart, not as a data feed.",
+  "access": {
+    "method": "web-page",
+    "url": "https://www.callan.com/periodic-table/",
+    "format": "html",
+    "auth": "none",
+    "notes": [
+      "Every automated fetch attempt against callan.com (the periodic-table landing page, the year-specific research page, and the policies-disclosures page identified by search) returned HTTP 403 from what the response identified as Cloudflare's 'Attention Required' challenge page, for both the WebFetch tool and a browser-UA curl request. This blocks automated access; it is not evidence the pages don't exist or carry no terms — a terms page was located by search (see terms.url) but its content is understood only from search-result summaries, not from a directly read page, so no read_from is claimed on this block."
+    ]
+  },
+  "terms": {
+    "summary": "A Policies & Disclosures page exists (callan.com/policies-disclosures/) referencing Callan's Terms of Service and stating that all content and materials on the site are protected by copyrights, trademarks, and other proprietary rights, but the page renders behind a Cloudflare bot challenge and could not be fetched as text, so no verbatim quote could be taken.",
+    "status": "unverified",
+    "url": "https://www.callan.com/policies-disclosures/"
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-b): callan.com periodic-table page, its year-specific research page, and the policies-disclosures page all attempted via WebFetch and curl; all three returned HTTP 403 (Cloudflare challenge) before any content loaded. A WebSearch located the policies-disclosures page and a search-summary copyright statement, so terms.status is unverified (page found, not read) rather than unknown"
+    },
+  "notes": [
+    "role: reference — a well-known annual chart looked at for design framing (ranked-tile layout, asset-class palette), not a fetchable data source. datasets is empty by rule.",
+    "If a future session can reach callan.com directly (e.g. from a browser session rather than an automated fetch), re-verify terms against the policies-disclosures page directly and upgrade this entry — the 403 reflects a fetch-tool limitation, not a researched absence of terms."
+  ]
+}

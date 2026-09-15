@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "slug": "multpl",
+  "role": "data",
+  "name": "multpl.com — S&P 500 P/E, Earnings and Related Ratios",
+  "short_name": "multpl",
+  "homepage": "https://www.multpl.com/",
+  "description": "A free web dashboard of long-run S&P 500 valuation series — P/E ratio, earnings, earnings yield, dividend, price — built by combining Robert Shiller's historical dataset with more recent S&P figures, updated monthly. Each series is an HTML page with By-Year/By-Month table views; there is no CSV download or API.",
+  "access": {
+    "method": "web-page",
+    "url": "https://www.multpl.com/s-p-500-earnings/table/by-month",
+    "format": "html",
+    "auth": "none",
+    "notes": [
+      "No CSV download, API, or bulk-export feature found anywhere on the site — only paginated HTML tables (By Year / By Month) per metric page. Any use would mean scraping an HTML table, which is fragile (no stated stability guarantee on the markup) and unverified against the site's own preference for automated access (no robots.txt or rate-limit statement found).",
+      "The earnings page ('S&P 500 Earnings') shows 12-month trailing earnings expressed in real (inflation-adjusted, constant current-month) dollars, not nominal as-reported EPS — the P/E ratio page itself is described as based on trailing-twelve-month 'as reported' earnings, so the ratio is usable directly, but the earnings page's dollar figures are not a drop-in replacement for a nominal EPS series without a CPI back-out.",
+      "The site states its current earnings come from Standard & Poor's and its historical earnings from Robert Shiller — it is a secondary repackaging of the same two sources already in this repo's pipeline (spglobal, shiller), continuously updated by multpl.com rather than by us; it does not add an independent rights holder, only a more current copy of numbers whose underlying rights (S&P's 'restricted' terms) are unchanged."
+    ],
+    "read_from": [
+      "https://www.multpl.com/",
+      "https://www.multpl.com/s-p-500-pe-ratio/table/by-month",
+      "https://www.multpl.com/s-p-500-earnings/table/by-month"
+    ]
+  },
+  "terms": {
+    "summary": "No terms-of-use, licence or republication page found anywhere on the site. The only site-wide legal text is an 'as is' informational-use disclaimer in the footer, which addresses reliability, not reuse or redistribution rights.",
+    "status": "unknown",
+    "url": "unknown",
+    "quote": "Information is provided \"as is\" and solely for informational purposes, not for trading purposes or advice, and may be delayed.",
+    "read_from": [
+      "https://www.multpl.com/",
+      "https://www.multpl.com/s-p-500-earnings"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "sp-500-pe-ratio",
+      "name": "S&P 500 P/E ratio, monthly",
+      "gives": "S&P 500 price-to-earnings ratio, based on trailing-twelve-month 'as reported' earnings; described on the site as sourced from Robert Shiller's historical dataset for the earlier history and Standard & Poor's for current figures",
+      "ids": [],
+      "topics": ["equity-valuation"],
+      "units": "ratio",
+      "cadence": "monthly",
+      "coverage": {"start": "1871-01", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "roadmap": ["EPS-replacement open item (2026-09-14 changelog)"],
+      "read_from": ["https://www.multpl.com/s-p-500-pe-ratio/table/by-month"],
+      "notes": [
+        "HTML table only (By Year / By Month views); no CSV or API. A fetcher would need to scrape the table, which is unverified against the site's tolerance for automated requests."
+      ]
+    },
+    {
+      "id": "sp-500-earnings",
+      "name": "S&P 500 earnings, monthly (real, inflation-adjusted)",
+      "gives": "12-month trailing S&P 500 earnings per share, expressed in real (CPI-adjusted, constant current-month) dollars; current figures from Standard & Poor's, historical figures from Robert Shiller",
+      "ids": [],
+      "topics": ["equity-valuation"],
+      "units": "usd-per-share",
+      "cadence": "monthly",
+      "coverage": {"start": "1871-01", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "roadmap": ["EPS-replacement open item (2026-09-14 changelog)"],
+      "read_from": ["https://www.multpl.com/s-p-500-earnings/table/by-month"],
+      "notes": [
+        "Real, not nominal, dollars — not a direct substitute for data/earnings_overrides.json's as-reported nominal TTM EPS without deflator work.",
+        "Same underlying rights holders as spglobal/shiller, just kept current by a third party; does not resolve the 'restricted'/'unknown' terms status of the original data, and adds its own terms.status: unknown on top."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent eps-replacement): read multpl.com homepage, /s-p-500-pe-ratio/table/by-month, /s-p-500-earnings/table/by-month, /s-p-500-earnings for cadence/coverage/source description and searched the site and the web for a terms/disclaimer page"
+  },
+  "notes": [
+    "Surveyed as a candidate replacement for the discontinued S&P Global EPS workbook (see fin-econ-data/CLAUDE.md 'S&P 500 P/E — Quarterly Earnings Update' section). Not adopted: no CSV/API (HTML-scrape only), no terms statement to establish reuse rights, and its earnings figures are inflation-adjusted rather than nominal as-reported EPS. Ranked against other candidates in the S9 research log (see catalog/research-log.md, 2026-09-15 entries)."
+  ]
+}

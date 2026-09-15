@@ -112,7 +112,7 @@ def test_sp500_pe_resolves_to_three_entries_with_via_and_status():
 
     eps = by_key[("spglobal", "sp-500-eps")]
     assert "via" not in eps
-    assert eps["terms_status"] == "unverified"
+    assert eps["terms_status"] == "restricted"  # inherits S&P DJI's source-level terms (read 2026-09-15)
     assert eps["note"]
 
     shiller = by_key[("shiller", "ie-data")]
@@ -282,7 +282,8 @@ def test_check_cli_reports_problem_naming_the_file(tmp_path, capsys):
 def test_report_lists_sources_used_by_and_via_index(capsys):
     assert catalog.main(["report"]) == 0
     out = capsys.readouterr().out
-    assert "fred hosts: spglobal/sp500-index" in out
+    hosts = next(line for line in out.splitlines() if line.startswith("fred hosts: "))
+    assert "spglobal/sp500-index" in hosts.split(": ", 1)[1].split(", ")
     assert "used by: dgs10, spreads, yield_curve" in out
     assert "blocks lacking read_from:" in out
 

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "slug": "jpmorgan-guide-to-the-markets",
+  "role": "reference",
+  "name": "J.P. Morgan Asset Management — Guide to the Markets",
+  "short_name": "JPM Guide to the Markets",
+  "homepage": "https://am.jpmorgan.com/us/en/asset-management/adv/insights/market-insights/guide-to-the-markets/",
+  "description": "J.P. Morgan Asset Management's quarterly slide deck of market and economic charts (valuation, earnings, fixed income, the yield curve, international, alternatives, retirement) distributed as a PDF and updated each quarter. Used here as a design/framing reference, not a data feed: it shows how a widely-used industry chartbook labels and annotates the same kinds of series this site charts (e.g. its P/E-vs-20-year-average panel, its yield-curve snapshot).",
+  "access": {
+    "method": "web-page",
+    "url": "https://am.jpmorgan.com/us/en/asset-management/adv/insights/market-insights/guide-to-the-markets/",
+    "format": "html",
+    "auth": "none",
+    "notes": [
+      "The current quarter's PDF/slide deck is reachable from this landing page without login; some interactive tools and the mobile app require a Financial Professional or Shareholder login.",
+      "Published quarterly (the page section is titled \"Quarterly Economic & Market Update\")."
+    ],
+    "read_from": [
+      "https://am.jpmorgan.com/us/en/asset-management/adv/insights/market-insights/guide-to-the-markets/"
+    ]
+  },
+  "terms": {
+    "summary": "J.P. Morgan Chase's site terms prohibit copying, distributing, or otherwise reusing site materials without prior written consent, except as permitted under the Copyright Act's fair-use provisions.",
+    "status": "restricted",
+    "url": "https://am.jpmorgan.com/us/en/asset-management/adv/terms-of-use/",
+    "quote": "Except as otherwise expressly stated herein, they may not be copied, transmitted, displayed, performed, distributed (for compensation or otherwise), licensed, altered, framed, stored for subsequent use or otherwise used in whole or in part in any manner without J. P. Morgan Chase's prior written consent, except to the extent permitted by the Copyright Act of 1976 (17 U.S.C. 7), as amended, and then, only with notices of J. P. Morgan Chase's proprietary rights.",
+    "read_from": [
+      "https://am.jpmorgan.com/us/en/asset-management/adv/terms-of-use/"
+    ]
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-a): Guide to the Markets landing page and am.jpmorgan.com/us/en/asset-management/adv/terms-of-use/ read"
+  },
+  "notes": [
+    "Reference only — no chart on this site fetches data from J.P. Morgan; the entry documents the site as a chart-design reference and records that reuse of its slides is restricted."
+  ]
+}

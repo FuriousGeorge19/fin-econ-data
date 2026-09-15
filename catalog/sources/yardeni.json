@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "slug": "yardeni",
+  "role": "reference",
+  "name": "Yardeni Research",
+  "short_name": "Yardeni Research",
+  "homepage": "https://yardeni.com/",
+  "description": "Independent financial research firm (Dr. Ed Yardeni) publishing daily Morning Briefings and a library of 7,600+ real-time charts on markets, valuation, earnings and the economy. A handful of sample charts are free; the full daily briefing library and chart archive are subscriber-only. Used here as a design/framing reference for how a professional research shop labels and annotates long-run valuation and market-structure charts.",
+  "access": {
+    "method": "web-page",
+    "url": "https://yardeni.com/charts",
+    "format": "html",
+    "auth": "login",
+    "notes": [
+      "A small number of sample charts and search are free without an account.",
+      "Full access (Daily Morning Briefings, the 7,600+ real-time chart library, QuickTakes, the AI research assistant) requires a paid subscription; a four-week free trial is offered with no credit card.",
+      "Older PDF chart books are also reachable at archive.yardeni.com (e.g. individual 'Stock Market Briefing' PDFs), which appears to be a legacy/archival mirror rather than the current product."
+    ],
+    "read_from": [
+      "https://yardeni.com/"
+    ]
+  },
+  "terms": {
+    "summary": "Yardeni Research's copyright/hedge-clause page prohibits downloading, transmitting, or otherwise reproducing or disseminating any material from its sites, blog, or apps without explicit written consent.",
+    "status": "restricted",
+    "url": "https://yardeni.com/copyright",
+    "quote": "No material from any part of yardeni.com, blog.yardeni.com, and YRI's podcasts and apps may be downloaded, transmitted, broadcast, transferred, assigned, reproduced or in any other way used or otherwise disseminated in any form to any person or entity, without the explicit written consent of Yardeni Research, Inc.",
+    "read_from": [
+      "https://yardeni.com/copyright"
+    ]
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-a): yardeni.com homepage and yardeni.com/copyright read"
+  },
+  "notes": [
+    "Reference only — no chart on this site fetches data from Yardeni Research; the entry records reuse of its charts as restricted without written consent."
+  ]
+}

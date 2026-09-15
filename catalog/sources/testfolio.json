@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "slug": "testfolio",
+  "role": "reference",
+  "name": "testfolio (testfol.io)",
+  "short_name": "testfolio",
+  "homepage": "https://testfol.io/",
+  "description": "A free web-based portfolio backtester: compares asset allocations, models rebalancing and cashflows, and analyzes historical risk and return for ETF/ticker portfolios. Useful here as a design reference for backtest-style result presentation (equity curves, drawdown, rolling-return tables) rather than as a data feed.",
+  "access": {
+    "method": "web-page",
+    "url": "https://testfol.io/",
+    "format": "html",
+    "auth": "none",
+    "notes": [
+      "Basic backtesting works without an account. A free account (email sign-in) raises usage limits, adds cloud save of portfolios/strategies, and is required for some advanced tools (e.g. the Tactical Allocation tool, gated after reported API abuse).",
+      "The site is a client-rendered single-page app; a plain HTTP fetch of any page (including /terms) returns only the app shell, not the rendered content."
+    ],
+    "read_from": "https://testfol.io/"
+  },
+  "terms": {
+    "summary": "A Terms of Service page exists (testfol.io/terms) but renders client-side and could not be fetched as text, so no verbatim quote could be taken.",
+    "status": "unverified",
+    "url": "https://testfol.io/terms",
+    "read_from": "https://testfol.io/terms"
+  },
+  "datasets": [],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent chartbooks-b): testfol.io homepage fetched (og:description read for what the tool does); testfol.io/terms fetched but is a client-rendered app shell with no server-rendered terms text, so terms.status is unverified"
+  },
+  "notes": [
+    "role: reference — a backtesting app looked at for result-presentation framing, not a fetchable data source. datasets is empty by rule."
+  ]
+}

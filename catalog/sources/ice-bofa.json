@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "slug": "ice-bofa",
+  "role": "data",
+  "name": "ICE Data Indices, LLC (ICE BofA Bond Indices)",
+  "short_name": "ICE BofA",
+  "homepage": "https://www.ice.com/market-data/indices",
+  "description": "ICE Data Indices, LLC's ICE BofA bond indices: option-adjusted spreads and effective yields for the US corporate and high-yield bond markets, broken out by credit rating. Reached only through FRED's BAML* series, under ICE's own copyright, not FRED's.",
+  "access": {
+    "method": "api",
+    "url": "https://api.stlouisfed.org/fred/series/observations",
+    "format": "json",
+    "auth": "free-key",
+    "via": "fred",
+    "notes": [
+      "Request pattern: /fred/series/observations?series_id={id}&api_key={key}&file_type=json, same as any FRED-hosted series (see catalog/sources/fred.json).",
+      "As of 2026-09-15 every BAML* series checked here carries observation_start 2023-09-18 (about 3 years of trailing history), not the full history back to the mid/late 1990s the pre-catalogue planning notes assumed. FRED's own series notes explain why: 'Starting in April 2026, this series will only include 3 years of observations. For more data, go to the source.' This is a FRED-side change, not a change in what ICE publishes; ICE's own platforms may still carry the full history.",
+      "Series metadata (observation_start, frequency, units, notes, the copyright notice) read from /fred/series?series_id={id} on 2026-09-15."
+    ],
+    "read_from": [
+      "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A0CM&api_key=<key>&file_type=json",
+      "https://fred.stlouisfed.org/series/BAMLC0A0CM"
+    ]
+  },
+  "terms": {
+    "summary": "Copyrighted, pre-approval required (FRED tag): reproduction of this data in any form is prohibited except with ICE Data Indices' prior written permission; the FRED-hosted 'Top Level Data' is for internal use only and may not be published, distributed or furnished to a third party without ICE's prior written approval",
+    "status": "restricted",
+    "url": "https://fred.stlouisfed.org/series/BAMLC0A0CM",
+    "quote": "Copyright, 2023, ICE Data Indices. Reproduction of this data in any form is prohibited except with the prior written permission of ICE Data Indices. The end of day Index values, Index returns, and Index statistics (“Top Level Data”) are being provided for your internal use only and you are not authorized or permitted to publish, distribute or otherwise furnish Top Level Data to any third-party without prior written approval of ICE Data.",
+    "read_from": [
+      "https://fred.stlouisfed.org/series/BAMLC0A0CM",
+      "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A0CM&api_key=<key>&file_type=json"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "oas",
+      "name": "Option-adjusted spreads, US Corporate and High Yield, daily",
+      "gives": "Daily option-adjusted spread (OAS) of the ICE BofA US Corporate Index (investment grade) and the ICE BofA US High Yield Index over a spot Treasury curve, market-value weighted across each index's constituent bonds",
+      "ids": ["BAMLC0A0CM", "BAMLH0A0HYM2"],
+      "topics": ["credit", "rates"],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {"start": "2023-09-18", "end": "ongoing"},
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": ["chart 8"],
+      "read_from": [
+        "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A0CM&api_key=<key>&file_type=json",
+        "https://api.stlouisfed.org/fred/series?series_id=BAMLH0A0HYM2&api_key=<key>&file_type=json",
+        "https://fred.stlouisfed.org/series/BAMLC0A0CM"
+      ],
+      "notes": [
+        "BAMLC0A0CM = ICE BofA US Corporate Index Option-Adjusted Spread (investment grade, rated BBB or better); BAMLH0A0HYM2 = ICE BofA US High Yield Index Option-Adjusted Spread.",
+        "FRED observation_start is 2023-09-18 for both series as of 2026-09-15 (see the source-level access.notes on FRED's 3-year trailing-window change); last_updated for the 2026-09-14 close was 2026-09-15 09:40 CDT, so publication_lag_business_days is set to 1, not the same-day lag some other daily FRED series show.",
+        "Index is rebalanced on the last calendar day of the month; weekend observations can occur from month-end accrued-interest adjustments (FRED series notes)."
+      ]
+    },
+    {
+      "id": "effective-yields-by-rating",
+      "name": "Effective yields by credit rating, US Corporate and High Yield, daily",
+      "gives": "Daily effective yield of the ICE BofA US Corporate Index broken out by rating band (AAA, AA, Single-A, BBB) and the ICE BofA US High Yield Index broken out by rating band (BB, Single-B), market-value weighted across each rating band's constituent bonds",
+      "ids": [
+        "BAMLC0A1CAAAEY",
+        "BAMLC0A2CAAEY",
+        "BAMLC0A3CAEY",
+        "BAMLC0A4CBBBEY",
+        "BAMLH0A1HYBBEY",
+        "BAMLH0A2HYBEY"
+      ],
+      "topics": ["credit", "rates"],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {"start": "2023-09-18", "end": "ongoing"},
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": ["item 11"],
+      "read_from": [
+        "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A1CAAAEY&api_key=<key>&file_type=json",
+        "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A2CAAEY&api_key=<key>&file_type=json",
+        "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A3CAEY&api_key=<key>&file_type=json",
+        "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A4CBBBEY&api_key=<key>&file_type=json",
+        "https://api.stlouisfed.org/fred/series?series_id=BAMLH0A1HYBBEY&api_key=<key>&file_type=json",
+        "https://api.stlouisfed.org/fred/series?series_id=BAMLH0A2HYBEY&api_key=<key>&file_type=json",
+        "https://fred.stlouisfed.org/series/BAMLH0A0HYM2"
+      ],
+      "notes": [
+        "BAMLC0A1CAAAEY = AAA US Corporate; BAMLC0A2CAAEY = AA US Corporate; BAMLC0A3CAEY = Single-A US Corporate; BAMLC0A4CBBBEY = BBB US Corporate; BAMLH0A1HYBBEY = BB US High Yield; BAMLH0A2HYBEY = Single-B US High Yield.",
+        "Same FRED observation_start (2023-09-18 as of 2026-09-15) and 3-year trailing-window note as the oas dataset; all six series checked individually and agreed.",
+        "The US High Yield Index (source of the BB and Single-B bands) excludes bonds below Single-B (CCC and lower are not broken out as their own effective-yield series on FRED)."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-15",
+    "by": "Claude (S9 workflow agent ice-bofa): FRED API /fred/series for all 8 BAML* ids (observation_start/end, frequency, units, notes) and the FRED series pages for BAMLC0A0CM and BAMLH0A0HYM2 (copyright tag and notice text) read directly; ICE's own theice.com/market-data/indices/terms-and-conditions page 404s, so its public terms-and-conditions PDF (ice.com/publicdocs/IDI_-_Terms_and_Conditions_for_the_Index_Data_and_Custom_Index_Services.pdf, a direct-subscriber licence agreement, not applicable to FRED-hosted access) was read as context only, not as the terms.status basis."
+  },
+  "notes": [
+    "All datasets here are reached only via FRED (access.via = fred at the source level); ICE Data Indices has no free public access path of its own for this data.",
+    "The historical assumption in the pre-catalogue planning notes that FRED carried BAML* history back to 1996/1997 is now wrong for the series checked here: FRED's own notes say the window was cut to a rolling 3 years starting April 2026. Any chart built on chart 8 or item 11 should budget for ~3 years of history, not 25+, unless a longer series (a different FRED id, or a non-FRED ICE source) is found."
+  ]
+}
