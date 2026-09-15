@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "slug": "fred",
+  "role": "data",
+  "name": "Federal Reserve Bank of St. Louis (FRED)",
+  "short_name": "FRED",
+  "homepage": "https://fred.stlouisfed.org",
+  "description": "The St. Louis Fed's economic database: hundreds of thousands of series from U.S. government agencies, the Federal Reserve system and third parties, behind one REST API. This file lists only the families evaluated so far; any FRED series is reachable through the same access block — add a dataset here and an entry in catalog/research-log.md when one is evaluated. Series a third party owns under its own terms (S&P DJI, ICE BofA, University of Michigan) are catalogued under that rights holder with via: fred, not here.",
+  "access": {
+    "method": "api",
+    "url": "https://api.stlouisfed.org/fred/series/observations",
+    "format": "json",
+    "auth": "free-key",
+    "rate_limit": "unknown",
+    "notes": [
+      "Request pattern: /fred/series/observations?series_id={id}&api_key={key}&file_type=json; file_type may be xml (default), json, xlsx or csv; frequency (d, w, m, q, a, …) and aggregation_method (avg, sum, eop) resample server-side.",
+      "All requests need an API key, issued through a FRED account (fredaccount.stlouisfed.org); the docs state no fee. This repo reads it from the FRED_API_KEY environment variable and calls the API through scripts/fred_utils.py.",
+      "A missing observation is the string '.', never zero; scripts/fred_utils.py drops it.",
+      "No numeric request limit is published; the API terms say the Bank may impose or adjust bandwidth and transaction limits. scripts/fred_utils.py retries on HTTP 429 and 5xx with exponential backoff, honouring Retry-After.",
+      "Series metadata (observation_start, frequency, units, notes) is available from /fred/series?series_id={id}; the dataset facts below were read from it on 2026-09-14."
+    ],
+    "read_from": [
+      "https://fred.stlouisfed.org/docs/api/fred/",
+      "https://fred.stlouisfed.org/docs/api/api_key.html",
+      "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+      "https://fred.stlouisfed.org/docs/api/terms_of_use.html"
+    ]
+  },
+  "terms": {
+    "summary": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+    "status": "verified",
+    "url": "https://fred.stlouisfed.org/legal/",
+    "quote": "Public Domain: Citation requested — These series may be under copyright or in the public domain and may be used without permission, provided you do not engage in any prohibited use. … Series with the following copyright labels—Public Domain: Citation requested and Copyrighted: Citation required—may be used for internal commercial uses and may be displayed in textbooks, newsletters, or reports to clients provided that appropriate attribution is given to FRED as well as the original source of the data.",
+    "read_from": [
+      "https://fred.stlouisfed.org/legal/",
+      "https://fred.stlouisfed.org/docs/api/terms_of_use.html"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "dgs",
+      "name": "Treasury constant-maturity yields, daily (H.15)",
+      "gives": "Daily market yields on U.S. Treasury securities at constant maturities of 1, 3 and 6 months and 1, 2, 3, 5, 7, 10, 20 and 30 years, from the Board of Governors' H.15 release, interpolated by the Treasury from its daily par yield curve",
+      "ids": [
+        "DGS1MO",
+        "DGS3MO",
+        "DGS6MO",
+        "DGS1",
+        "DGS2",
+        "DGS3",
+        "DGS5",
+        "DGS7",
+        "DGS10",
+        "DGS20",
+        "DGS30"
+      ],
+      "topics": [
+        "rates"
+      ],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {
+        "start": "1962-01-02",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": [
+        "chart 1",
+        "chart 2",
+        "chart 9",
+        "item 11"
+      ],
+      "read_from": [
+        "https://fred.stlouisfed.org/series/DGS10",
+        "https://fred.stlouisfed.org/series/DGS1MO",
+        "https://fred.stlouisfed.org/series/DGS30"
+      ],
+      "notes": [
+        "Coverage start is DGS10's; tenors start later (DGS30 1977-02-15, DGS1MO 2001-07-31) and the 20- and 30-year tenors have a 2002–2006 gap that the yield-curve chart leaves visible.",
+        "Lag observed on 2026-09-14: Friday's value (2026-09-11) posted Monday afternoon.",
+        "Used by series/dgs10.json, series/yield_curve.json and series/spreads.json."
+      ]
+    },
+    {
+      "id": "gs",
+      "name": "Treasury constant-maturity yields, monthly averages (H.15)",
+      "gives": "Monthly averages of the daily constant-maturity yields at 1, 2, 3, 5, 7, 10, 20 and 30 years, from the Board of Governors' H.15 release",
+      "ids": [
+        "GS1",
+        "GS2",
+        "GS3",
+        "GS5",
+        "GS7",
+        "GS10",
+        "GS20",
+        "GS30"
+      ],
+      "topics": [
+        "rates"
+      ],
+      "units": "percent",
+      "cadence": "monthly",
+      "coverage": {
+        "start": "1953-04",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": [
+        "chart 4 (GS10 stitched to Shiller's pre-1953 long rate)"
+      ],
+      "read_from": [
+        "https://fred.stlouisfed.org/series/GS10",
+        "https://fred.stlouisfed.org/series/GS1"
+      ],
+      "notes": [
+        "GS10 and GS1 start 1953-04-01 (checked); other tenors not individually checked.",
+        "Lag observed: the August 2026 value was published 2026-09-01."
+      ]
+    },
+    {
+      "id": "tb",
+      "name": "Treasury bill secondary-market rates, monthly (H.15)",
+      "gives": "Monthly 3-month and 6-month Treasury bill secondary-market rates on a discount basis, from the Board of Governors' H.15 release",
+      "ids": [
+        "TB3MS",
+        "TB6MS"
+      ],
+      "topics": [
+        "rates"
+      ],
+      "units": "percent",
+      "cadence": "monthly",
+      "coverage": {
+        "start": "1934-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": [
+        "chart 5 (ex-post real short rate: TB3MS minus CPI inflation)"
+      ],
+      "read_from": [
+        "https://fred.stlouisfed.org/series/TB3MS",
+        "https://fred.stlouisfed.org/series/TB6MS"
+      ],
+      "notes": [
+        "TB3MS starts 1934-01; TB6MS starts 1958-12."
+      ]
+    },
+    {
+      "id": "dfii",
+      "name": "TIPS constant-maturity real yields, daily (H.15)",
+      "gives": "Daily market yields on Treasury inflation-indexed securities at constant maturities of 5, 7, 10, 20 and 30 years, from the Board of Governors' H.15 release",
+      "ids": [
+        "DFII5",
+        "DFII7",
+        "DFII10",
+        "DFII20",
+        "DFII30"
+      ],
+      "topics": [
+        "rates",
+        "inflation"
+      ],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {
+        "start": "2003-01-02",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": [
+        "chart 7 (equity risk premium)",
+        "chart 10 (real yields)",
+        "item 14"
+      ],
+      "read_from": [
+        "https://fred.stlouisfed.org/series/DFII10",
+        "https://fred.stlouisfed.org/series/DFII5"
+      ],
+      "notes": [
+        "DFII5 and DFII10 start 2003-01-02 (checked); DFII7, DFII20 and DFII30 start dates not checked."
+      ]
+    },
+    {
+      "id": "breakevens",
+      "name": "Breakeven inflation rates, daily",
+      "gives": "10-year and 5-year breakeven inflation rates, computed by the St. Louis Fed as the nominal constant-maturity yield minus the TIPS yield at the same tenor",
+      "ids": [
+        "T10YIE",
+        "T5YIE"
+      ],
+      "topics": [
+        "inflation",
+        "expectations",
+        "rates"
+      ],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {
+        "start": "2003-01-02",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 0,
+      "status": "active",
+      "roadmap": [
+        "chart 6"
+      ],
+      "terms": {
+        "summary": "Copyrighted: Citation Required (Federal Reserve Bank of St. Louis) via FRED; usable with attribution to FRED"
+      },
+      "read_from": [
+        "https://fred.stlouisfed.org/series/T10YIE"
+      ],
+      "notes": [
+        "FRED labels T10YIE 'Copyrighted: Citation Required' (source: Federal Reserve Bank of St. Louis, release: Interest Rate Spreads); FRED's legal page permits display with attribution for that label, so the terms override keeps the file's verified status and quote.",
+        "Published the same day (the 2026-09-14 value was present on 2026-09-14), so the lag is 0."
+      ]
+    },
+    {
+      "id": "fedfunds",
+      "name": "Effective federal funds rate, monthly and daily",
+      "gives": "The effective federal funds rate as a monthly average (FEDFUNDS) and daily (DFF), from the Board of Governors' H.15 release",
+      "ids": [
+        "FEDFUNDS",
+        "DFF"
+      ],
+      "topics": [
+        "rates",
+        "macro"
+      ],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {
+        "start": "1954-07-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": [
+        "chart 3",
+        "item 11"
+      ],
+      "read_from": [
+        "https://fred.stlouisfed.org/series/FEDFUNDS",
+        "https://fred.stlouisfed.org/series/DFF"
+      ],
+      "notes": [
+        "FEDFUNDS is monthly from 1954-07; DFF is daily from 1954-07-01. FRED links a daily series for 1928–1954 in a separate category."
+      ]
+    },
+    {
+      "id": "sofr",
+      "name": "Secured Overnight Financing Rate, daily",
+      "gives": "SOFR, the New York Fed's overnight Treasury repo rate, daily",
+      "ids": [
+        "SOFR"
+      ],
+      "topics": [
+        "rates"
+      ],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {
+        "start": "2018-04-03",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "roadmap": [
+        "item 11"
+      ],
+      "read_from": [
+        "https://fred.stlouisfed.org/series/SOFR"
+      ]
+    },
+    {
+      "id": "cpi",
+      "name": "Consumer Price Index, all urban consumers, monthly (BLS)",
+      "gives": "CPI-U, all items, U.S. city average, seasonally adjusted, index 1982–1984 = 100, from the Bureau of Labor Statistics",
+      "ids": [
+        "CPIAUCSL"
+      ],
+      "topics": [
+        "inflation",
+        "macro"
+      ],
+      "units": "index 1982-1984=100",
+      "cadence": "monthly",
+      "coverage": {
+        "start": "1947-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "roadmap": [
+        "chart 5"
+      ],
+      "read_from": [
+        "https://fred.stlouisfed.org/series/CPIAUCSL"
+      ],
+      "notes": [
+        "The FRED page does not state the release schedule; BLS publishes CPI around the middle of the following month (the August 2026 value was on FRED by 2026-09-11). Confirm against the BLS release calendar before setting a descriptor lag.",
+        "Seasonally adjusted; CPIAUCNS is the not-seasonally-adjusted counterpart."
+      ]
+    },
+    {
+      "id": "usrec",
+      "name": "NBER-based recession indicator, monthly",
+      "gives": "A 0/1 monthly indicator built by the St. Louis Fed from the NBER Business Cycle Dating Committee's peak and trough months, trough method (the recession runs from the month after the peak through the trough month)",
+      "ids": [
+        "USREC"
+      ],
+      "topics": [
+        "recession-dating",
+        "macro"
+      ],
+      "units": "0 or 1",
+      "cadence": "monthly",
+      "coverage": {
+        "start": "1854-12",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 1,
+      "status": "active",
+      "read_from": [
+        "https://fred.stlouisfed.org/series/USREC"
+      ],
+      "notes": [
+        "Used by series/usrec.json, which collapses it to recession intervals for chart shading. The descriptor uses a lag of 5 business days for safety; observed: the August 2026 value was published 2026-09-01.",
+        "USRECM (midpoint method) and USRECP (peak method) are the other two interpretations FRED offers. NBER's own chronology is catalogued as nber/chronology."
+      ]
+    },
+    {
+      "id": "nfci",
+      "name": "Chicago Fed National Financial Conditions Index, weekly",
+      "gives": "The NFCI, a weekly index of U.S. financial conditions across money, debt and equity markets and the banking system; positive values mean tighter-than-average conditions",
+      "ids": [
+        "NFCI"
+      ],
+      "topics": [
+        "credit",
+        "macro"
+      ],
+      "units": "index",
+      "cadence": "weekly",
+      "coverage": {
+        "start": "1971-01-08",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 4,
+      "status": "active",
+      "terms": {
+        "summary": "Copyrighted: Citation Required (Federal Reserve Bank of Chicago) via FRED; usable with attribution to FRED and the Chicago Fed"
+      },
+      "read_from": [
+        "https://fred.stlouisfed.org/series/NFCI"
+      ],
+      "notes": [
+        "FRED labels NFCI 'Copyrighted: Citation Required'; FRED's legal page permits display with attribution for that label, so the override keeps the file's verified status and quote.",
+        "Lag observed: the week ending Friday 2026-09-04 was published Wednesday 2026-09-10."
+      ]
+    },
+    {
+      "id": "expinf",
+      "name": "Cleveland Fed inflation expectations, monthly",
+      "gives": "Model-based expected inflation at horizons of 1 to 30 years (one series per year), from the Federal Reserve Bank of Cleveland",
+      "ids": [
+        "EXPINF1YR",
+        "EXPINF2YR",
+        "EXPINF5YR",
+        "EXPINF10YR",
+        "EXPINF30YR"
+      ],
+      "topics": [
+        "expectations",
+        "inflation"
+      ],
+      "units": "percent",
+      "cadence": "monthly",
+      "coverage": {
+        "start": "1982-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 0,
+      "status": "active",
+      "read_from": [
+        "https://fred.stlouisfed.org/series/EXPINF1YR",
+        "https://fred.stlouisfed.org/series/EXPINF30YR"
+      ],
+      "notes": [
+        "FRED labels EXPINF1YR 'Public Domain: Citation Requested'.",
+        "Published mid-month for the current month (the September 2026 value was on FRED by 2026-09-11), so relative to the period end the lag is 0.",
+        "One series per horizon, EXPINF1YR through EXPINF30YR; only the two listed endpoints were checked."
+      ]
+    },
+    {
+      "id": "hqmcb",
+      "name": "Treasury High Quality Market corporate bond spot-rate curve, monthly",
+      "gives": "Spot rates for high-quality (AAA, AA, A) corporate bonds at each year of maturity from 1 to 30 years (projected to 100), from the U.S. Treasury's HQM yield curve",
+      "ids": [
+        "HQMCB1YR",
+        "HQMCB10YR",
+        "HQMCB30YR"
+      ],
+      "topics": [
+        "credit",
+        "rates"
+      ],
+      "units": "percent",
+      "cadence": "monthly",
+      "coverage": {
+        "start": "1984-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 4,
+      "status": "active",
+      "roadmap": [
+        "item 11 (corporate rows of the yields table)"
+      ],
+      "read_from": [
+        "https://fred.stlouisfed.org/series/HQMCB10YR",
+        "https://fred.stlouisfed.org/series/HQMCB1YR"
+      ],
+      "notes": [
+        "FRED labels HQMCB10YR 'Public Domain: Citation Requested' (source: U.S. Department of the Treasury).",
+        "One series per year of maturity, HQMCB1YR through HQMCB30YR; only HQMCB1YR and HQMCB10YR were checked.",
+        "Lag observed: the August 2026 values were published 2026-09-04."
+      ]
+    },
+    {
+      "id": "t10y-spreads",
+      "name": "Treasury term spreads, daily (10y−2y, 10y−3m)",
+      "gives": "The 10-year minus 2-year and 10-year minus 3-month constant-maturity spreads, computed by the St. Louis Fed from Treasury data",
+      "ids": [
+        "T10Y2Y",
+        "T10Y3M"
+      ],
+      "topics": [
+        "rates"
+      ],
+      "units": "percent",
+      "cadence": "daily",
+      "coverage": {
+        "start": "1976-06-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 0,
+      "status": "active",
+      "read_from": [
+        "https://fred.stlouisfed.org/series/T10Y2Y",
+        "https://fred.stlouisfed.org/series/T10Y3M"
+      ],
+      "notes": [
+        "This repo computes its own spreads from the DGS legs (series/spreads.json) and uses these two series only as test oracles (tests/test_spreads.py); they are not chart inputs.",
+        "T10Y2Y starts 1976-06-01; T10Y3M starts 1982-01-04. Copyright label not checked; T10YIE, in the same Interest Rate Spreads release, is labelled Copyrighted: Citation Required."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-14",
+    "by": "Claude (S8 session): access from the FRED API docs pages, terms from the FRED legal and API terms pages; dataset start dates, frequencies and notes from the API's /fred/series endpoint; copyright labels checked on the EXPINF1YR, NFCI, HQMCB10YR and T10YIE pages"
+  },
+  "notes": [
+    "The FRED API Terms of Use require the notice 'This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.' Every generated page carries it in a footer (scripts/build_site.py) since 2026-09-14.",
+    "The API terms prohibit using the API in connection with training machine-learning systems.",
+    "Third-party series: 'Before using data series owned by third parties for anything other than your own personal use, you must contact the data owner to obtain permission.' Those series are catalogued under their rights holder (spglobal for SP500; ICE BofA and the University of Michigan surveys when added), not here."
+  ]
+}

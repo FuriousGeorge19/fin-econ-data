@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "slug": "spglobal",
+  "role": "data",
+  "name": "S&P Global (S&P Dow Jones Indices)",
+  "short_name": "S&P Global",
+  "homepage": "https://www.spglobal.com/spdji/en/",
+  "description": "S&P Dow Jones Indices, the S&P Global division that owns the S&P 500. Two things reach this site from it: the quarterly S&P 500 earnings workbook, downloaded by hand until its publisher discontinued the public file, and the S&P 500 index level, which FRED carries under S&P DJI's copyright.",
+  "access": {
+    "method": "manual-download",
+    "url": "https://www.spglobal.com/spdji/en/indices/equity/sp-500/",
+    "format": "xlsx",
+    "auth": "none",
+    "notes": [
+      "The index page and the terms page both returned HTTP 403 to automated fetches on 2026-09-14; read them in a browser. The workbook link lives under the index page's Additional Info section.",
+      "The workbook is committed as reference_resources/sp-500-eps-est.xlsx and turned into data/earnings_overrides.json by scripts/build_earnings_overrides.py (see CLAUDE.md, quarterly update)."
+    ]
+  },
+  "terms": {
+    "summary": "S&P Dow Jones Indices terms of use, not yet read (the page returned 403 to automated fetches)",
+    "status": "unverified",
+    "url": "https://www.spglobal.com/spdji/en/terms-of-use/"
+  },
+  "datasets": [
+    {
+      "id": "sp-500-eps",
+      "name": "S&P 500 quarterly earnings per share (as-reported and operating)",
+      "gives": "Quarterly as-reported (GAAP) and operating earnings per share for the S&P 500, with the sheet's own data-as-of and actuals-through dates, plus bottom-up estimates for coming quarters",
+      "ids": [
+        "sp-500-eps-est.xlsx"
+      ],
+      "topics": [
+        "equity-valuation",
+        "equity-returns"
+      ],
+      "units": "dollars per share",
+      "cadence": "quarterly",
+      "coverage": {
+        "start": "1988-12-31",
+        "end": "2026-01-31"
+      },
+      "publication_lag_business_days": 60,
+      "status": "discontinued",
+      "notes": [
+        "The workbook's own notice says S&P's public EPS files ended 31 January 2026 (read from reference_resources/sp-500-eps-est.xlsx, not from a web page). The site's P/E has run on forward-filled earnings since; finding a replacement source is the first open item in catalog/research-log.md.",
+        "Coverage start is the earliest quarter in data/earnings_overrides.json (quarter ending 1988-12-31, 148 quarters through 2025-09-30).",
+        "Lag of 60 business days is the descriptor's working figure (scorecards appeared roughly two months after quarter end), not a published schedule.",
+        "Used by series/sp500_pe.json (earnings input)."
+      ]
+    },
+    {
+      "id": "sp500-index",
+      "name": "S&P 500 index level, daily",
+      "gives": "The S&P 500 price index at the market close, from S&P Dow Jones Indices, carried by FRED as series SP500 under a rolling ten-year window",
+      "ids": [
+        "SP500"
+      ],
+      "topics": [
+        "equity-returns",
+        "equity-valuation"
+      ],
+      "units": "index points",
+      "cadence": "daily",
+      "coverage": {
+        "start": "2016-09-15",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": 0,
+      "status": "active",
+      "access": {
+        "method": "api",
+        "url": "https://fred.stlouisfed.org/series/SP500",
+        "format": "json",
+        "auth": "free-key",
+        "via": "fred"
+      },
+      "terms": {
+        "summary": "S&P Dow Jones Indices copyright, via FRED: reproduction of the S&P 500 in any form is prohibited without S&P's prior written permission",
+        "status": "restricted",
+        "url": "https://fred.stlouisfed.org/series/SP500",
+        "quote": "Copyright © 2016, S&P Dow Jones Indices LLC. All rights reserved. Reproduction of S&P 500 in any form is prohibited except with the prior written permission of S&P Dow Jones Indices LLC (\"S&P\").",
+        "read_from": [
+          "https://fred.stlouisfed.org/series/SP500"
+        ]
+      },
+      "read_from": [
+        "https://fred.stlouisfed.org/series/SP500"
+      ],
+      "notes": [
+        "FRED's notes: 'The Federal Reserve Bank of St. Louis and S&P Dow Jones Indices LLC have reached a new agreement … FRED and its associated services will include 10 years of daily history for Standard & Poors and Dow Jones Averages series.' The coverage start therefore moves forward one day at a time (2016-09-15 on 2026-09-14).",
+        "Price index, not total return: no dividends.",
+        "Lag observed: the 2026-09-14 close was on FRED at 7:01 PM CDT the same day.",
+        "series/sp500_pe.json takes FRED's monthly average of this series (frequency=m, aggregation_method=avg) as its price input; the P/E chart's table and CSV export include that monthly average price. Whether that is within S&P's terms is an open item in catalog/research-log.md."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-14",
+    "by": "Claude (S8 session): SP500 copyright notice and agreement text read from the FRED series page and API; S&P's own terms and index pages could not be fetched (403)"
+  }
+}

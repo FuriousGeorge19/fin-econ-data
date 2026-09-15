@@ -399,8 +399,19 @@ tr:hover {
     color: var(--text-muted);
 }
 
+/* Footer: the attribution notice the FRED API Terms of Use require on every page
+   (scripts/build_site.py, FRED_API_NOTICE). Muted, under the same side padding as
+   the nav so it lines up with the page content. */
+.site-footer {
+    padding: 0 2rem 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+.site-footer p { margin: 0; }
+
 @media (max-width: 640px) {
     nav.nav-primary, nav.nav-section { padding: 0 1rem; }
+    .site-footer { padding: 0 1rem 1rem; }
     main { padding: 1rem; grid-template-columns: 1fr; }
     .card,
     .card--full,

@@ -244,6 +244,16 @@ def render_nav(*, site, current_href, current_section, chartable, manifests):
     return "\n".join(rows)
 
 
+# Required verbatim by the FRED API Terms of Use
+# (https://fred.stlouisfed.org/docs/api/terms_of_use.html) on any product that
+# uses the API; every page shows FRED-sourced data, so every page carries it.
+# See catalog/sources/fred.json and the site-build spec.
+FRED_API_NOTICE = (
+    "This product uses the FRED® API but is not endorsed or certified by the "
+    "Federal Reserve Bank of St. Louis."
+)
+
+
 def render_shell(*, title, nav_html, blocks_html, page_json, chart_css):
     css_links = "\n".join(
         f'    <link rel="stylesheet" href="/css/charts/{name}.css">'
@@ -264,6 +274,9 @@ def render_shell(*, title, nav_html, blocks_html, page_json, chart_css):
 <main>
 {blocks_html}
 </main>
+<footer class="site-footer">
+<p>{FRED_API_NOTICE}</p>
+</footer>
 <script type="application/json" id="page">{json.dumps(page_json)}</script>
 <script type="module" src="/js/app.js"></script>
 </body>

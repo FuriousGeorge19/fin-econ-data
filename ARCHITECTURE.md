@@ -412,3 +412,24 @@ Decisions made during implementation that future work should be aware of:
   point, because the old `site/index.html` was never touched until this step;
   rollback after cutover is restoring that file from its last commit before the
   `git rm --cached` and deleting `pages/home.json`.
+
+- **Source catalogue: one file per rights holder, resolved into `meta` at fetch
+  time** (2026-09-14, `s8-source-catalog`): `catalog/sources/<slug>.json` records
+  each source's access, terms (status + verbatim quote + page URL) and datasets
+  (topics, native cadence, coverage, lag, status), with `via: fred` for data whose
+  bytes come from FRED but whose terms belong to someone else (S&P's index level;
+  ICE BofA later). The boundary rule — a dataset gets its own file only when its
+  terms differ from its host's or the publisher serves it directly — keeps
+  `fred.json` from becoming a shared file every provider-terms task edits, so a
+  workflow agent adding a source adds one file and runs
+  `python3 scripts/catalog.py check <path>` on it alone. Descriptors' `sources[]`
+  became references (`{slug, dataset?, url?, note?}`); `series_meta.
+  meta_from_descriptor()` resolves them when a fetcher runs, so the About tab
+  shows the catalogue's licence sentence, hosting note and terms status without
+  the browser ever fetching the catalogue — a correction ships on the next fetch.
+  Chosen over the browser fetching `/data/catalog/` (a second fetch per card and
+  the join logic in JS) and over a `catalog/datasets/` directory (file-additive but
+  a join for every read). The validator is a stdlib script, the schema's authority,
+  not a JSON-Schema dependency; it checks shape, while the research workflow's
+  verifier checks evidence (`read_from` on every fact block). The catalogue is not
+  published on the site — not now rather than never.

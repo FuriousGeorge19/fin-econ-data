@@ -11,29 +11,27 @@
   "source_line": "Shiller/Yale · S&P Global · FRED SP500",
   "sources": [
     {
-      "slug": "fred",
-      "name": "Federal Reserve Bank of St. Louis (FRED)",
-      "url": "https://fred.stlouisfed.org/series/SP500",
-      "licence": "S&P Dow Jones Indices terms via FRED"
-    },
-    {
       "slug": "shiller",
-      "name": "Robert Shiller / Yale",
-      "url": "http://www.econ.yale.edu/~shiller/data.htm",
-      "licence": "Free download; no republication restriction found"
+      "dataset": "ie-data"
     },
     {
       "slug": "spglobal",
-      "name": "S&P Global, sp-500-eps-est.xlsx (manual)",
-      "url": "https://www.spglobal.com/spdji/",
-      "licence": "Unverified; only the derived TTM EPS is published"
+      "dataset": "sp-500-eps",
+      "url": "https://www.spglobal.com/spdji/en/indices/equity/sp-500/",
+      "note": "Only the derived trailing-twelve-month EPS figure is published here"
+    },
+    {
+      "slug": "spglobal",
+      "dataset": "sp500-index",
+      "url": "https://fred.stlouisfed.org/series/SP500"
     }
   ],
   "inputs": [
     {
       "id": "price",
       "label": "Monthly average S&P 500 price",
-      "source": "fred",
+      "source": "spglobal",
+      "dataset": "sp500-index",
       "series_id": "SP500",
       "cadence": "monthly",
       "publication_lag_business_days": 1
@@ -42,6 +40,7 @@
       "id": "earnings",
       "label": "Trailing 12-month as-reported EPS",
       "source": "spglobal",
+      "dataset": "sp-500-eps",
       "cadence": "quarterly",
       "publication_lag_business_days": 60,
       "manual": true,
@@ -60,12 +59,20 @@
     "The S&P Global earnings workbook was discontinued by its publisher on 31 Jan 2026 (see the earnings input's status_note); the P/E has been running on forward-filled earnings since and will continue to until a replacement source is adopted."
   ],
   "presentation": {
-    "sections": ["markets"],
+    "sections": [
+      "markets"
+    ],
     "order": 7,
     "summary": "Monthly S&P 500 trailing twelve-month P/E ratio, Shiller/Yale data back to 1871.",
     "chart": {
       "type": "sp500_pe",
-      "presets": ["1Y", "10Y", "25Y", "50Y", "All"],
+      "presets": [
+        "1Y",
+        "10Y",
+        "25Y",
+        "50Y",
+        "All"
+      ],
       "recessions": false
     },
     "stats": true,

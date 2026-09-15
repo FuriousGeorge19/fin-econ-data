@@ -74,9 +74,11 @@ it gets a page on the site. A descriptor holds:
 
 - **Identity and metadata**: `id`, `title`, `short_title`, `kind`, `units`, `cadence`,
   `publication_lag_business_days`, `revisions`/`revision_note`, `source_line`,
-  `sources` (name/url/licence per source), `inputs` (one entry per underlying series
-  or input, with its own cadence/lag/status), `methodology` (paragraphs), `notes`
-  (paragraphs).
+  `sources` (references into the source catalogue — `{slug, dataset?, url?, note?}`;
+  the name and licence come from `catalog/sources/<slug>.json` at fetch time, see
+  [The source catalogue](#the-source-catalogue) below), `inputs` (one entry per
+  underlying series or input, with its own cadence/lag/status and optionally the
+  catalogue `dataset` it draws on), `methodology` (paragraphs), `notes` (paragraphs).
 - **`fetcher`** (optional): the script name under `scripts/`, if it doesn't match the
   default `fetch_<id>.py`. Only `dgs10` needs this (`fetch_treasury.py` predates the
   id-based naming convention).
@@ -109,8 +111,12 @@ Every fetcher writes `meta` + `as_of` + a payload, computed by
 }
 ```
 
-- `meta` is the descriptor embedded verbatim (so the frontend never hardcodes a
-  title, a methodology paragraph, or a source URL — see the About tab below).
+- `meta` is the descriptor embedded at fetch time (so the frontend never hardcodes a
+  title, a methodology paragraph, or a source URL — see the About tab below), with
+  one transformation: each `sources[]` reference is resolved through the catalogue
+  into `{slug, dataset, name, dataset_name, url, licence, terms_status, via, note}`.
+  A reference that doesn't resolve makes that fetch fail — the series stays on
+  yesterday's live data rather than shipping an unresolved source.
 - `as_of` is computed fresh on every fetch: `due_by` is the descriptor's cadence and
   `publication_lag_business_days` applied to `last_observation`, using a hand-rolled
   US bond-market business-day calendar (`scripts/staleness.py`) — federal holidays by
@@ -134,6 +140,33 @@ it, and catches failures per series rather than letting one bad fetch kill the r
 writes `data/fetch_status.json` (`{id: {ok, returncode, seconds}}`) and always exits 0
 — the workflow decides what to do with a failure (see below), the runner's only job is
 "try each one, report what happened."
+
+### The source catalogue
+
+`catalog/sources/<slug>.json` is the inventory of where data comes from — one file per
+rights holder (`fred`, `shiller`, `spglobal`, `nber` so far). Each records how to reach
+the source (`access`: method, URL, format, auth, quirks), under what terms (`terms`: a
+one-sentence summary for the About tab, a `status` of `verified` / `restricted` /
+`unverified` / `unknown`, the terms page and a verbatim quote), and what it offers
+(`datasets[]`: ids, what each gives, topics from a small fixed vocabulary, native
+cadence, coverage, publication lag, status). Data that reaches us through another
+source carries `via` — the S&P 500 index level is a `spglobal` dataset with `via:
+fred`, because the terms are S&P's even though the bytes come from FRED. Every fact
+block says which page it was read from (`read_from`), and a fact nobody could
+establish is the string `"unknown"` rather than a guess.
+
+Nothing under `site/` reads the catalogue. It feeds the site in exactly one place:
+`series_meta.meta_from_descriptor()` resolves a descriptor's `sources[]` references
+against it when a fetcher runs, and the About tab renders what landed in `meta`. So a
+catalogue correction shows up on the site after the next fetch, with no JS change.
+
+`scripts/catalog.py` is the schema's authority. `python3 scripts/catalog.py check`
+validates every file and every descriptor reference (exit 1, one line per problem);
+`check catalog/sources/x.json` validates one file alone, which is what a research agent
+runs; `report [--topic T]` prints what exists, which series use it, and what comes
+through FRED. `catalog/README.md` has the rules and field table;
+`catalog/research-log.md` records productive searches (including ones that found
+nothing) so the next session builds on them.
 
 ---
 
@@ -206,7 +239,10 @@ A generated page is deliberately small: `<title>`, a link to `/css/site.css` (pl
 composite pages, current item marked), one `<div class="card" data-block="<id>">`
 placeholder per block, one inline `<script type="application/json" id="page">`
 carrying `{page, blocks: [...]}` (each block's id/title/summary/href/presentation/
-size/preset), and `<script type="module" src="/js/app.js">`. **Everything inside a
+size/preset), `<script type="module" src="/js/app.js">`, and a footer with the one
+sentence the FRED API Terms of Use require on any product that uses the API ("This
+product uses the FRED® API but is not endorsed or certified by the Federal Reserve
+Bank of St. Louis." — `FRED_API_NOTICE` in `build_site.py`). **Everything inside a
 card is built by JavaScript at runtime** — see the next section. All asset references
 are root-relative (`/css/...`, `/js/...`, `/data/...`), so a page nested under
 `/economy/` or `/charts/dgs10/` resolves the same files a page at `/` does.
@@ -469,11 +505,17 @@ fin-econ-data/
 ├── pages/
 │   ├── site.json                        Site name + the three sections
 │   └── home.json                        Curated manifest for /
+├── catalog/                             The source inventory
+│   ├── README.md                        Rules + field table (what a research agent reads)
+│   ├── sources/                         One file per rights holder
+│   │   ├── fred.json, shiller.json, spglobal.json, nber.json
+│   └── research-log.md                  Productive searches, newest first
 ├── scripts/
 │   ├── fetch_treasury.py, fetch_sp500_pe.py, fetch_yield_curve.py,
 │   │   fetch_spreads.py, fetch_usrec.py    One fetcher per dataset
 │   ├── fetch_all.py                     Runs every fetcher, non-fatal per series
 │   ├── build_site.py                    The site generator
+│   ├── catalog.py                       Catalogue validator / resolver / report
 │   ├── series_meta.py, staleness.py,
 │   │   build_earnings_overrides.py, fred_utils.py    Shared helpers
 │   └── dev.sh                           Local iteration loop

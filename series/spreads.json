@@ -12,9 +12,8 @@
   "sources": [
     {
       "slug": "fred",
-      "name": "Federal Reserve Bank of St. Louis (FRED)",
-      "url": "https://fred.stlouisfed.org/series/DGS10",
-      "licence": "Public domain (U.S. government data)"
+      "dataset": "dgs",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
     }
   ],
   "inputs": [
@@ -22,6 +21,7 @@
       "id": "constituents",
       "label": "10-year, 2-year and 3-month Treasury constant-maturity yields (DGS10, DGS2, DGS3MO)",
       "source": "fred",
+      "dataset": "dgs",
       "cadence": "daily",
       "publication_lag_business_days": 1
     }
@@ -35,17 +35,34 @@
     "10y-2y begins 1976-06-01 (DGS2's start); 10y-3m begins 1981-09-01 (DGS3MO's start)."
   ],
   "presentation": {
-    "sections": ["economy"],
+    "sections": [
+      "economy"
+    ],
     "order": 20,
     "summary": "Daily 10-year minus 2-year and 10-year minus 3-month Treasury yield spreads, from FRED, with NBER recessions shaded.",
     "chart": {
       "type": "timeseries",
-      "y": { "suffix": "%", "format": "+.2f" },
-      "presets": ["1Y", "5Y", "10Y", "25Y", "All"],
+      "y": {
+        "suffix": "%",
+        "format": "+.2f"
+      },
+      "presets": [
+        "1Y",
+        "5Y",
+        "10Y",
+        "25Y",
+        "All"
+      ],
       "recessions": true,
       "zeroline": true
     },
     "stats": false,
-    "table": { "kind": "changes", "windows": ["1M", "1Y"] }
+    "table": {
+      "kind": "changes",
+      "windows": [
+        "1M",
+        "1Y"
+      ]
+    }
   }
 }

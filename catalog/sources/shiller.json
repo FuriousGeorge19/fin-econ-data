@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "slug": "shiller",
+  "role": "data",
+  "name": "Robert J. Shiller (Yale) — U.S. Stock Markets 1871–Present and CAPE Ratio",
+  "short_name": "Shiller/Yale",
+  "homepage": "http://www.econ.yale.edu/~shiller/data.htm",
+  "description": "Robert Shiller's online data page: the monthly U.S. stock market dataset behind Irrational Exuberance and the CAPE ratio, plus annual long-term series and the home-price series from the book. The monthly stock dataset is this site's confirmed P/E history through Shiller's last confirmed month.",
+  "access": {
+    "method": "file-download",
+    "url": "http://www.econ.yale.edu/~shiller/data/ie_data.xls",
+    "format": "xls",
+    "auth": "none",
+    "notes": [
+      "One workbook; the Data sheet has several header rows above the monthly table. Parsed by scripts/fetch_sp500_pe.py (needs pandas and xlrd).",
+      "A HEAD request on 2026-09-14 returned 200, 1,628,672 bytes, Last-Modified 2023-10-17, so the Yale copy may no longer be refreshed. shillerdata.com describes the same ie_data.xls; whether it is the maintained copy is an open item in catalog/research-log.md."
+    ],
+    "read_from": [
+      "http://www.econ.yale.edu/~shiller/data.htm",
+      "https://shillerdata.com/"
+    ]
+  },
+  "terms": {
+    "summary": "Free download; no terms of use or republication statement found on the Yale data page or shillerdata.com",
+    "status": "unknown",
+    "url": "unknown",
+    "read_from": [
+      "http://www.econ.yale.edu/~shiller/data.htm",
+      "https://shillerdata.com/"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "ie-data",
+      "name": "U.S. stock markets 1871–present and CAPE, monthly",
+      "gives": "Monthly S&P Composite price, dividends and earnings, the consumer price index, the long-term (10-year Treasury) interest rate, real (CPI-adjusted) price, dividends and earnings, and the cyclically adjusted price-earnings ratio (CAPE) with a total-return CAPE variant; all from January 1871",
+      "ids": ["ie_data.xls"],
+      "topics": ["equity-valuation", "equity-returns", "rates", "inflation"],
+      "units": "index points, dollars per share, percent, ratio",
+      "cadence": "monthly",
+      "coverage": {"start": "1871-01", "end": "ongoing"},
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "roadmap": ["chart 4 (pre-1953 long rate)"],
+      "read_from": [
+        "http://www.econ.yale.edu/~shiller/data.htm",
+        "https://shillerdata.com/"
+      ],
+      "notes": [
+        "Used by series/sp500_pe.json as confirmed history; months after Shiller's last confirmed month come from FRED SP500 and data/earnings_overrides.json.",
+        "Shiller periodically restates historical earnings; the site shows the latest revision (series/sp500_pe.json revision_note).",
+        "Refresh cadence is not stated on either page; the Yale file's Last-Modified header suggests irregular updates, so the lag is unknown rather than guessed."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-14",
+    "by": "Claude (S8 session): Yale data page and shillerdata.com read; both searched for a terms statement; xls checked with a HEAD request"
+  },
+  "notes": [
+    "The pre-catalogue descriptor text said 'no republication restriction found'. Recorded here as terms.status unknown rather than verified: there is no terms statement to quote."
+  ]
+}

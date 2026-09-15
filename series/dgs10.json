@@ -13,9 +13,8 @@
   "sources": [
     {
       "slug": "fred",
-      "name": "Federal Reserve Bank of St. Louis (FRED)",
-      "url": "https://fred.stlouisfed.org/series/DGS10",
-      "licence": "Public domain (U.S. government data)"
+      "dataset": "dgs",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
     }
   ],
   "inputs": [
@@ -23,6 +22,7 @@
       "id": "dgs10",
       "label": "10-Year Treasury Constant Maturity Rate",
       "source": "fred",
+      "dataset": "dgs",
       "series_id": "DGS10",
       "cadence": "daily",
       "publication_lag_business_days": 1
@@ -36,17 +36,32 @@
     "No observation is published on weekends or U.S. bond-market holidays; those dates are simply absent, not zero."
   ],
   "presentation": {
-    "sections": ["rates", "economy"],
+    "sections": [
+      "rates",
+      "economy"
+    ],
     "order": 5,
     "summary": "Daily 10-year Treasury constant-maturity yield, from FRED.",
     "chart": {
       "type": "timeseries",
-      "y": { "suffix": "%", "format": ".2f" },
-      "presets": ["1M", "6M", "1Y", "5Y", "All"],
+      "y": {
+        "suffix": "%",
+        "format": ".2f"
+      },
+      "presets": [
+        "1M",
+        "6M",
+        "1Y",
+        "5Y",
+        "All"
+      ],
       "recessions": false,
       "zeroline": false
     },
     "stats": true,
-    "table": { "kind": "recent", "rows": 30 }
+    "table": {
+      "kind": "recent",
+      "rows": 30
+    }
   }
 }

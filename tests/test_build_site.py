@@ -286,6 +286,20 @@ def test_real_repo_builds_into_tmp_path(tmp_path):
     assert written
 
 
+def test_every_page_carries_the_fred_api_notice(tmp_path):
+    """The FRED API Terms of Use require this sentence on any product using the
+    API (site-build spec; catalog/sources/fred.json). Every page shows
+    FRED-sourced data, so every generated page's footer carries it."""
+    written = build_site.build(output_dir=str(tmp_path))
+    pages = [p for p in written if str(p).endswith(".html")]
+    assert pages
+    for page in pages:
+        with open(page, encoding="utf-8") as f:
+            html = f.read()
+        assert build_site.FRED_API_NOTICE in html, page
+        assert '<footer class="site-footer">' in html, page
+
+
 def test_every_presentation_chart_type_module_and_fetcher_exist():
     for series_id in series_meta.ids():
         descriptor = series_meta.load(series_id)

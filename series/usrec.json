@@ -12,15 +12,13 @@
   "sources": [
     {
       "slug": "fred",
-      "name": "Federal Reserve Bank of St. Louis (FRED)",
-      "url": "https://fred.stlouisfed.org/series/USREC",
-      "licence": "Public domain (U.S. government data)"
+      "dataset": "usrec",
+      "url": "https://fred.stlouisfed.org/series/USREC"
     },
     {
       "slug": "nber",
-      "name": "National Bureau of Economic Research (NBER), Business Cycle Dating Committee",
-      "url": "https://www.nber.org/research/business-cycle-dating",
-      "licence": "Public domain (U.S. government-funded research); dates are NBER's official recession chronology"
+      "dataset": "chronology",
+      "url": "https://www.nber.org/research/business-cycle-dating"
     }
   ],
   "inputs": [
@@ -28,6 +26,7 @@
       "id": "usrec",
       "label": "NBER-based monthly recession indicator (1 = recession)",
       "source": "fred",
+      "dataset": "usrec",
       "series_id": "USREC",
       "cadence": "monthly",
       "publication_lag_business_days": 5

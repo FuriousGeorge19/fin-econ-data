@@ -12,9 +12,8 @@
   "sources": [
     {
       "slug": "fred",
-      "name": "Federal Reserve Bank of St. Louis (FRED)",
-      "url": "https://fred.stlouisfed.org/categories/115",
-      "licence": "Public domain (U.S. government data)"
+      "dataset": "dgs",
+      "url": "https://fred.stlouisfed.org/categories/115"
     }
   ],
   "inputs": [
@@ -22,6 +21,7 @@
       "id": "tenors",
       "label": "Treasury constant-maturity yields, all tenors (1mo–30yr)",
       "source": "fred",
+      "dataset": "dgs",
       "cadence": "daily",
       "publication_lag_business_days": 1
     }
@@ -35,13 +35,22 @@
     "Values are percent, not a decimal fraction."
   ],
   "presentation": {
-    "sections": ["rates"],
+    "sections": [
+      "rates"
+    ],
     "order": 10,
     "summary": "Daily U.S. Treasury yield curve across all tenors, from FRED.",
     "chart": {
       "type": "curve",
-      "y": { "suffix": "%" },
-      "overlays": ["1w", "1m", "1y", "5y"],
+      "y": {
+        "suffix": "%"
+      },
+      "overlays": [
+        "1w",
+        "1m",
+        "1y",
+        "5y"
+      ],
       "custom_date": true
     },
     "stats": false,

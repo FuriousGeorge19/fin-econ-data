@@ -34,12 +34,31 @@ def load(series_id):
 
 
 def meta_from_descriptor(descriptor):
-    """The descriptor as embedded into a data file's `meta`: a verbatim copy
-    minus `presentation` (chart configuration) and `fetcher` (build-time
-    config naming the fetch script) — neither is written to the data file."""
+    """The descriptor as embedded into a data file's `meta`: a copy minus
+    `presentation` (chart configuration) and `fetcher` (build-time config
+    naming the fetch script) — neither is written to the data file — with
+    each `sources[]` reference (`{slug, dataset?, url?, note?}`) resolved
+    through the source catalogue (`catalog/sources/<slug>.json`) into the
+    `{slug, dataset?, name, dataset_name?, url, licence, terms_status, via?,
+    note?}` entry the About tab renders. Raises ValueError naming the
+    descriptor and the reference when one does not resolve, so that series'
+    fetch fails rather than shipping an unresolved source."""
+    import catalog  # local import: keeps this module importable without the catalogue package on path
+
     meta = copy.deepcopy(descriptor)
     meta.pop("presentation", None)
     meta.pop("fetcher", None)
+
+    known = catalog.load_all()
+    resolved = []
+    for ref in descriptor.get("sources", []):
+        try:
+            resolved.append(catalog.resolve_source_ref(ref, catalog=known))
+        except ValueError as e:
+            raise ValueError(
+                f"series/{descriptor.get('id')}.json: sources entry {ref!r}: {e}"
+            ) from e
+    meta["sources"] = resolved
     return meta
 
 

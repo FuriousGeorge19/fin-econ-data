@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "slug": "nber",
+  "role": "data",
+  "name": "National Bureau of Economic Research (NBER), Business Cycle Dating Committee",
+  "short_name": "NBER",
+  "homepage": "https://www.nber.org/research/business-cycle-dating",
+  "description": "The committee that dates U.S. business-cycle peaks and troughs. Its chronology, back to December 1854, is the official recession record; FRED's USREC (catalogued as fred/usrec) is the St. Louis Fed's monthly 0/1 interpretation of these dates and is what this site fetches.",
+  "access": {
+    "method": "file-download",
+    "url": "https://www.nber.org/sites/default/files/2023-03/BCDC_spreadsheet_for_website.xlsx",
+    "format": "xlsx",
+    "auth": "none",
+    "notes": [
+      "The chronology is also a table on the data page and a directory of dated files at https://data.nber.org/cycles/: business_cycle_dates.json (checked 2026-09-14: a list of {peak, trough} month dates starting with the 1854-12-01 trough), US_Business_Cycle_Expansions_and_Contractions.xlsx, BCDC_spreadsheet_for_website.xlsx and dated update folders.",
+      "The xlsx path carries a 2023-03 upload date; the file may move when the committee next announces a turning point."
+    ],
+    "read_from": [
+      "https://www.nber.org/research/business-cycle-dating",
+      "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions",
+      "https://data.nber.org/cycles/business_cycle_dates.json"
+    ]
+  },
+  "terms": {
+    "summary": "Permission to copy is granted, provided attribution of source is given (NBER)",
+    "status": "verified",
+    "url": "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions",
+    "quote": "Permission to copy is granted, provided attribution of source is given.",
+    "read_from": [
+      "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"
+    ]
+  },
+  "datasets": [
+    {
+      "id": "chronology",
+      "name": "U.S. business cycle expansions and contractions",
+      "gives": "Peak and trough months and quarters of U.S. business cycles from the December 1854 peak to the April 2020 trough, with contraction and expansion lengths",
+      "ids": [
+        "BCDC_spreadsheet_for_website.xlsx"
+      ],
+      "topics": [
+        "recession-dating",
+        "macro"
+      ],
+      "units": "dates",
+      "cadence": "irregular",
+      "coverage": {
+        "start": "1854-12",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "read_from": [
+        "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"
+      ],
+      "notes": [
+        "Turning points are announced months to a year after they occur, at the committee's discretion, so no fixed lag applies.",
+        "Most recent peak February 2020 (2019Q4), most recent trough April 2020 (2020Q2), as shown on 2026-09-14.",
+        "Referenced by series/usrec.json as the authority behind FRED's USREC; the fetcher reads USREC, not this file."
+      ]
+    }
+  ],
+  "verified": {
+    "on": "2026-09-14",
+    "by": "Claude (S8 session): dating-committee page and the expansions-and-contractions data page read; xlsx checked with a HEAD request (200, 20,817 bytes, Last-Modified 2023-03-13); nber.org/terms-use redirected to a 404"
+  }
+}
