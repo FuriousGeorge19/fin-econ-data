@@ -23,6 +23,7 @@ separate from the correctness tests that gate the deploy (see
 .github/workflows/update-data.yml).
 """
 
+import json
 import os
 import sys
 
@@ -36,11 +37,24 @@ from staleness import check_series
 
 SOURCE = "local" if os.environ.get("STALENESS_SOURCE") == "local" else "live"
 
+SERIES_DIR = os.path.join(os.path.dirname(__file__), "..", "series")
+
+
+def _published(series_id):
+    """Whether the deployed site carries this series' data file. A descriptor
+    marked `presentation.publish: false` is built locally only (see
+    scripts/build_site.py), so the live site has no data/<id>.json to check."""
+    with open(os.path.join(SERIES_DIR, f"{series_id}.json")) as f:
+        presentation = json.load(f).get("presentation") or {}
+    return presentation.get("publish", True)
+
 
 @pytest.mark.network
 @pytest.mark.staleness
 @pytest.mark.parametrize("series_id", series_meta.ids())
 def test_series_on_time(series_id):
+    if SOURCE == "live" and not _published(series_id):
+        pytest.skip(f"{series_id} is not published to the live site; check it with STALENESS_SOURCE=local")
     row = check_series(series_id, source=SOURCE)
     if "error" in row:
         pytest.skip(f"could not reach {row['filename']}: {row['error']}")

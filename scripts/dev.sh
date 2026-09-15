@@ -39,7 +39,10 @@ if [ "$LIVE" = "1" ]; then
   echo ""
 fi
 
-python3 "$REPO_ROOT/scripts/build_site.py"
+# --include-unpublished: build charts marked presentation.publish false
+# (the S&P 500 P/E) too. They are deliberately absent from the deployed
+# site; locally they are the point of this loop.
+python3 "$REPO_ROOT/scripts/build_site.py" --include-unpublished
 
 echo "Local data/ freshness (this checkout — may lag the live site unless run with --live):"
 python3 "$REPO_ROOT/scripts/staleness.py" local

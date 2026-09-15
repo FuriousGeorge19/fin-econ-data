@@ -69,20 +69,23 @@ def sandbox(tmp_path):
     })
 
     def add_series(series_id, *, sections, order, chart_type="timeseries",
-                   presets=None, payload=None):
-        _write_json(str(series_dir / f"{series_id}.json"), {
-            "id": series_id,
-            "title": f"{series_id} title",
-            "short_title": series_id,
-            "kind": chart_type,
-            "presentation": {
+                   presets=None, payload=None, publish=None):
+        presentation = {
                 "sections": sections,
                 "order": order,
                 "summary": f"{series_id} summary",
                 "chart": {"type": chart_type, "presets": presets or ["1Y", "All"]},
                 "stats": True,
                 "table": {"kind": "recent", "rows": 10},
-            },
+        }
+        if publish is not None:
+            presentation["publish"] = publish
+        _write_json(str(series_dir / f"{series_id}.json"), {
+            "id": series_id,
+            "title": f"{series_id} title",
+            "short_title": series_id,
+            "kind": chart_type,
+            "presentation": presentation,
         })
         _write_json(
             str(data_dir / f"{series_id}.json"),
@@ -92,6 +95,9 @@ def sandbox(tmp_path):
 
     add_series("alpha", sections=["economy"], order=10)
     add_series("beta", sections=["economy", "rates"], order=5)
+    # Marked unpublished: every test below asserts it stays out of the
+    # generated site unless the build explicitly asks for it.
+    add_series("delta", sections=["markets"], order=1, publish=False)
 
     return dict(
         series_dir=str(series_dir), pages_dir=str(pages_dir),
@@ -348,3 +354,65 @@ def test_forbidden_layout_keys_confined_to_layout_and_card():
         text = open(path).read()
         for key in FORBIDDEN_KEYS:
             assert key not in text, f"{rel}: {key!r} used outside lib/plotly-layout.js and lib/card.js"
+
+
+# ── Unpublished series (presentation.publish false) ──────────────────────
+
+def test_unpublished_chart_is_absent_from_the_site(sandbox):
+    """No page, no data file, no section entry and no nav link — the whole
+    point being that a series whose terms forbid republication is never
+    written into the deployed site."""
+    _build(sandbox)
+    out = sandbox["output_dir"]
+    assert not os.path.exists(os.path.join(out, "charts", "delta"))
+    assert not os.path.exists(os.path.join(out, "data", "delta.json"))
+
+    markets = _page_json(os.path.join(out, "markets"))
+    assert markets["blocks"] == []
+    with open(os.path.join(out, "markets", "index.html")) as f:
+        assert "/charts/delta/" not in f.read()
+
+
+def test_unpublished_chart_builds_when_asked_for(sandbox):
+    """scripts/dev.sh passes --include-unpublished so the chart still works
+    locally."""
+    _build(sandbox, include_unpublished=True)
+    out = sandbox["output_dir"]
+    assert os.path.isfile(os.path.join(out, "charts", "delta", "index.html"))
+    assert os.path.isfile(os.path.join(out, "data", "delta.json"))
+    markets = _page_json(os.path.join(out, "markets"))
+    assert [b["id"] for b in markets["blocks"]] == ["delta"]
+
+
+def test_curated_manifest_skips_an_unpublished_chart(sandbox):
+    """pages/home.json still names the chart; the block is dropped rather
+    than failing the build, so the manifest needs no edit to re-publish."""
+    _write_json(os.path.join(sandbox["pages_dir"], "home.json"), {
+        "slug": "home", "title": "Home", "layout": "grid",
+        "blocks": [{"chart": "alpha"}, {"chart": "delta"}],
+    })
+    _build(sandbox)
+    home = _page_json(sandbox["output_dir"])
+    assert [b["id"] for b in home["blocks"]] == ["alpha"]
+
+    _build(sandbox, include_unpublished=True)
+    home = _page_json(sandbox["output_dir"])
+    assert [b["id"] for b in home["blocks"]] == ["alpha", "delta"]
+
+
+def test_real_repo_omits_the_sp500_pe_chart(tmp_path):
+    """The live site must not carry the S&P 500 P/E: S&P Dow Jones Indices
+    declined free permission to display index values publicly (case
+    01015670, 2026-09-15), so its page and data file are built locally only.
+    """
+    written = build_site.build(output_dir=str(tmp_path / "public"))
+    public = {os.path.relpath(p, str(tmp_path / "public")) for p in written}
+    assert os.path.join("charts", "dgs10", "index.html") in public
+    assert not [p for p in public if "sp500_pe" in p]
+
+    written_local = build_site.build(
+        output_dir=str(tmp_path / "local"), include_unpublished=True,
+    )
+    local = {os.path.relpath(p, str(tmp_path / "local")) for p in written_local}
+    assert os.path.join("charts", "sp500_pe", "index.html") in local
+    assert os.path.join("data", "sp500_pe.json") in local

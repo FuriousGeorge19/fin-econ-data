@@ -20,7 +20,7 @@ SERIES_IDS = series_meta.ids()
 
 # ── `presentation` schema (chart-components capability, design.md decision 4) ─
 
-ALLOWED_PRESENTATION_KEYS = {"sections", "order", "summary", "chart", "stats", "table"}
+ALLOWED_PRESENTATION_KEYS = {"sections", "publish", "order", "summary", "chart", "stats", "table"}
 REQUIRED_PRESENTATION_KEYS = {"sections", "order", "summary", "chart"}
 ALLOWED_CHART_KEYS = {
     "type", "y", "presets", "recessions", "zeroline", "overlays", "custom_date", "traces",

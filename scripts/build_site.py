@@ -17,6 +17,13 @@ openspec/changes/s5-chart-components/design.md decision 2):
     single-file dashboard at `/` stays live and untouched until cutover
   - `data/<id>.json`, copied verbatim from `data/<id>.json`
 
+A descriptor whose `presentation.publish` is `false` is built only when the
+generator is asked for it (`--include-unpublished`, which `scripts/dev.sh`
+passes): no chart page, no entry on a section or curated page, no nav link
+and no copied data file. That is how a series whose source terms forbid
+republication stays viewable locally without being deployed — see
+`catalog/sources/spglobal.json` and CLAUDE.md's "Unpublished series".
+
 Rerun after editing a descriptor's `presentation`, adding a series, or
 editing a page manifest. `scripts/dev.sh` and the deploy workflow both call
 this before serving/publishing `site/`.
@@ -160,6 +167,23 @@ def charts_with_presentation(descriptors):
     }
 
 
+def published_charts(chartable, *, include_unpublished=False):
+    """`chartable` minus every descriptor marked `presentation.publish:
+    false` — a series whose source terms do not permit republishing it (the
+    S&P 500 P/E: the price and earnings behind the ratio are S&P Dow Jones
+    Indices' data). Everything downstream — chart pages, section grids, nav,
+    curated manifests, the data copy — derives from the result, so the one
+    flag keeps a series out of the deployed site entirely.
+    `include_unpublished=True` (scripts/dev.sh) keeps it, so the chart still
+    works locally."""
+    if include_unpublished:
+        return chartable
+    return {
+        series_id: d for series_id, d in chartable.items()
+        if d["presentation"].get("publish", True)
+    }
+
+
 def section_charts(section_id, chartable):
     """Descriptors placed on `section_id`, sorted by `presentation.order`."""
     return sorted(
@@ -203,7 +227,11 @@ def manifest_blocks(manifest, chartable):
     blocks = []
     for raw in manifest.get("blocks", []):
         if "chart" in raw:
-            descriptor = chartable[raw["chart"]]
+            descriptor = chartable.get(raw["chart"])
+            if descriptor is None:
+                # An unpublished chart: validate() has already proved the id
+                # resolves, so the only way here is presentation.publish false.
+                continue
             blocks.append(chart_block(
                 descriptor, size=raw.get("size", "half"), preset=raw.get("preset"),
             ))
@@ -381,10 +409,16 @@ def build_manifest_page(slug, manifest, *, site, chartable, manifests, output_di
     write_page(output_dir, rel_path, contents, written)
 
 
-def copy_data(*, descriptors, data_dir, output_dir, written):
+def copy_data(*, descriptors, skip_ids=(), data_dir, output_dir, written):
+    """Copies each descriptor's data file into the site, except `skip_ids`
+    (unpublished series). A descriptor with no `presentation` is still
+    copied — `usrec.json` has no page of its own, but every recession-shaded
+    chart fetches it."""
     data_out = os.path.join(output_dir, "data")
     os.makedirs(data_out, exist_ok=True)
     for series_id in descriptors:
+        if series_id in skip_ids:
+            continue
         src = os.path.join(data_dir, f"{series_id}.json")
         if not os.path.isfile(src):
             continue
@@ -397,7 +431,7 @@ def copy_data(*, descriptors, data_dir, output_dir, written):
 
 
 def build(*, series_dir=SERIES_DIR, pages_dir=PAGES_DIR, data_dir=DATA_DIR,
-           output_dir=SITE_DIR, js_dir=JS_DIR):
+           output_dir=SITE_DIR, js_dir=JS_DIR, include_unpublished=False):
     """Runs the generator; returns the list of paths written. Raises
     `BuildError` (naming the offending file) on a validation failure —
     nothing is written in that case."""
@@ -407,7 +441,11 @@ def build(*, series_dir=SERIES_DIR, pages_dir=PAGES_DIR, data_dir=DATA_DIR,
 
     validate(site=site, descriptors=descriptors, manifests=manifests, js_dir=js_dir)
 
-    chartable = charts_with_presentation(descriptors)
+    with_presentation = charts_with_presentation(descriptors)
+    chartable = published_charts(
+        with_presentation, include_unpublished=include_unpublished,
+    )
+    unpublished_ids = set(with_presentation) - set(chartable)
     chart_css = chart_css_names(output_dir)
     written = []
 
@@ -440,14 +478,24 @@ def build(*, series_dir=SERIES_DIR, pages_dir=PAGES_DIR, data_dir=DATA_DIR,
             written=written,
         )
 
-    copy_data(descriptors=descriptors, data_dir=data_dir, output_dir=output_dir, written=written)
+    copy_data(
+        descriptors=descriptors, skip_ids=unpublished_ids, data_dir=data_dir,
+        output_dir=output_dir, written=written,
+    )
 
     return written
 
 
 def main():
+    args = sys.argv[1:]
+    include_unpublished = "--include-unpublished" in args
+    unknown = [a for a in args if a != "--include-unpublished"]
+    if unknown:
+        print(f"build_site.py: unknown argument(s) {unknown}", file=sys.stderr)
+        sys.exit(2)
+
     try:
-        written = build()
+        written = build(include_unpublished=include_unpublished)
     except BuildError as e:
         print(f"build_site.py: {e}", file=sys.stderr)
         sys.exit(1)

@@ -56,12 +56,14 @@
   ],
   "notes": [
     "The dashed portion of the chart marks estimated months, starting the first month not yet covered by a confirmed quarter.",
-    "The S&P Global earnings workbook was discontinued by its publisher on 31 Jan 2026 (see the earnings input's status_note); the P/E has been running on forward-filled earnings since and will continue to until a replacement source is adopted."
+    "The S&P Global earnings workbook was discontinued by its publisher on 31 Jan 2026 (see the earnings input's status_note); the P/E has been running on forward-filled earnings since and will continue to until a replacement source is adopted.",
+    "Not published on joemirza.com since 2026-09-15: the price and earnings behind this ratio are S&P Dow Jones Indices' data, and S&P declined free permission to display index values on a public site (case 01015670, 2026-09-15). presentation.publish is false, so the generator leaves the page and data/sp500_pe.json out of the deployed site; scripts/dev.sh still builds it locally."
   ],
   "presentation": {
     "sections": [
       "markets"
     ],
+    "publish": false,
     "order": 7,
     "summary": "Monthly S&P 500 trailing twelve-month P/E ratio, Shiller/Yale data back to 1871.",
     "chart": {
