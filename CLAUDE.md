@@ -436,7 +436,9 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 ## Changelog (recent work, newest first)
 
 - **2026-09-14**: S8: source catalogue (`s8-source-catalog`, Fable, designed and built
-  in one session; not yet archived). New `catalog/`: `README.md` (the rules and field
+  in one session; archived as `2026-09-15-s8-source-catalog`; commits `179855d`
+  build, `bed7ae9` archive; deployed via `workflow_dispatch`, run green, footer and
+  resolved sources verified live). New `catalog/`: `README.md` (the rules and field
   table an S9 research agent works from), `sources/{fred,shiller,spglobal,nber}.json`
   (one file per rights holder; `access`, `terms` with status + verbatim quote,
   `datasets[]` with topics/native cadence/coverage/lag/status and per-dataset
