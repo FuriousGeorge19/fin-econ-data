@@ -479,6 +479,30 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-16**: S10: the dry run — "recommend charts for US Equity Valuations" from
+  the catalogue alone (Fable, one session, no code). The proposal is
+  `~/Obsidian/Investing/Finance and Economic Data Website/S10 — US Equity Valuations —
+  Chart Proposals.md`. Ten candidate charts, each with every input's `terms.status`
+  and a public/local verdict. **Four can go public now**, all `verified` and all the
+  existing `timeseries` type: the Buffett indicator (Z.1 public corporate equities
+  `BOGZ1LM883164115Q` ÷ FRED `GDP`), Damodaran's implied ERP (annual, 1960–),
+  household allocation to equities (Z.1 B.101), and a Tobin's Q proxy (the Board's
+  own `NCBCEPNW`). **Everything price- or earnings-based is local-only** — CAPE,
+  dividend yield, real price, and roadmap chart 7 as scoped (it depends on
+  `sp500_pe`) — because they all come from Shiller's `ie_data.xls` (terms `unknown`)
+  whose price and earnings columns are S&P's; whether to ask Shiller/shillerdata.com
+  by email is now the Session Plan's open item. Gaps: forward P/E (searched — nothing
+  free); price/sales and price/book (unresearched, not "none"). Catalogue changes, the
+  only repo edits: `fred.json` gained the `gdp` dataset (BEA, "Public Domain: Citation
+  Requested", the one unlisted FRED series the brief allowed) and
+  `federal-reserve-board.json`'s three datasets gained the FRED ids the S9 agent had
+  left unresolved (`BOGZ1LM883164105Q`/`…115Q` for all-sector equity market value,
+  `HNOMFAQ027S`/`BOGZ1FL153064005Q` for household fund shares, `NCBCEPNW`/
+  `TNWMVBSNNCB` for Tobin's Q) with Q2 2026 magnitudes — the three equity lines differ
+  by a third (336% / 288% / 256% of GDP), so a chart must name its line. Five
+  research-log entries. `catalog.py check` clean. **Consequence for S9b**: extend the
+  P/E fetcher's output with CAPE, dividend yield and Shiller's earnings column,
+  unpublished by default; **for S11c**: build chart 7 on the CAPE yield, not the P/E.
 - **2026-09-15**: S&P answered; the P/E chart is no longer published (commit
   `ad990a7`). S&P Index Client Services replied to the permission email (case 01015670):
   public display of index values in charts is US$8,000/year under a Web Display

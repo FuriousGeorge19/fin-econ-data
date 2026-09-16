@@ -23,6 +23,106 @@ re-verified against their pages.
 
 ---
 
+## 2026-09-16 — S10 dry run: charts for US Equity Valuations, proposed from the catalogue alone
+topics: equity-valuation, equity-returns, macro
+- **Question**: can the catalogue, on its own, recommend a set of charts for a US Equity
+  Valuations page, name each source's `terms.status`, say which charts can go on the
+  public site, and name the gaps — the Session Plan's S10 test of whether the inventory
+  does what [[What I Want]] asks.
+- **Searched / read**: `python3 scripts/catalog.py report --topic equity-valuation` and
+  the full report; every `series/*.json`; `catalog/sources/{shiller,spglobal,damodaran,
+  federal-reserve-board,multpl,fred,ofr}.json` and the S9 entries below. No web
+  searches. Four FRED API `/fred/series` lookups and two FRED series pages, for the
+  one addition the brief allowed (GDP) and for Z.1 line ids the catalogue named but
+  hadn't resolved (next two entries).
+- **Found**: four charts buildable for the public site from verified-terms sources
+  alone — Buffett indicator (Z.1 public corporate equities ÷ BEA GDP), Damodaran's
+  implied ERP (annual, 1960–), household allocation to equities (Z.1 B.101), and a
+  Tobin's Q proxy (Z.1's own `NCBCEPNW`). Every price- or earnings-based chart (CAPE,
+  trailing P/E, earnings yield vs real yield, dividend yield, real price) depends on
+  Shiller's `ie_data.xls` (terms `unknown`) and on S&P Composite price and S&P earnings
+  inside it, so all are local-only until Shiller's terms are established. Roadmap
+  chart 7 (ERP, S11c) as scoped uses `sp500_pe` and is therefore local-only too;
+  rebuilding it on the CAPE yield makes it share CAPE's fate instead. Forward P/E has
+  no source; nominal as-reported EPS has none but Shiller's own earnings column.
+- **Outcome**: adopted (the proposal); open (Shiller's terms); gap (forward P/E)
+- **Landed in**: Obsidian `S10 — US Equity Valuations — Chart Proposals.md` · Session
+  Plan S10 row and Phase 4 · catalog/sources/fred.json (dataset gdp) ·
+  catalog/sources/federal-reserve-board.json (dataset notes)
+
+## 2026-09-16 — FRED GDP as the Buffett-indicator denominator
+topics: macro, equity-valuation
+- **Question**: the catalogue had no GDP series; the S10 brief allowed one unlisted
+  FRED series if recorded. Which one, and under what label?
+- **Searched / read**: https://api.stlouisfed.org/fred/series?series_id=GDP and
+  https://fred.stlouisfed.org/series/GDP.
+- **Found**: `GDP` — Gross Domestic Product, BEA, quarterly, seasonally adjusted annual
+  rate, billions of dollars, from 1947-01-01; latest observation 2026-04-01 (Q2 2026,
+  $32,486bn), last updated on FRED 2026-08-26. FRED's label: "Public Domain: Citation
+  Requested". Revised after first publication (advance, second, third estimate), unlike
+  every series the site fetches today.
+- **Outcome**: adopted
+- **Landed in**: catalog/sources/fred.json (dataset gdp)
+
+## 2026-09-16 — Z.1 lines for total equity market value, household fund shares and Tobin's Q, with FRED ids
+topics: equity-valuation, equity-returns, macro
+- **Question**: S9 catalogued the Z.1 tables (L.224, B.101, B.103) and one FRED mirror
+  each, and left "which line" open for the Buffett indicator. Which FRED ids carry the
+  whole-economy equity total, the household fund-share leg, and a Tobin's Q ratio?
+- **Searched / read**: FRED API `/fred/series/search` for "all sectors corporate
+  equities liability level", "households nonprofit mutual fund shares asset level",
+  "nonfinancial corporate business net worth level"; `/fred/series/observations`
+  (latest value) for each id; https://fred.stlouisfed.org/series/BOGZ1LM883164105Q.
+- **Found**: `BOGZ1LM883164105Q` All Domestic Sectors; Corporate Equities; Liability,
+  Market Value Levels (from 1945-10-01; Q2 2026 $109.2tn) and `BOGZ1LM883164115Q` the
+  same table's *Public* Corporate Equities line ($93.6tn), against `NCBEILQ027S`
+  nonfinancial corporate only ($83.1tn). Against GDP that is 336% / 288% / 256% — the
+  line choice moves the indicator by a third. Household side: `HNOMFAQ027S` mutual fund
+  shares and `BOGZ1FL153064005Q` equities + non-MMF fund shares (from 1945-10-01; Q2
+  2026 $69.2tn, 35% of `TNWBSHNO` net worth $195.9tn). Tobin's Q: the Board publishes
+  `NCBCEPNW` Corporate Equities as a Percentage of Net Worth directly (242% in Q2
+  2026), with `TNWMVBSNNCB` as net worth at market value. All are Z.1 release 52
+  series under the Board's public-domain terms; the one page read carries "Public
+  Domain: Citation Requested".
+- **Outcome**: adopted — the S10 proposal recommends the public-equities line for the
+  Buffett indicator and `NCBCEPNW` for Tobin's Q.
+- **Landed in**: catalog/sources/federal-reserve-board.json (notes and read_from on
+  datasets l224-corporate-equities, b101-household-balance-sheet,
+  b103-nonfinancial-corporate-leverage)
+
+## 2026-09-16 — Forward P/E, price/sales and price/book: what the catalogue's silence means
+topics: equity-valuation
+- **Question**: which US equity-valuation measures the catalogue cannot supply, and
+  whether each silence follows a search or just an unassigned topic.
+- **Searched / read**: the catalogue only (every `equity-valuation`-tagged dataset,
+  `damodaran/industry-pe`'s notes) and the S9 EPS-replacement entries below.
+- **Found**: forward P/E — no dataset carries analyst estimates; `damodaran/industry-pe`
+  has a forward P/E market total, but as a once-a-year snapshot overwritten in place,
+  no history. S9's EPS survey (multpl, Siblis, FactSet, Damodaran) covered the free
+  candidates, so this is a searched gap; the data lives with FactSet and S&P Capital
+  IQ, paid. Price/sales, price/book and profit margins — no dataset and no log entry,
+  because no S9 agent was assigned the topic: an unresearched gap, not a finding.
+- **Outcome**: gap (forward P/E, searched) · open (price multiples other than P/E,
+  unresearched — a candidate for the next research workflow)
+- **Landed in**: Session Plan Phase 4 (US Equity Valuations row)
+
+## 2026-09-16 — Open: Shiller's terms decide every price- or earnings-based valuation chart
+topics: equity-valuation
+- **Question**: which of the S10 proposals could go on the public site, given that
+  `shiller/ie-data` is `unknown` and its price and earnings columns are S&P's data.
+- **Searched / read**: catalog/sources/shiller.json (terms, both pages re-read in S9:
+  no statement) and spglobal.json (S&P's 2026-09-15 answer, which excludes "the P/E
+  values" even from the paid licence).
+- **Found**: CAPE, dividend yield, real price since 1871, and an ERP built on the
+  earnings or CAPE yield all come from the same file and share the same status. The
+  arguments each way are set out in the proposal's §3; neither settles it. The file's
+  maintainer (shillerdata.com; the workbook's metadata names Laurence Black) has not
+  been asked.
+- **Outcome**: open — the user's decision. Recommended: build the charts locally in
+  S9b (`presentation.publish: false`), and ask by email before publishing any of them.
+- **Landed in**: Session Plan open items · Obsidian `S10 — US Equity Valuations —
+  Chart Proposals.md` §3
+
 ## 2026-09-16 — S&P answered: displaying index values publicly is a paid licence
 topics: equity-valuation, equity-returns
 - **Question**: may joemirza.com keep publishing the S&P 500 P/E chart, whose price is

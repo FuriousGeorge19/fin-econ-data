@@ -44,11 +44,15 @@
       "status": "active",
       "roadmap": ["household equity allocation"],
       "read_from": [
-        "https://www.federalreserve.gov/releases/z1/20260109/html/b101.htm"
+        "https://www.federalreserve.gov/releases/z1/20260109/html/b101.htm",
+        "https://api.stlouisfed.org/fred/series?series_id=HNOMFAQ027S",
+        "https://api.stlouisfed.org/fred/series?series_id=BOGZ1FL153064005Q",
+        "https://api.stlouisfed.org/fred/series?series_id=TNWBSHNO"
       ],
       "notes": [
         "FRED mirror series for the household equity-allocation calc: HNOCEAQ027S (Households and Nonprofit Organizations; Corporate Equities; Asset, Level, from 1945-10-01) and TNWBSHNO (Households and Nonprofit Organizations; Net Worth, Level, from 1945-10-01), both release id 52 on FRED. A HEAD/API check of HNOCEAQ027S confirmed observation_start 1945-10-01.",
-        "The HTML table page itself only prints the most recent few years of quarters; the full historical run is what FRED (or a DDP CSV package) exposes."
+        "The HTML table page itself only prints the most recent few years of quarters; the full historical run is what FRED (or a DDP CSV package) exposes.",
+        "S10 (2026-09-16): FRED mirrors for the fund-share leg, from the FRED API \u2014 HNOMFAQ027S (Households and Nonprofit Organizations; Mutual Fund Shares; Asset, Level) and BOGZ1FL153064005Q (Households and Nonprofit Organizations; Corporate Equities and Non-MMF Investment Fund Shares; Asset, Level), both quarterly from 1945-10-01. Q2 2026: equities plus fund shares $69.2tn against net worth (TNWBSHNO) $195.9tn, i.e. 35%. Proposed as S10 chart 3 (household allocation to equities, share of net worth)."
       ]
     },
     {
@@ -64,11 +68,15 @@
       "status": "active",
       "roadmap": ["Buffett indicator (total market cap / GDP)"],
       "read_from": [
-        "https://www.federalreserve.gov/releases/z1/20201210/html/l223.htm"
+        "https://www.federalreserve.gov/releases/z1/20201210/html/l223.htm",
+        "https://api.stlouisfed.org/fred/series?series_id=BOGZ1LM883164105Q",
+        "https://api.stlouisfed.org/fred/series?series_id=BOGZ1LM883164115Q",
+        "https://fred.stlouisfed.org/series/BOGZ1LM883164105Q"
       ],
       "notes": [
         "Renumbered from L.223/F.223 to L.224/F.224 in a recent release; both table names refer to the same series. Mutual fund shares are shown separately on L.225/F.225 and excluded here.",
-        "FRED mirror for the nonfinancial-corporate-business piece of this table: NCBEILQ027S (Nonfinancial Corporate Business; Corporate Equities; Liability, Level, release id 52), observation_start confirmed 1945-10-01 via the FRED API. This is a commonly used total-market-cap proxy for a Fed-data-only Buffett indicator, but it is the nonfinancial-corporate-business liability line, not the whole-economy total on L.224 itself — which line the roadmap wants needs deciding before a fetcher is written."
+        "FRED mirror for the nonfinancial-corporate-business piece of this table: NCBEILQ027S (Nonfinancial Corporate Business; Corporate Equities; Liability, Level, release id 52), observation_start confirmed 1945-10-01 via the FRED API. This is a commonly used total-market-cap proxy for a Fed-data-only Buffett indicator, but it is the nonfinancial-corporate-business liability line, not the whole-economy total on L.224 itself — which line the roadmap wants needs deciding before a fetcher is written.",
+        "S10 (2026-09-16) resolved the line choice from the FRED API and series page: BOGZ1LM883164105Q (All Domestic Sectors; Corporate Equities; Liability, Market Value Levels; quarterly from 1945-10-01; Q2 2026 $109.2tn) and BOGZ1LM883164115Q (All Domestic Sectors; Public Corporate Equities; Liability, Market Value Levels; from 1945-10-01; Q2 2026 $93.6tn), alongside NCBEILQ027S (nonfinancial corporate only; Q2 2026 $83.1tn). FRED labels BOGZ1LM883164105Q 'Public Domain: Citation Requested' (source: Board of Governors; release: Z.1). The three differ by up to a third, so a chart must name the line it plots; the S10 proposal (chart 1, Buffett indicator) recommends the public-equities line as the closest to listed market capitalisation, divided by fred/gdp."
       ]
     },
     {
@@ -84,10 +92,13 @@
       "status": "active",
       "roadmap": ["corporate leverage"],
       "read_from": [
-        "https://www.federalreserve.gov/releases/Z1/20250612/html/b103.htm"
+        "https://www.federalreserve.gov/releases/Z1/20250612/html/b103.htm",
+        "https://api.stlouisfed.org/fred/series?series_id=NCBCEPNW",
+        "https://api.stlouisfed.org/fred/series?series_id=TNWMVBSNNCB"
       ],
       "notes": [
-        "Debt is conventionally line 31 (debt securities) plus line 35 (loans); equity is line 43 (total equity, at market value); FRED mirrors include NCBDBIQ027S (Nonfinancial Corporate Business; Debt Securities; Liability, Level, observation_start confirmed 1945-10-01 via the FRED API) and NCBEILQ027S (see the l224-corporate-equities dataset above, same sector's equity liability line)."
+        "Debt is conventionally line 31 (debt securities) plus line 35 (loans); equity is line 43 (total equity, at market value); FRED mirrors include NCBDBIQ027S (Nonfinancial Corporate Business; Debt Securities; Liability, Level, observation_start confirmed 1945-10-01 via the FRED API) and NCBEILQ027S (see the l224-corporate-equities dataset above, same sector's equity liability line).",
+        "S10 (2026-09-16): the Board also publishes the equity-to-net-worth ratio itself \u2014 NCBCEPNW (Nonfinancial Corporate Business; Corporate Equities as a Percentage of Net Worth, Level; quarterly from 1945-10-01; Q2 2026 242%), the usual Financial-Accounts proxy for Tobin's Q, with TNWMVBSNNCB (Nonfinancial Corporate Business; Net Worth, Level, market value) as its denominator. Both read from the FRED API; series pages not read. Proposed as S10 chart 4."
       ]
     }
   ],

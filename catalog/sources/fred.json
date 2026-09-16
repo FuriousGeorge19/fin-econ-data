@@ -312,6 +312,40 @@
       ]
     },
     {
+      "id": "gdp",
+      "name": "Gross domestic product, quarterly (BEA)",
+      "gives": "Nominal U.S. gross domestic product, seasonally adjusted annual rate, in billions of dollars, from the Bureau of Economic Analysis (NIPA account code A191RC)",
+      "ids": [
+        "GDP"
+      ],
+      "topics": [
+        "macro"
+      ],
+      "units": "usd-bn",
+      "cadence": "quarterly",
+      "coverage": {
+        "start": "1947-01",
+        "end": "ongoing"
+      },
+      "publication_lag_business_days": "unknown",
+      "status": "active",
+      "roadmap": [
+        "Buffett indicator (denominator; S10 proposal 1)",
+        "State of the US Economy"
+      ],
+      "verified_on": "2026-09-16",
+      "read_from": [
+        "https://fred.stlouisfed.org/series/GDP",
+        "https://api.stlouisfed.org/fred/series?series_id=GDP"
+      ],
+      "notes": [
+        "FRED labels GDP 'Public Domain: Citation Requested' (source: U.S. Bureau of Economic Analysis; release: Gross Domestic Product), read on the series page 2026-09-16.",
+        "Added 2026-09-16 (S10) as the Buffett-indicator denominator, the one unlisted FRED series the S10 brief allowed. Not fetched by any series/*.json yet.",
+        "Lag left unknown rather than guessed: BEA publishes an advance estimate about four weeks after quarter end and revises it in each of the two following months (the Q2 2026 value was last updated on FRED 2026-08-26); confirm against the BEA release schedule before setting a descriptor lag. Unlike the H.15 series this one is revised, so a descriptor needs revisions other than 'none'.",
+        "Seasonally adjusted annual rate: a quarterly level annualised, so a market-value-over-GDP ratio is a stock over an annual flow, the conventional Buffett-indicator form."
+      ]
+    },
+    {
       "id": "usrec",
       "name": "NBER-based recession indicator, monthly",
       "gives": "A 0/1 monthly indicator built by the St. Louis Fed from the NBER Business Cycle Dating Committee's peak and trough months, trough method (the recession runs from the month after the peak through the trough month)",
