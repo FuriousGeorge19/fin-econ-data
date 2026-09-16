@@ -39,6 +39,12 @@ data for five datasets from three different sources, runs the correctness test s
 **generates the site** from that data plus a set of hand-maintained descriptors, and
 deploys the result to GitHub Pages.
 
+Four of the five datasets are published. The fifth, the S&P 500 P/E, is fetched and
+built like the others but deliberately left out of the deploy: S&P Dow Jones Indices
+licenses public display of its index values and declined free permission on
+2026-09-15, so the chart exists only in a local build (see "Unpublished series"
+below).
+
 The key structural idea, carried over from the original build and sharpened by the
 rebuild: **data fetching** (Python, runs in GitHub's cloud) is separate from **how a
 chart is drawn** (a JS module in the visitor's browser), which is separate again from
@@ -58,6 +64,9 @@ Three layers, each replaceable without touching the other two.
 | `yield_curve` | FRED (DGS1MO–DGS30, 11 tenors) | Daily | `scripts/fetch_yield_curve.py` |
 | `spreads` | FRED (DGS10, DGS2, DGS3MO), computed | Daily | `scripts/fetch_spreads.py` |
 | `usrec` | FRED (USREC) | Monthly, collapsed to intervals | `scripts/fetch_usrec.py` |
+
+`sp500_pe` is fetched on the same schedule as the rest, but never deployed — see
+"Unpublished series" under The Site Generator.
 
 Each fetcher is a standard Python script — four of the five use only the standard
 library; `fetch_sp500_pe.py` also needs `pandas`, `xlrd` and `openpyxl` to read
@@ -231,6 +240,27 @@ generator is caught before the deploy step, not after.
 A descriptor with no `presentation` key gets no page and no nav entry at all — this
 is how `usrec` stays a shared, page-less dataset.
 
+### Unpublished series
+
+`presentation.publish: false` is the other way a dataset stays off the site, and it
+differs from having no `presentation` at all: the chart is fully configured and still
+builds, just not into the deployed site. `build_site.py` derives everything
+downstream — chart pages, section grids, nav links, curated-manifest blocks and the
+`site/data/<id>.json` copy — from the published set, so the single flag removes the
+series from all five. A curated manifest that still names the chart has that block
+skipped rather than failing the build, so re-publishing is one flag away and
+`pages/home.json` needs no edit.
+
+`build_site.py --include-unpublished` keeps it, and `scripts/dev.sh` passes that flag,
+so an unpublished chart is normal to work on locally.
+
+Today this applies to one series, `sp500_pe`: the price behind the ratio is FRED's
+monthly average of S&P 500 closes and the earnings come from S&P's own workbook, and
+S&P Dow Jones Indices answered a permission request on 2026-09-15 (case 01015670) by
+quoting US$8,000/year for a Web Display Agreement covering index levels "but not the
+P/E values". `tests/test_build_site.py` asserts the real repo builds without it, and
+builds with it when asked.
+
 ### Every page is a thin shell
 
 A generated page is deliberately small: `<title>`, a link to `/css/site.css` (plus any
@@ -402,7 +432,9 @@ deploy → fail the job afterward if something needs attention.
 ## GitHub Pages — Hosting
 
 - **Source branch**: `gh-pages`, entirely managed by the deploy action — never edit
-  it directly.
+  it directly. The action replaces the branch contents each run, so removing a page
+  from the build removes it from the live site on the next deploy; earlier copies
+  remain in that branch's history.
 - **Source path**: `/` (root of the branch).
 - **Custom domain**: `joemirza.com`, set via the `CNAME` file the deploy action writes.
 
@@ -507,8 +539,10 @@ fin-econ-data/
 │   └── home.json                        Curated manifest for /
 ├── catalog/                             The source inventory
 │   ├── README.md                        Rules + field table (what a research agent reads)
-│   ├── sources/                         One file per rights holder
-│   │   ├── fred.json, shiller.json, spglobal.json, nber.json
+│   ├── sources/                         One file per rights holder (30 as of S9:
+│   │   │                                 FRED, Treasury, Shiller, S&P, NBER, ICE BofA,
+│   │   │                                 Damodaran, French, FRB, FDIC, OFR, … plus
+│   │   └── …                             eleven role:reference chartbooks)
 │   └── research-log.md                  Productive searches, newest first
 ├── scripts/
 │   ├── fetch_treasury.py, fetch_sp500_pe.py, fetch_yield_curve.py,

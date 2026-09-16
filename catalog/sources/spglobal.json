@@ -55,7 +55,8 @@
         "The workbook's own notice says S&P's public EPS files ended 31 January 2026 (read from reference_resources/sp-500-eps-est.xlsx, not from a web page). The site's P/E has run on forward-filled earnings since; finding a replacement source is the first open item in catalog/research-log.md.",
         "Coverage start is the earliest quarter in data/earnings_overrides.json (quarter ending 1988-12-31, 148 quarters through 2025-09-30).",
         "Lag of 60 business days is the descriptor's working figure (scorecards appeared roughly two months after quarter end), not a published schedule.",
-        "Used by series/sp500_pe.json (earnings input)."
+        "Used by series/sp500_pe.json (earnings input).",
+        "Same 2026-09-15 answer applies: the derived trailing EPS is no longer published either, since the P/E chart it feeds is built locally only."
       ]
     },
     {
@@ -100,7 +101,8 @@
         "FRED's notes: 'The Federal Reserve Bank of St. Louis and S&P Dow Jones Indices LLC have reached a new agreement … FRED and its associated services will include 10 years of daily history for Standard & Poors and Dow Jones Averages series.' The coverage start therefore moves forward one day at a time (2016-09-15 on 2026-09-14).",
         "Price index, not total return: no dividends.",
         "Lag observed: the 2026-09-14 close was on FRED at 7:01 PM CDT the same day.",
-        "series/sp500_pe.json takes FRED's monthly average of this series (frequency=m, aggregation_method=avg) as its price input; the P/E chart's table and CSV export include that monthly average price. Whether that is within S&P's terms is an open item in catalog/research-log.md."
+        "series/sp500_pe.json takes FRED's monthly average of this series (frequency=m, aggregation_method=avg) as its price input; the P/E chart's table and CSV export include that monthly average price. Whether that is within S&P's terms is an open item in catalog/research-log.md.",
+        "The open question recorded on 2026-09-14 — whether publishing FRED's monthly average price in the P/E table and CSV fits S&P's terms — was answered on 2026-09-15: no, not without a paid Web Display Agreement, and that agreement would still exclude the P/E values. See the source-level note."
       ]
     },
     {
@@ -171,5 +173,8 @@
   "verified": {
     "on": "2026-09-15",
     "by": "Claude (S9 main session, Claude in Chrome): S&P DJI's Legal Disclaimer page, S&P Global's Terms of Use and the S&P 500 index page's Additional Info section read in a browser; source-level terms set from the disclaimer. Claude (S9 workflow agent spglobal): re-checked S&P DJI's terms and index pages (still 403 to automated fetches, WebFetch and curl both tried); read the FRED API series endpoint and FRED series pages for CSUSHPINSA, CSUSHPISA, SPCS20RSA, SPCS10RSA; web-searched for a live public S&P 500 EPS workbook post-discontinuation (inconclusive, see catalog/research-log.md). sp-500-eps and sp500-index datasets carry over unchanged from the 2026-09-14 S8 verification."
-  }
+  },
+  "notes": [
+    "Permission request answered 2026-09-15 (S&P Index Client Services, case 01015670): displaying index values in charts on a public website is licensed, not free — US$8,000/year for one headline index under a Web Display Agreement, which covers up to ten years of index levels \"but not the P/E values\". No free allowance was offered for personal, non-commercial use. joemirza.com therefore stopped publishing the S&P 500 P/E chart on 2026-09-15 (series/sp500_pe.json presentation.publish false); it is generated locally only. FRED's own terms already limited third-party series like this one to personal use."
+  ]
 }

@@ -23,6 +23,31 @@ re-verified against their pages.
 
 ---
 
+## 2026-09-16 — S&P answered: displaying index values publicly is a paid licence
+topics: equity-valuation, equity-returns
+- **Question**: may joemirza.com keep publishing the S&P 500 P/E chart, whose price is
+  FRED's monthly average of SP500 and whose earnings come from S&P's own workbook?
+- **Searched / read**: the reply thread from S&P Index Client Services (case 01015670,
+  2026-09-15), alongside the terms read in a browser the day before
+  (https://www.spglobal.com/spdji/en/disclaimers/).
+- **Found**: S&P charges for display of index values in charts on public websites —
+  US$8,000/year for one headline index under a Web Display Agreement, which allows up
+  to ten years of index levels "but not the P/E values". Nothing free was offered for
+  personal, non-commercial use. FRED's own legal page already limited third-party
+  series to "your own personal use" without the owner's permission.
+- **Outcome**: adopted — the chart is no longer published. `series/sp500_pe.json` gained
+  `presentation.publish: false`; `scripts/build_site.py` now derives every page, nav
+  entry, curated block and copied data file from the published set, so the flag removes
+  the chart page, its Markets entry and `site/data/sp500_pe.json` from the deploy.
+  `scripts/dev.sh` passes `--include-unpublished`, so the chart still works locally.
+  Verified live: `/charts/sp500_pe/` and `/data/sp500_pe.json` return 404, the other
+  three charts are unchanged.
+- **Open**: where the P/E chart lives long-term (a password-protected or private host)
+  is deliberately undecided — see the Session Plan's open items. Old copies remain in
+  `gh-pages` history and in `main`'s `data/`.
+- **Landed in**: catalog/sources/spglobal.json (source notes, sp500-index, sp-500-eps) ·
+  series/sp500_pe.json · scripts/build_site.py · scripts/dev.sh
+
 ## 2026-09-15 — S&P Dow Jones Indices terms and index page, read in a browser (S9)
 topics: equity-valuation, equity-returns, real-estate
 - **Question**: what S&P DJI's own terms say about reproducing index data, and whether its S&P 500 page still links an earnings workbook. Both pages returned 403 to automated fetches in S8 and again in S9.
