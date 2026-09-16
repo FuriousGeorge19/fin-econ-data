@@ -122,7 +122,7 @@ topics: equity-valuation
   (`presentation.publish: false`) and ask before publishing. Shiller's Yale data page
   links "for questions or more information" to laurence.black@theindexstandard.com —
   the same name the shillerdata.com workbook's metadata carries — so the email goes
-  there; drafted the same day, awaiting send. The ask covers CAPE, dividend yield and
+  there; sent 2026-09-16, answer pending. The ask covers CAPE, dividend yield and
   earnings yield only; the real price level (an index level, the thing S&P licenses)
   is left out.
 - **Landed in**: Session Plan open items · Obsidian `S10 — US Equity Valuations —
