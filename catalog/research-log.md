@@ -118,8 +118,13 @@ topics: equity-valuation
   arguments each way are set out in the proposal's §3; neither settles it. The file's
   maintainer (shillerdata.com; the workbook's metadata names Laurence Black) has not
   been asked.
-- **Outcome**: open — the user's decision. Recommended: build the charts locally in
-  S9b (`presentation.publish: false`), and ask by email before publishing any of them.
+- **Outcome**: open → **decided 2026-09-16 (user)**: build the charts locally in S9b
+  (`presentation.publish: false`) and ask before publishing. Shiller's Yale data page
+  links "for questions or more information" to laurence.black@theindexstandard.com —
+  the same name the shillerdata.com workbook's metadata carries — so the email goes
+  there; drafted the same day, awaiting send. The ask covers CAPE, dividend yield and
+  earnings yield only; the real price level (an index level, the thing S&P licenses)
+  is left out.
 - **Landed in**: Session Plan open items · Obsidian `S10 — US Equity Valuations —
   Chart Proposals.md` §3
 

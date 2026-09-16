@@ -490,8 +490,9 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
   own `NCBCEPNW`). **Everything price- or earnings-based is local-only** — CAPE,
   dividend yield, real price, and roadmap chart 7 as scoped (it depends on
   `sp500_pe`) — because they all come from Shiller's `ie_data.xls` (terms `unknown`)
-  whose price and earnings columns are S&P's; whether to ask Shiller/shillerdata.com
-  by email is now the Session Plan's open item. Gaps: forward P/E (searched — nothing
+  whose price and earnings columns are S&P's. Decided the same day (user): build them
+  locally in S9b, ask before publishing — the email to Laurence Black (the contact
+  Shiller's Yale data page names for data questions) is drafted, unsent. Gaps: forward P/E (searched — nothing
   free); price/sales and price/book (unresearched, not "none"). Catalogue changes, the
   only repo edits: `fred.json` gained the `gdp` dataset (BEA, "Public Domain: Citation
   Requested", the one unlisted FRED series the brief allowed) and

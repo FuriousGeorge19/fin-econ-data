@@ -36,14 +36,26 @@
       "id": "ie-data",
       "name": "U.S. stock markets 1871–present and CAPE, monthly",
       "gives": "Monthly S&P Composite price, dividends and earnings, the consumer price index, the long-term (10-year Treasury) interest rate, real (CPI-adjusted) price, dividends and earnings, and the cyclically adjusted price-earnings ratio (CAPE) with a total-return CAPE variant; all from January 1871",
-      "ids": ["ie_data.xls"],
-      "topics": ["equity-valuation", "equity-returns", "rates", "inflation"],
+      "ids": [
+        "ie_data.xls"
+      ],
+      "topics": [
+        "equity-valuation",
+        "equity-returns",
+        "rates",
+        "inflation"
+      ],
       "units": "index points, dollars per share, percent, ratio",
       "cadence": "monthly",
-      "coverage": {"start": "1871-01", "end": "ongoing"},
+      "coverage": {
+        "start": "1871-01",
+        "end": "ongoing"
+      },
       "publication_lag_business_days": "unknown",
       "status": "active",
-      "roadmap": ["chart 4 (pre-1953 long rate)"],
+      "roadmap": [
+        "chart 4 (pre-1953 long rate)"
+      ],
       "read_from": [
         "http://www.econ.yale.edu/~shiller/data.htm",
         "https://shillerdata.com/"
@@ -62,6 +74,7 @@
   },
   "notes": [
     "The pre-catalogue descriptor text said 'no republication restriction found'. Recorded here as terms.status unknown rather than verified: there is no terms statement to quote.",
-    "2026-09-15 freshness check: shillerdata.com is the maintained copy of ie_data.xls (monthly price through 2026-09, earnings through 2026-06); the Yale copy is frozen at its 2023-10-17 Last-Modified date (monthly price through 2023-09, earnings through 2023-06). See access.notes and the ie-data dataset's notes for the file URLs and evidence."
+    "2026-09-15 freshness check: shillerdata.com is the maintained copy of ie_data.xls (monthly price through 2026-09, earnings through 2026-06); the Yale copy is frozen at its 2023-10-17 Last-Modified date (monthly price through 2023-09, earnings through 2023-06). See access.notes and the ie-data dataset's notes for the file URLs and evidence.",
+    "Contact for data questions, per the Yale data page's \"FOR QUESTIONS OR MORE INFORMATION\" link (read 2026-09-16): laurence.black@theindexstandard.com — the same name the shillerdata.com workbook's OLE metadata carries as its last author. A permission request for displaying CAPE, dividend yield and earnings yield on joemirza.com was drafted 2026-09-16 (S10); see catalog/research-log.md."
   ]
 }
