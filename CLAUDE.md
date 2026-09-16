@@ -435,9 +435,12 @@ status whenever it isn't `verified`. As of 2026-09-16:
   **Consequence**: the S&P 500 P/E chart is no longer published
   (`presentation.publish: false`); it builds locally only. Where it might live behind
   a login is deliberately undecided — see the Session Plan's open items.
-- **S&P Global** EPS workbook (`spglobal`, dataset `sp-500-eps`) — `unverified`: S&P's
+- **S&P Global** EPS workbook (`spglobal`, dataset `sp-500-eps`) — inherits the
+  source's `restricted` terms (the dataset carries no override of its own). S&P's
   terms and index pages return HTTP 403 to automated fetches; read them in a browser.
-  The public file was discontinued 31 Jan 2026. We publish only the derived TTM EPS.
+  The public file was discontinued 31 Jan 2026, and since 2026-09-15 the derived TTM
+  EPS is not published either — it only existed on the P/E chart, which is now built
+  locally only.
 - **Shiller/Yale** `ie_data.xls` — `unknown`: no terms statement on the Yale data page
   or shillerdata.com. **Open**: the Yale file's Last-Modified header reads 2023-10-17;
   shillerdata.com may be the maintained copy.
