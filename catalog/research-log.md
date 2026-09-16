@@ -23,6 +23,41 @@ re-verified against their pages.
 
 ---
 
+## 2026-09-16 — Shiller's earnings column is the EPS replacement; the overrides file is not wrong
+topics: equity-valuation
+- **Question**: a handoff from another Claude instance (`Reference/S&P 500 P-E — Data
+  Source Handoff — 2026-09-16.md` in the Obsidian planning folder) asked three things:
+  is the site's 33.0× (Aug 2026) vs multpl.com's ~29.7× an EPS-vintage bug in
+  `data/earnings_overrides.json`; is Shiller's earnings column live or forward-filled
+  since S&P's public workbook ended 2026-01-31; and is a bottom-up rebuild from SEC XBRL
+  `frames` + SPY/IVV holdings worth scheduling.
+- **Searched / read**: shillerdata.com's current `ie_data.xls` (link found in the page
+  HTML, `?ver=1788371540009`; OLE last saved 2026-09-02 by Laurence Black), Data sheet
+  columns P/D/E with pandas (`header=7`); the Disclaimer sheet ("developed by Robert J.
+  Shiller using various public sources" — no terms text); https://www.multpl.com/s-p-500-pe-ratio
+  and https://www.multpl.com/s-p-500-earnings-yield the same day.
+- **Found**: Shiller quarter-end TTM as-reported EPS: 2025.09 235.25, 2025.12 240.634,
+  2026.03 261.723, 2026.06 295.3881, linearly interpolated in between (his usual method);
+  P through 2026.09 (7631.47), D and E through 2026.06. Our overrides file has Q3 2025 at
+  234.06 — the same figure within 0.5% (a normal S&P revision), so no bug. multpl read
+  25.80× and its earnings-yield page says "Yields following June, 2026 (including current
+  yield) are estimated based on 12 month earnings through June, 2026 — the latest reported
+  by S&P" — so multpl is not stalled at Sep 2025 as the handoff claimed, and 7631/295.39
+  reproduces its 25.8 exactly. The local chart's Aug 2026 point: 7711.32/234.06 = 32.95×
+  forward-filled vs 7711.32/295.39 = 26.1× on Shiller's June earnings — a 26% overstatement
+  from eleven months of forward-fill.
+- **Outcome**: adopted — S&P's as-reported EPS still reaches Shiller's file (three months
+  behind), so S9b uses that column for the confirmed/estimated split and the overrides
+  file becomes a cross-check. Two rules recorded in the Session Plan decisions table:
+  never forward-fill the earnings leg more than one quarter (terminate, show price only),
+  and never splice operating/forward EPS onto the as-reported line. The bottom-up SEC/ETF
+  rebuild is parked in Session Plan Phase 5 with two triggers (Shiller's column stops, or a
+  public trailing P/E is wanted after a Shiller "no"); its holdings-file terms (SSGA, BlackRock)
+  are unexamined. Still unknown: where Black sources the post-January-2026 figures — ask on
+  the open thread.
+- **Landed in**: Session Plan (decisions 2026-09-16, S9b row, Phase 5 row, EPS open item) ·
+  Obsidian `Reference/S&P 500 P-E — Data Source Handoff — 2026-09-16.md` (reading note)
+
 ## 2026-09-16 — S10 dry run: charts for US Equity Valuations, proposed from the catalogue alone
 topics: equity-valuation, equity-returns, macro
 - **Question**: can the catalogue, on its own, recommend a set of charts for a US Equity

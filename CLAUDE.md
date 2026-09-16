@@ -245,6 +245,15 @@ on `estimated: true` earnings since — every observation from Oct 2025 onward r
 that same 234.06 TTM figure. Needs a fresh xlsx download from S&P Global before the
 next EPS update step is run.
 
+**Resolved in principle 2026-09-16, built in S9b**: the workbook is not coming back
+(discontinued 2026-01-31), but S&P's as-reported TTM EPS still reaches Shiller's
+maintained `ie_data.xls` (shillerdata.com) three months behind — quarter-end values
+235.25 / 240.63 / 261.72 / 295.39 for Sep 2025 → Jun 2026, read directly. The overrides
+file's last quarter (234.06) matches within 0.5%, so it isn't wrong, just frozen; the
+forward-fill it produces overstated the Aug 2026 P/E by 26% (32.95× vs 26.1×). S9b
+switches the confirmed/estimated split to Shiller's column and caps forward-fill at one
+quarter. Full reading: `catalog/research-log.md` (2026-09-16) and the Session Plan.
+
 ## Secrets & Credentials
 
 - **FRED API key** is stored as a GitHub Actions secret named `FRED_API_KEY`
@@ -479,6 +488,19 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 
 ## Changelog (recent work, newest first)
 
+- **2026-09-16**: P/E data-source handoff assessed (Fable, docs only, no code). Another
+  Claude instance's note (now `Reference/S&P 500 P-E — Data Source Handoff —
+  2026-09-16.md` in the Obsidian planning folder) proposed reconciling the site's 33×
+  against multpl's, fixing the forward-fill bias, and a bottom-up EPS rebuild from SEC
+  XBRL + ETF holdings. Checked against shillerdata.com's current workbook and multpl the
+  same day: **no bug** in `data/earnings_overrides.json` (Q3 2025 234.06 vs Shiller's
+  235.25); Shiller's earnings column is live through Jun 2026 (295.39), so multpl's 25.8×
+  and our 32.95× differ only by our eleven-month forward-fill. **Consequence**: S9b uses
+  Shiller's column for the confirmed/estimated split; two conventions recorded in the
+  Session Plan (no operating-EPS splice onto the as-reported line; never forward-fill
+  earnings more than one quarter); the bottom-up rebuild parked in Phase 5 with two
+  triggers and an unexamined holdings-terms question. One research-log entry.
+  `catalog.py check` clean.
 - **2026-09-16**: S10: the dry run — "recommend charts for US Equity Valuations" from
   the catalogue alone (Fable, one session, no code). The proposal is
   `~/Obsidian/Investing/Finance and Economic Data Website/S10 — US Equity Valuations —
