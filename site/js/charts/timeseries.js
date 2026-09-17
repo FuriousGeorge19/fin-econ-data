@@ -39,7 +39,9 @@ function deriveTraces(ctx) {
         key: yField,
         label: data.meta.short_title,
         colorToken: 'series-1',
-        observations: data.observations.map(o => ({ date: o.date, value: o[yField] })),
+        observations: data.observations.map(o => ({
+            date: o.date, value: o[yField], source: o.source, frequency: o.frequency,
+        })),
     }];
 }
 
@@ -67,6 +69,17 @@ function hoverDateLabel(iso, cadence) {
     return cadence === 'monthly' ? full.replace(/^\d+\s+/, '') : full;
 }
 
+// A point's `source` (the catalog slug that produced it, e.g. a stitched
+// series' pre/post-cutover legs — see series/gs10_long.json) resolved to that
+// source's short_name for the hover line. Absent on every chart that isn't
+// stitched from more than one source, so this returns '' there.
+function sourceHoverLine(observation, sources) {
+    if (!observation.source || !sources) return '';
+    const match = sources.find(s => s.slug === observation.source);
+    if (!match) return '';
+    return `<br>Source: ${match.short_name || match.name}`;
+}
+
 function plotlyTrace(trace, ctx, multi) {
     const { theme, meta, presentation } = ctx;
     const y = presentation.chart.y || {};
@@ -79,7 +92,8 @@ function plotlyTrace(trace, ctx, multi) {
     // which silently drops the sign and logs a console warning on every
     // hover for any trace using it (e.g. the spreads chart).
     const text = trace.observations.map(o =>
-        `${hoverDateLabel(o.date, meta.cadence)}<br>${prefix}${formatValue(o.value, format)}${suffix}`
+        `${hoverDateLabel(o.date, meta.cadence)}<br>${prefix}${formatValue(o.value, format)}${suffix}` +
+        sourceHoverLine(o, meta.sources)
     );
     return {
         x: trace.observations.map(o => o.date),

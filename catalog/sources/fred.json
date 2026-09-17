@@ -111,16 +111,14 @@
       },
       "publication_lag_business_days": 1,
       "status": "active",
-      "roadmap": [
-        "chart 4 (GS10 stitched to Shiller's pre-1953 long rate)"
-      ],
       "read_from": [
         "https://fred.stlouisfed.org/series/GS10",
         "https://fred.stlouisfed.org/series/GS1"
       ],
       "notes": [
         "GS10 and GS1 start 1953-04-01 (checked); other tenors not individually checked.",
-        "Lag observed: the August 2026 value was published 2026-09-01."
+        "Lag observed: the August 2026 value was published 2026-09-01.",
+        "GS10 is series/gs10_long.json's 1953-04+ leg (S11a, 2026-09-17), stitched to Shiller/Yale's pre-1953 long rate column (catalog/sources/shiller.json)."
       ]
     },
     {

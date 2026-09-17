@@ -23,6 +23,40 @@ re-verified against their pages.
 
 ---
 
+## 2026-09-17 — Where Shiller's pre-1953 long-rate column comes from
+topics: rates
+- **Question**: chart 4 (S11a) stitches FRED's GS10 (1953-04+) to the "Rate GS10"
+  column in Shiller/Yale's `ie_data.xls` for 1871-01–1953-03. Does Shiller's own
+  documentation say where that pre-1953 column comes from, for the About tab and for
+  `catalog/sources/shiller.json`?
+- **Searched / read**: the `ie_data.xls` workbook itself (`Data` sheet's header rows,
+  `Disclaimer` sheet — read via pandas/xlrd, same download as `fetch_sp500_pe.py`
+  uses); http://www.econ.yale.edu/~shiller/data.htm; http://www.econ.yale.edu/~shiller/online.htm;
+  http://www.econ.yale.edu/~shiller/data/peratio.html (the P/E10 methodology page
+  linked from `online.htm`); http://www.econ.yale.edu/~shiller/data/chapt26.xlsx (a
+  related annual long-run dataset, also Shiller's); two web searches for the citation.
+- **Found**: none of Shiller's own pages or workbooks state a source for the pre-1953
+  "Rate GS10" figures — the column header is just "Long Interest Rate" / "Rate GS10",
+  and the `Disclaimer` sheet only disclaims accuracy, names no compilation. The two web
+  searches both returned the same secondary claim (not from a Shiller-authored page):
+  Shiller's pre-1953 long rate is Sidney Homer's *A History of Interest Rates*
+  (1871–1952), spliced with the Treasury 10-year series from 1953. This is
+  circumstantially supported, not confirmed: the two legs agree almost exactly at the
+  seam (Shiller's own 1953-03 value and FRED's first (1953-04) GS10 observation are
+  both 2.83), consistent with a clean handoff to the Treasury series at that date, but
+  that is evidence of *where the series changes*, not a citation for *what feeds it
+  before 1953*.
+- **Outcome**: gap, adopted anyway. No primary citation found; the Homer attribution in
+  `series/gs10_long.json`'s methodology and `shiller.json`'s notes is sourced to
+  finance-literature consensus (unverified against a Shiller-authored page), stated as
+  such rather than presented as confirmed. Doesn't change the publish decision — the
+  user's 2026-09-17 call to publish chart 4 rests on the column having no S&P
+  component, not on knowing its exact compilation.
+- **Landed in**: `series/gs10_long.json` (methodology) · `catalog/sources/shiller.json`
+  (`ie-data` dataset notes) · Session Plan S11a row.
+
+---
+
 ## 2026-09-17 — Shiller's side answered: no licence to give, S&P's wishes govern
 topics: equity-valuation
 - **Question**: may joemirza.com show CAPE, dividend yield and earnings yield from

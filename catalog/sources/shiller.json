@@ -53,9 +53,6 @@
       },
       "publication_lag_business_days": "unknown",
       "status": "active",
-      "roadmap": [
-        "chart 4 (pre-1953 long rate)"
-      ],
       "read_from": [
         "http://www.econ.yale.edu/~shiller/data.htm",
         "https://shillerdata.com/"
@@ -64,7 +61,8 @@
         "Used by series/sp500_pe.json as confirmed history; months after Shiller's last confirmed month come from FRED SP500 and data/earnings_overrides.json.",
         "Shiller periodically restates historical earnings; the site shows the latest revision (series/sp500_pe.json revision_note).",
         "Refresh cadence is not stated on either page; irregular updates confirmed directly (see access.notes): the shillerdata.com copy carries monthly price through 2026-09 and monthly earnings through 2026-06, so the lag is unknown rather than guessed.",
-        "scripts/fetch_sp500_pe.py fetches from the Yale URL as of 2026-09-15, which is frozen at 2023-09 (price) / 2023-06 (earnings) — repointing it to the shillerdata.com URL above would restore live monthly updates; recorded here, not made, per this task's scope."
+        "scripts/fetch_sp500_pe.py fetches from the Yale URL as of 2026-09-15, which is frozen at 2023-09 (price) / 2023-06 (earnings) — repointing it to the shillerdata.com URL above would restore live monthly updates; recorded here, not made, per this task's scope.",
+        "Also used by series/gs10_long.json (S11a, 2026-09-17) for its \"Rate GS10\" column, 1871-01 through 1953-03 only, stitched to FRED's GS10 from 1953-04. Neither this workbook nor Shiller's data pages document where the pre-1953 figures come from — checked 2026-09-17 (data.htm, online.htm, data/peratio.html, data/chapt26.xlsx, the Data/Disclaimer sheets); the two legs agree almost exactly at the seam (both 2.83 for 1953-03/1953-04), and finance-literature searches attribute the pre-1953 figures to Sidney Homer's A History of Interest Rates, but no Shiller-authored page states it — see catalog/research-log.md (2026-09-17). Unlike price/dividends/earnings/CAPE, this column has no S&P component, so it is not swept into the restricted treatment below; the site owner decided 2026-09-17 to publish it (see this file's notes and CLAUDE.md's Licence Notes)."
       ]
     }
   ],

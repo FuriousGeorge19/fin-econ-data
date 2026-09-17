@@ -1,0 +1,84 @@
+{
+  "id": "gs10_long",
+  "title": "10-Year Treasury Yield, Long History (1871–Present)",
+  "short_title": "10Y Yield, 1871+",
+  "kind": "timeseries",
+  "fetcher": "fetch_gs10_long.py",
+  "units": "Percent",
+  "cadence": "monthly",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 monthly average (the 1953-04+ leg) is not revised after publication. The pre-1953 leg is a one-time historical compilation from Shiller/Yale's own long-term interest rate column; the site re-downloads his workbook on every fetch, so a correction there would appear on the next run, but none is expected.",
+  "source_line": "Shiller/Yale · FRED GS10",
+  "sources": [
+    {
+      "slug": "shiller",
+      "dataset": "ie-data"
+    },
+    {
+      "slug": "fred",
+      "dataset": "gs",
+      "url": "https://fred.stlouisfed.org/series/GS10"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "shiller",
+      "label": "Pre-1953 long-term interest rate (Shiller/Yale's \"Rate GS10\" column, 1871–1953)",
+      "source": "shiller",
+      "dataset": "ie-data",
+      "cadence": "monthly",
+      "publication_lag_business_days": 0,
+      "required": false
+    },
+    {
+      "id": "fred",
+      "label": "10-Year Treasury Constant Maturity Rate, monthly average (FRED GS10, 1953–present)",
+      "source": "fred",
+      "dataset": "gs",
+      "series_id": "GS10",
+      "cadence": "monthly",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "1871-01 through 1953-03: Shiller/Yale's own long-term interest rate column (\"Rate GS10\" in ie_data.xls), read from the maintained shillerdata.com copy. Shiller's own documentation of how this column is built pre-1953 could not be located on his data pages or in the workbook itself (see catalog/sources/shiller.json); it is widely cited in finance literature as Sidney Homer's \"A History of Interest Rates\" spliced with the Treasury 10-year series from 1953 — consistent with, though not confirmed by, the exact value agreement at the seam (both legs read 2.83 for 1953-03/1953-04).",
+    "1953-04 onward: FRED's GS10, the monthly average of the daily H.15 constant-maturity 10-year yield — FRED's earliest published month for this series.",
+    "The two legs are compared at the seam on every fetch (fetch_gs10_long.py's check_seam) and a divergence beyond 0.10 percentage points is logged, not enforced, since Shiller could restate his historical column independently of FRED."
+  ],
+  "notes": [
+    "Values are percent (4.25 means 4.25%), not a decimal fraction.",
+    "Every observation carries `source` (\"shiller\" or \"fred\") and `frequency` (\"monthly\") — the per-observation metadata pattern this chart establishes for future stitched series. site/js/charts/timeseries.js shows the source in each point's tooltip.",
+    "The Shiller input's `publication_lag_business_days` is nominal and `required` is false: 1871-01–1953-03 is a fixed historical range that never advances, so it never gates the dataset's overall `due_by` — only the FRED leg does.",
+    "Decided 2026-09-17 (user): this column has no S&P component, so it publishes even though the rest of Shiller's workbook (price, dividends, earnings, CAPE) stays local-only pending S&P's terms. See CLAUDE.md's Licence Notes and catalog/sources/shiller.json."
+  ],
+  "presentation": {
+    "sections": [
+      "rates",
+      "economy"
+    ],
+    "order": 6,
+    "summary": "Monthly 10-year Treasury yield back to 1871: FRED's GS10 stitched to Shiller/Yale's pre-1953 long-term interest rate column.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "suffix": "%",
+        "format": ".2f"
+      },
+      "presets": [
+        "1Y",
+        "10Y",
+        "50Y",
+        "100Y",
+        "All"
+      ],
+      "recessions": false,
+      "zeroline": false
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 24
+    }
+  }
+}

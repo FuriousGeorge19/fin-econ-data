@@ -435,10 +435,13 @@ def resolve_source_ref(ref, *, catalog=None):
     """A descriptor's `{slug, dataset?, url?, note?}` reference resolved into
     the `meta.sources[]` entry the About tab renders:
 
-        {slug, dataset?, name, dataset_name?, url, licence, terms_status, via?, note?}
+        {slug, short_name, dataset?, name, dataset_name?, url, licence, terms_status, via?, note?}
 
     `url` defaults to the source's homepage; `licence` is the merged
-    `terms.summary`; `via` is the hosting source's short_name. Raises
+    `terms.summary`; `via` is the hosting source's short_name. `short_name` is
+    the referenced source's own compact form (e.g. "Shiller/Yale") — added for
+    gs10_long's per-observation source tooltip (site/js/charts/timeseries.js),
+    which needs something shorter than `name` to put on a hover line. Raises
     ValueError naming the slug/dataset when the reference does not resolve.
     """
     catalog = catalog if catalog is not None else load_all()
@@ -448,7 +451,7 @@ def resolve_source_ref(ref, *, catalog=None):
     source = catalog[slug]
     access, terms = source.get("access", {}), source.get("terms", {})
 
-    out = {"slug": slug}
+    out = {"slug": slug, "short_name": source["short_name"]}
     ds_id = ref.get("dataset")
     if ds_id is not None:
         ds = find_dataset(source, ds_id)

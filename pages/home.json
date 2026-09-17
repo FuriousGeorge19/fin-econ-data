@@ -4,6 +4,7 @@
   "layout": "grid",
   "blocks": [
     { "chart": "dgs10", "size": "half" },
+    { "chart": "gs10_long", "size": "half" },
     { "chart": "yield_curve", "size": "half" },
     { "chart": "spreads", "size": "half" },
     { "chart": "sp500_pe", "size": "half" }
