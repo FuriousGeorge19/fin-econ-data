@@ -23,6 +23,34 @@ re-verified against their pages.
 
 ---
 
+## 2026-09-17 — Shiller's side answered: no licence to give, S&P's wishes govern
+topics: equity-valuation
+- **Question**: may joemirza.com show CAPE, dividend yield and earnings yield from
+  shillerdata.com's `ie_data.xls` (chart, table, CSV), and with what attribution? Asked
+  by email 2026-09-16 to Laurence Black, the contact Shiller's Yale data page names.
+- **Searched / read**: his reply, 2026-09-17 (private email to the site owner; he signs
+  as "Index Advisor to Robert J. Shiller").
+- **Found**: verbatim — "Prof Shiller does not formally license usage of the ratio as we
+  do not own the underlying components and thus ownership of the CAPE ratio is not
+  assured. You will certainly have to adhere to S&P's wishes. We don't control who uses
+  the ratio." Neither a grant nor a refusal: Shiller's side claims no rights of its own
+  and hands the question to S&P. S&P's wishes are already on file (case 01015670,
+  2026-09-15): public display is a paid licence that covers index levels "but not the P/E
+  values", nothing free for personal use. CAPE is a P/E and the earnings yield is its
+  inverse, so both fall under that answer as written; the dividend yield was never put to
+  S&P by name, but it is S&P's dividends over S&P's price and their Legal Disclaimer
+  prohibits reproduction "in whole or in part". No attribution wording was offered. The
+  reply speaks only of the CAPE ratio — it says nothing about the workbook's long-term
+  interest rate column, which has no S&P component. The second question parked for this
+  thread (where the post-January-2026 earnings figures come from) was not asked and is
+  still open.
+- **Outcome**: rejected for the public site — all four `sp500_*` series stay
+  `presentation.publish: false`, no longer "pending" but settled unless S&P says
+  otherwise. Decided the same day (user): chart 4's pre-1953 long rate (Shiller's
+  column, no S&P component) publishes; no follow-up email.
+- **Landed in**: catalog/sources/shiller.json (terms.summary, notes) ·
+  CLAUDE.md Licence Notes · Session Plan decisions table, S11a and S11c rows
+
 ## 2026-09-16 — Shiller's earnings column is the EPS replacement; the overrides file is not wrong
 topics: equity-valuation
 - **Question**: a handoff from another Claude instance (`Reference/S&P 500 P-E — Data

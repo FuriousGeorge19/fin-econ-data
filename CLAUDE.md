@@ -34,7 +34,9 @@ ARCHITECTURE.md describe the build, not the roadmap or its rationale.
   leaves their pages, Markets entries, home-page cards and `site/data/<id>.json` out of
   the deploy; `scripts/dev.sh` builds them anyway. See Licence Notes — S&P Dow Jones
   Indices declined free permission for the P/E on 2026-09-15, and Shiller's own terms
-  are separately `unknown` (a permission email is pending as of 2026-09-16).
+  are separately `unknown`; Shiller's index advisor answered the permission email on
+  2026-09-17 that they license nothing and "you will certainly have to adhere to S&P's
+  wishes", so all four stay unpublished.
 - **Plus one shared dataset, not its own page**: NBER recession indicator (USREC),
   collapsed to `{start, end}` intervals and reused for recession shading (currently
   the spreads chart only; available to future charts — Fed Funds, real rate, ERP,
@@ -460,8 +462,20 @@ status whenever it isn't `verified`. As of 2026-09-16:
   EPS is not published either — it only existed on the P/E chart, which is now built
   locally only.
 - **Shiller/Yale** `ie_data.xls` — `unknown`: no terms statement on the Yale data page
-  or shillerdata.com. **Open**: the Yale file's Last-Modified header reads 2023-10-17;
-  shillerdata.com may be the maintained copy.
+  or shillerdata.com (the maintained copy; the Yale file is frozen at 2023-09).
+  **Answered by email 2026-09-17** (Laurence Black, Index Advisor to Shiller): "Prof
+  Shiller does not formally license usage of the ratio as we do not own the underlying
+  components and thus ownership of the CAPE ratio is not assured. You will certainly
+  have to adhere to S&P's wishes. We don't control who uses the ratio." Neither a grant
+  nor a refusal — Shiller's side claims no rights and defers to S&P, whose answer
+  (above) already excludes "the P/E values". **Consequence**: the status stays
+  `unknown` (still no terms page to cite), and every column built from S&P price,
+  dividends or earnings — P/E, CAPE, dividend yield, earnings yield, real price — is
+  treated as `spglobal`-restricted: `presentation.publish: false`, settled rather than
+  pending. The reply does not address the long-term interest rate column (chart 4,
+  S11a), which has no S&P component; **decided 2026-09-17 (user)**: the site assumes the
+  right to use the pre-1953 long-rate data, so chart 4 publishes, and no follow-up email
+  is sent.
 - **NBER** chronology — `verified`: "Permission to copy is granted, provided
   attribution of source is given."
 - **ICE BofA** credit spreads (`ice-bofa`, via FRED) — `restricted`: FRED labels the
@@ -496,6 +510,19 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
 ```
 
 ## Changelog (recent work, newest first)
+
+- **2026-09-17**: Shiller's side answered the permission email (docs and catalogue
+  only, no code). Laurence Black, Index Advisor to Shiller: they do not license the
+  CAPE ratio, do not own its components, and "you will certainly have to adhere to
+  S&P's wishes" — full quote in Licence Notes and `catalog/sources/shiller.json`
+  (`notes`; status stays `unknown`, since private email is not a citable terms page). **Consequence**: `sp500_pe`, `sp500_cape`, `sp500_dividend_yield` and
+  `sp500_earnings_yield` stay `presentation.publish: false` as a settled matter, not a
+  pending one; S11c's ERP on the CAPE yield is local-only; the four Z.1/Damodaran
+  equity-valuation charts from S10 remain the only public ones in that domain. S11a
+  (chart 4) is unaffected as a build, but whether its pre-1953 Shiller long-rate leg
+  publishes was decided the same day: it does (the user's call — assume the right to
+  use the pre-1953 data; no further email to Shiller's side or S&P). One research-log entry.
+  `catalog.py check` clean.
 
 - **2026-09-16**: S9b: repointed the P/E fetcher to shillerdata.com, fixed the
   forward-fill bug, added CAPE/dividend yield/earnings yield (Sonnet). `scripts/
