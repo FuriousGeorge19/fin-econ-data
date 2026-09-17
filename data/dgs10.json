@@ -13,6 +13,7 @@
     "sources": [
       {
         "slug": "fred",
+        "short_name": "FRED",
         "dataset": "dgs",
         "name": "Federal Reserve Bank of St. Louis (FRED)",
         "dataset_name": "Treasury constant-maturity yields, daily (H.15)",
@@ -41,18 +42,14 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-17T01:21:12Z",
-    "last_observation": "2026-09-15",
-    "period_label": "15 Sep 2026",
-    "first_observation": "2017-01-18",
+    "fetched_at": "2026-09-17T22:07:28Z",
+    "last_observation": "2026-09-16",
+    "period_label": "16 Sep 2026",
+    "first_observation": "2017-01-19",
     "observation_count": 2416,
-    "due_by": "2026-09-17"
+    "due_by": "2026-09-18"
   },
   "observations": [
-    {
-      "date": "2017-01-18",
-      "value": 2.42
-    },
     {
       "date": "2017-01-19",
       "value": 2.47
@@ -9712,6 +9709,10 @@
     {
       "date": "2026-09-15",
       "value": 5.0
+    },
+    {
+      "date": "2026-09-16",
+      "value": 5.01
     }
   ]
 }

@@ -13,6 +13,7 @@
     "sources": [
       {
         "slug": "fred",
+        "short_name": "FRED",
         "dataset": "dgs",
         "name": "Federal Reserve Bank of St. Louis (FRED)",
         "dataset_name": "Treasury constant-maturity yields, daily (H.15)",
@@ -41,88 +42,88 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-17T01:22:09Z",
-    "last_observation": "2026-09-15",
-    "period_label": "15 Sep 2026",
-    "first_observation": "2002-07-24",
+    "fetched_at": "2026-09-17T22:07:41Z",
+    "last_observation": "2026-09-16",
+    "period_label": "16 Sep 2026",
+    "first_observation": "2002-07-25",
     "observation_count": 6040,
-    "due_by": "2026-09-17",
+    "due_by": "2026-09-18",
     "series": {
       "1mo": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "3mo": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "6mo": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "1yr": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "2yr": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "3yr": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "5yr": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "7yr": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "10yr": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "20yr": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       },
       "30yr": {
-        "last_observation": "2026-09-15",
-        "period_label": "15 Sep 2026",
-        "due_by": "2026-09-17",
-        "first_observation": "2002-07-24",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
+        "first_observation": "2002-07-25",
         "observation_count": 6040
       }
     }
@@ -154,19 +155,6 @@
     "30yr": 360
   },
   "observations": {
-    "2002-07-24": {
-      "1mo": 1.7,
-      "3mo": 1.69,
-      "6mo": 1.7,
-      "1yr": 1.89,
-      "2yr": 2.38,
-      "3yr": 2.81,
-      "5yr": 3.6,
-      "7yr": 4.13,
-      "10yr": 4.49,
-      "20yr": 5.42,
-      "30yr": 5.57
-    },
     "2002-07-25": {
       "1mo": 1.71,
       "3mo": 1.7,
@@ -78673,6 +78661,19 @@
       "10yr": 5.0,
       "20yr": 5.4,
       "30yr": 5.36
+    },
+    "2026-09-16": {
+      "1mo": 3.96,
+      "3mo": 4.14,
+      "6mo": 4.22,
+      "1yr": 4.45,
+      "2yr": 4.74,
+      "3yr": 4.82,
+      "5yr": 4.86,
+      "7yr": 4.94,
+      "10yr": 5.01,
+      "20yr": 5.39,
+      "30yr": 5.35
     }
   }
 }

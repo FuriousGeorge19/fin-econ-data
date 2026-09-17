@@ -13,6 +13,7 @@
     "sources": [
       {
         "slug": "fred",
+        "short_name": "FRED",
         "dataset": "usrec",
         "name": "Federal Reserve Bank of St. Louis (FRED)",
         "dataset_name": "NBER-based recession indicator, monthly",
@@ -22,6 +23,7 @@
       },
       {
         "slug": "nber",
+        "short_name": "NBER",
         "dataset": "chronology",
         "name": "National Bureau of Economic Research (NBER), Business Cycle Dating Committee",
         "dataset_name": "U.S. business cycle expansions and contractions",
@@ -51,7 +53,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-17T01:21:48Z",
+    "fetched_at": "2026-09-17T22:07:36Z",
     "last_observation": "2026-08-01",
     "period_label": "Aug 2026",
     "latest_value": 0.0,
