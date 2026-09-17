@@ -1,0 +1,65 @@
+{
+  "id": "sp500_cape",
+  "title": "S&P 500 Cyclically Adjusted P/E Ratio (CAPE)",
+  "short_title": "S&P 500 CAPE",
+  "kind": "timeseries",
+  "fetcher": "fetch_sp500_pe.py",
+  "units": "Ratio",
+  "cadence": "monthly",
+  "publication_lag_business_days": 5,
+  "revisions": "occasional",
+  "revision_note": "CAPE divides real price by a 10-year trailing average of real earnings, so it can shift slightly as Shiller revises historical earnings; the site always shows the latest revision.",
+  "source_line": "Shiller/Yale",
+  "sources": [
+    {
+      "slug": "shiller",
+      "dataset": "ie-data"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "cape",
+      "label": "Cyclically adjusted P/E ratio (CAPE, P/E10)",
+      "source": "shiller",
+      "dataset": "ie-data",
+      "cadence": "monthly",
+      "publication_lag_business_days": 5
+    }
+  ],
+  "methodology": [
+    "CAPE = real (CPI-adjusted) S&P Composite price / the 10-year trailing average of real (CPI-adjusted) as-reported earnings, read directly from Shiller's own CAPE column.",
+    "Because the denominator is a 10-year average, CAPE is available for months where Shiller's raw current-quarter earnings figure (see the S&P 500 P/E chart) is not yet known - it lags price by only a few weeks in practice, not a full quarter.",
+    "The current, not-yet-completed month is never included: Shiller's own row for it is a placeholder (e.g. a single day's close standing in for the monthly average), not a finished figure."
+  ],
+  "notes": [
+    "Built for S9b/S10 (equity-valuation roadmap) alongside dividend yield and earnings yield, all read from the same ie_data.xls download.",
+    "Not published on joemirza.com: Shiller's terms are unknown (no statement on the Yale page or shillerdata.com), and the underlying price and earnings columns are S&P's. presentation.publish is false pending an answer from shillerdata.com's maintainer (asked 2026-09-16); scripts/dev.sh builds it locally regardless."
+  ],
+  "presentation": {
+    "sections": [
+      "markets"
+    ],
+    "publish": false,
+    "order": 8,
+    "summary": "Monthly S&P 500 cyclically adjusted P/E ratio (CAPE), Shiller/Yale data back to 1881.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "format": ".1f"
+      },
+      "presets": [
+        "1Y",
+        "10Y",
+        "25Y",
+        "50Y",
+        "All"
+      ],
+      "recessions": false
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 30
+    }
+  }
+}

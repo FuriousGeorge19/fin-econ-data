@@ -99,21 +99,19 @@ def test_meta_from_descriptor_resolves_every_source(series_id):
         assert "<" not in s["name"] and "<" not in s["licence"]
 
 
-def test_sp500_pe_resolves_to_three_entries_with_via_and_status():
+def test_sp500_pe_resolves_to_two_entries_with_via_and_status():
+    # S9b (2026-09-16): earnings now come from Shiller's own column, not S&P
+    # Global's discontinued workbook, so sp500_pe's sources dropped the
+    # spglobal/sp-500-eps entry.
     meta = series_meta.meta_from_descriptor(series_meta.load("sp500_pe"))
     by_key = {(s["slug"], s.get("dataset")): s for s in meta["sources"]}
-    assert set(by_key) == {("shiller", "ie-data"), ("spglobal", "sp-500-eps"), ("spglobal", "sp500-index")}
+    assert set(by_key) == {("shiller", "ie-data"), ("spglobal", "sp500-index")}
 
     index = by_key[("spglobal", "sp500-index")]
     assert index["via"] == "FRED"
     assert index["url"] == "https://fred.stlouisfed.org/series/SP500"
     assert index["terms_status"] == "restricted"
     assert index["dataset_name"]
-
-    eps = by_key[("spglobal", "sp-500-eps")]
-    assert "via" not in eps
-    assert eps["terms_status"] == "restricted"  # inherits S&P DJI's source-level terms (read 2026-09-15)
-    assert eps["note"]
 
     shiller = by_key[("shiller", "ie-data")]
     assert shiller["url"] == CATALOG["shiller"]["homepage"]  # no per-use url → homepage

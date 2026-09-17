@@ -12,7 +12,6 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
-from fetch_sp500_pe import add_months_str
 from staleness import today_eastern
 
 
@@ -82,28 +81,30 @@ def test_sp500_pe_internal_consistency(sp500_pe):
         assert expected == pytest.approx(o["pe"], rel=0.035), o
 
 
-def test_sp500_pe_confirmed_estimated_boundary(sp500_pe, earnings_overrides):
-    """Structural invariants from design decision 10 (openspec change
-    s3-series-metadata), replacing the S1 xfail: the header's earnings value
-    is the last override's TTM, confirmed_through is exactly two months after
-    that override's effective_from, and every observation splits cleanly
-    across that boundary. The old header-vs-last-observation check would pass
-    tautologically under forward-fill, which is why it's structural now."""
-    last = sorted(earnings_overrides["entries"], key=lambda e: e["effective_from"])[-1]
+def test_sp500_pe_confirmed_estimated_boundary(sp500_pe):
+    """Structural invariants from S9b (Shiller's own earnings column replaced
+    data/earnings_overrides.json as the confirmed/estimated boundary, and the
+    forward-fill grace window is capped at one calendar quarter — see
+    series/sp500_pe.json's notes): every confirmed observation predates every
+    estimated one, the header's earnings value matches the last confirmed
+    observation's, every estimated observation holds that value flat, and
+    there are at most three estimated (grace-window) months. The old
+    header-vs-last-observation check would pass tautologically under
+    unlimited forward-fill, which is why it's structural."""
+    observations = sp500_pe["observations"]
+    confirmed = [o for o in observations if not o["estimated"]]
+    estimated = [o for o in observations if o["estimated"]]
+    assert confirmed, "expected at least one confirmed observation"
+
+    last_confirmed = confirmed[-1]
     earnings_as_of = sp500_pe["as_of"]["inputs"]["earnings"]
+    assert earnings_as_of["value"] == last_confirmed["earnings"]
+    assert earnings_as_of["confirmed_through"] == earnings_as_of["last_observation"]
 
-    assert earnings_as_of["value"] == last["ttm_eps"]
-
-    confirmed_through = add_months_str(last["effective_from"], 2)
-    assert earnings_as_of["confirmed_through"] == confirmed_through
-
-    confirmed_dates = [o["date"] for o in sp500_pe["observations"] if not o["estimated"]]
-    estimated_dates = [o["date"] for o in sp500_pe["observations"] if o["estimated"]]
-
-    assert confirmed_dates, "expected at least one confirmed observation"
-    assert max(confirmed_dates) == confirmed_through
-    assert all(d <= confirmed_through for d in confirmed_dates)
-    assert all(d > confirmed_through for d in estimated_dates)
+    assert all(o["date"] <= last_confirmed["date"] for o in confirmed)
+    assert all(o["date"] > last_confirmed["date"] for o in estimated)
+    assert len(estimated) <= 3, estimated
+    assert all(o["earnings"] == last_confirmed["earnings"] for o in estimated)
 
 
 def test_sp500_pe_no_observation_in_current_or_future_month(sp500_pe):

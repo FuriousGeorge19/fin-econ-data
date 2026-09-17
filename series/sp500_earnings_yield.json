@@ -1,0 +1,66 @@
+{
+  "id": "sp500_earnings_yield",
+  "title": "S&P 500 Earnings Yield",
+  "short_title": "S&P 500 Earnings Yield",
+  "kind": "timeseries",
+  "fetcher": "fetch_sp500_pe.py",
+  "units": "Percent",
+  "cadence": "monthly",
+  "publication_lag_business_days": 60,
+  "revisions": "occasional",
+  "revision_note": "Shiller periodically restates historical earnings figures; the site always shows the latest revision.",
+  "source_line": "Shiller/Yale",
+  "sources": [
+    {
+      "slug": "shiller",
+      "dataset": "ie-data"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "earnings_yield",
+      "label": "Trailing 12-month as-reported earnings / price",
+      "source": "shiller",
+      "dataset": "ie-data",
+      "cadence": "monthly",
+      "publication_lag_business_days": 60
+    }
+  ],
+  "methodology": [
+    "Earnings yield = trailing 12-month as-reported (GAAP) EPS / monthly average price (the reciprocal of the S&P 500 P/E ratio, expressed as a percent), both read from Shiller's ie_data.xls (columns E and P).",
+    "A month appears here once Shiller has published a confirmed TTM earnings figure for it, with no forward-fill beyond that - unlike the S&P 500 P/E chart, this series does not extend into the following quarter on a held-flat earnings assumption.",
+    "The current, not-yet-completed month is never included."
+  ],
+  "notes": [
+    "Built for S9b/S10 (equity-valuation roadmap) alongside CAPE and dividend yield, all read from the same ie_data.xls download.",
+    "Not published on joemirza.com: Shiller's terms are unknown (no statement on the Yale page or shillerdata.com), and the underlying price and earnings columns are S&P's. presentation.publish is false pending an answer from shillerdata.com's maintainer (asked 2026-09-16); scripts/dev.sh builds it locally regardless."
+  ],
+  "presentation": {
+    "sections": [
+      "markets"
+    ],
+    "publish": false,
+    "order": 10,
+    "summary": "Monthly S&P 500 trailing earnings yield, Shiller/Yale data back to 1871.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "suffix": "%",
+        "format": ".2f"
+      },
+      "presets": [
+        "1Y",
+        "10Y",
+        "25Y",
+        "50Y",
+        "All"
+      ],
+      "recessions": false
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 30
+    }
+  }
+}

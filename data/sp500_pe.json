@@ -8,33 +8,35 @@
     "cadence": "monthly",
     "publication_lag_business_days": 1,
     "revisions": "occasional",
-    "revision_note": "Shiller periodically restates historical earnings figures. The site always shows the latest revision; the gh-pages deploy history is the vintage archive.",
-    "source_line": "Shiller/Yale \u00b7 S&P Global \u00b7 FRED SP500",
+    "revision_note": "Shiller periodically restates historical earnings figures, and interpolated months in the current quarter can shift slightly until the next quarter-end anchor lands. The site always shows the latest revision; the gh-pages deploy history is the vintage archive.",
+    "source_line": "Shiller/Yale \u00b7 FRED SP500",
     "sources": [
       {
-        "slug": "fred",
-        "name": "Federal Reserve Bank of St. Louis (FRED)",
-        "url": "https://fred.stlouisfed.org/series/SP500",
-        "licence": "S&P Dow Jones Indices terms via FRED"
-      },
-      {
         "slug": "shiller",
-        "name": "Robert Shiller / Yale",
+        "dataset": "ie-data",
+        "name": "Robert J. Shiller (Yale) \u2014 U.S. Stock Markets 1871\u2013Present and CAPE Ratio",
+        "dataset_name": "U.S. stock markets 1871\u2013present and CAPE, monthly",
         "url": "http://www.econ.yale.edu/~shiller/data.htm",
-        "licence": "Free download; no republication restriction found"
+        "licence": "Free download; no terms of use or republication statement found on the Yale data page or shillerdata.com",
+        "terms_status": "unknown"
       },
       {
         "slug": "spglobal",
-        "name": "S&P Global, sp-500-eps-est.xlsx (manual)",
-        "url": "https://www.spglobal.com/spdji/",
-        "licence": "Unverified; only the derived TTM EPS is published"
+        "dataset": "sp500-index",
+        "name": "S&P Global (S&P Dow Jones Indices)",
+        "dataset_name": "S&P 500 index level, daily",
+        "url": "https://fred.stlouisfed.org/series/SP500",
+        "licence": "S&P Dow Jones Indices copyright, via FRED: reproduction of the S&P 500 in any form is prohibited without S&P's prior written permission",
+        "terms_status": "restricted",
+        "via": "FRED"
       }
     ],
     "inputs": [
       {
         "id": "price",
         "label": "Monthly average S&P 500 price",
-        "source": "fred",
+        "source": "spglobal",
+        "dataset": "sp500-index",
         "series_id": "SP500",
         "cadence": "monthly",
         "publication_lag_business_days": 1
@@ -42,27 +44,26 @@
       {
         "id": "earnings",
         "label": "Trailing 12-month as-reported EPS",
-        "source": "spglobal",
+        "source": "shiller",
+        "dataset": "ie-data",
         "cadence": "quarterly",
-        "publication_lag_business_days": 60,
-        "manual": true,
-        "status": "discontinued",
-        "status_note": "S&P's public EPS file was discontinued on 31 Jan 2026; earnings are estimated from the last confirmed quarter until a replacement source is found."
+        "publication_lag_business_days": 60
       }
     ],
     "methodology": [
       "P/E = monthly average S&P 500 price / trailing 12-month as-reported (GAAP) EPS.",
-      "Historical months (1871 through Shiller's last confirmed month) use Shiller/Yale's own price and earnings, both confirmed.",
-      "Later months use FRED's SP500 monthly average price with TTM earnings from data/earnings_overrides.json (S&P Global quarterly scorecard): a month is confirmed once the calendar quarter ending before it begins is in the file, and estimated (forward-filled from the last confirmed quarter) otherwise.",
-      "The current, not-yet-completed month is never included: FRED's monthly average of a month in progress changes daily, while every other point in the series is a full-month average."
+      "Historical months (1871 through Shiller's last confirmed quarter) use Shiller/Yale's own price and earnings: Shiller interpolates TTM earnings monthly between quarter-end anchors, so every interpolated month through that last anchor is treated as confirmed, matching his own construction.",
+      "The month after the last confirmed quarter, and the following two, hold TTM earnings flat at that quarter's value (estimated=true) paired with Shiller's own price where he already has it, else FRED's SP500 monthly average. Beyond that one-calendar-quarter grace window the series stops rather than forward-filling an increasingly stale earnings figure indefinitely.",
+      "The current, not-yet-completed month is never included: a partial month's average price changes daily (and Shiller's own row for it is a placeholder, e.g. a single day's close), while every other point in the series is a full-month figure."
     ],
     "notes": [
-      "The dashed portion of the chart marks estimated months, starting the first month not yet covered by a confirmed quarter.",
-      "The S&P Global earnings workbook was discontinued by its publisher on 31 Jan 2026 (see the earnings input's status_note); the P/E has been running on forward-filled earnings since and will continue to until a replacement source is adopted."
+      "The dashed portion of the chart marks estimated months: the one-calendar-quarter grace window after the last confirmed quarter, described above.",
+      "Repointed 2026-09-16 (S9b) from the frozen Yale mirror of ie_data.xls to the actively maintained shillerdata.com copy, and from data/earnings_overrides.json (S&P Global's quarterly scorecard, discontinued by its publisher 31 Jan 2026) to Shiller's own earnings column, which reaches nearly as current and updates on its own; the overrides file is kept only as a cross-check, logged at fetch time. This also fixed a real bug: the old unlimited forward-fill had been overstating the P/E by roughly 26% by Aug 2026 (32.95\u00d7 vs 26.1\u00d7 on Shiller's own June 2026 earnings).",
+      "Not published on joemirza.com since 2026-09-15: the price and earnings behind this ratio are S&P Dow Jones Indices' data (reached here via Shiller and FRED rather than directly), and S&P declined free permission to display index values on a public site (case 01015670, 2026-09-15). Shiller's own terms are separately unknown (see catalog/sources/shiller.json). presentation.publish is false, so the generator leaves the page and data/sp500_pe.json out of the deployed site; scripts/dev.sh still builds it locally."
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-13T17:45:54Z",
+    "fetched_at": "2026-09-16T22:44:11Z",
     "last_observation": "2026-08-01",
     "period_label": "Aug 2026",
     "first_observation": "1871-01-01",
@@ -74,11 +75,11 @@
         "due_by": "2026-10-01"
       },
       "earnings": {
-        "last_observation": "2025-09-30",
-        "period_label": "Q3 2025",
-        "due_by": "2026-03-30",
-        "confirmed_through": "2025-12-01",
-        "value": 234.06
+        "last_observation": "2026-06-30",
+        "period_label": "Q2 2026",
+        "due_by": "2026-12-29",
+        "confirmed_through": "2026-06-30",
+        "value": 295.39
       }
     },
     "due_by": "2026-10-01"
@@ -172,21 +173,21 @@
       "date": "1872-01-01",
       "price": 4.86,
       "earnings": 0.4,
-      "pe": 12.07,
+      "pe": 12.15,
       "estimated": false
     },
     {
       "date": "1872-02-01",
       "price": 4.88,
       "earnings": 0.41,
-      "pe": 12.05,
+      "pe": 11.9,
       "estimated": false
     },
     {
       "date": "1872-03-01",
       "price": 5.04,
       "earnings": 0.41,
-      "pe": 12.37,
+      "pe": 12.29,
       "estimated": false
     },
     {
@@ -200,21 +201,21 @@
       "date": "1872-05-01",
       "price": 5.18,
       "earnings": 0.41,
-      "pe": 12.56,
+      "pe": 12.63,
       "estimated": false
     },
     {
       "date": "1872-06-01",
       "price": 5.13,
       "earnings": 0.41,
-      "pe": 12.36,
+      "pe": 12.51,
       "estimated": false
     },
     {
       "date": "1872-07-01",
       "price": 5.1,
       "earnings": 0.42,
-      "pe": 12.22,
+      "pe": 12.14,
       "estimated": false
     },
     {
@@ -228,21 +229,21 @@
       "date": "1872-09-01",
       "price": 4.95,
       "earnings": 0.42,
-      "pe": 11.72,
+      "pe": 11.79,
       "estimated": false
     },
     {
       "date": "1872-10-01",
       "price": 4.97,
       "earnings": 0.42,
-      "pe": 11.69,
+      "pe": 11.83,
       "estimated": false
     },
     {
       "date": "1872-11-01",
       "price": 4.95,
       "earnings": 0.43,
-      "pe": 11.58,
+      "pe": 11.51,
       "estimated": false
     },
     {
@@ -256,21 +257,21 @@
       "date": "1873-01-01",
       "price": 5.11,
       "earnings": 0.43,
-      "pe": 11.82,
+      "pe": 11.88,
       "estimated": false
     },
     {
       "date": "1873-02-01",
       "price": 5.15,
       "earnings": 0.43,
-      "pe": 11.84,
+      "pe": 11.98,
       "estimated": false
     },
     {
       "date": "1873-03-01",
       "price": 5.11,
       "earnings": 0.44,
-      "pe": 11.68,
+      "pe": 11.61,
       "estimated": false
     },
     {
@@ -284,21 +285,21 @@
       "date": "1873-05-01",
       "price": 5.05,
       "earnings": 0.44,
-      "pe": 11.41,
+      "pe": 11.48,
       "estimated": false
     },
     {
       "date": "1873-06-01",
       "price": 4.98,
       "earnings": 0.45,
-      "pe": 11.19,
+      "pe": 11.07,
       "estimated": false
     },
     {
       "date": "1873-07-01",
       "price": 4.97,
       "earnings": 0.45,
-      "pe": 11.11,
+      "pe": 11.04,
       "estimated": false
     },
     {
@@ -312,21 +313,21 @@
       "date": "1873-09-01",
       "price": 4.59,
       "earnings": 0.45,
-      "pe": 10.14,
+      "pe": 10.2,
       "estimated": false
     },
     {
       "date": "1873-10-01",
       "price": 4.19,
       "earnings": 0.46,
-      "pe": 9.21,
+      "pe": 9.11,
       "estimated": false
     },
     {
       "date": "1873-11-01",
       "price": 4.04,
       "earnings": 0.46,
-      "pe": 8.83,
+      "pe": 8.78,
       "estimated": false
     },
     {
@@ -424,35 +425,35 @@
       "date": "1875-01-01",
       "price": 4.54,
       "earnings": 0.45,
-      "pe": 10.05,
+      "pe": 10.09,
       "estimated": false
     },
     {
       "date": "1875-02-01",
       "price": 4.53,
       "earnings": 0.44,
-      "pe": 10.22,
+      "pe": 10.3,
       "estimated": false
     },
     {
       "date": "1875-03-01",
       "price": 4.59,
       "earnings": 0.43,
-      "pe": 10.55,
+      "pe": 10.67,
       "estimated": false
     },
     {
       "date": "1875-04-01",
       "price": 4.65,
       "earnings": 0.43,
-      "pe": 10.9,
+      "pe": 10.81,
       "estimated": false
     },
     {
       "date": "1875-05-01",
       "price": 4.47,
       "earnings": 0.42,
-      "pe": 10.69,
+      "pe": 10.64,
       "estimated": false
     },
     {
@@ -466,35 +467,35 @@
       "date": "1875-07-01",
       "price": 4.39,
       "earnings": 0.4,
-      "pe": 10.93,
+      "pe": 10.97,
       "estimated": false
     },
     {
       "date": "1875-08-01",
       "price": 4.41,
       "earnings": 0.39,
-      "pe": 11.21,
+      "pe": 11.31,
       "estimated": false
     },
     {
       "date": "1875-09-01",
       "price": 4.37,
       "earnings": 0.39,
-      "pe": 11.35,
+      "pe": 11.21,
       "estimated": false
     },
     {
       "date": "1875-10-01",
       "price": 4.3,
       "earnings": 0.38,
-      "pe": 11.41,
+      "pe": 11.32,
       "estimated": false
     },
     {
       "date": "1875-11-01",
       "price": 4.37,
       "earnings": 0.37,
-      "pe": 11.87,
+      "pe": 11.81,
       "estimated": false
     },
     {
@@ -508,14 +509,14 @@
       "date": "1876-01-01",
       "price": 4.46,
       "earnings": 0.35,
-      "pe": 12.62,
+      "pe": 12.74,
       "estimated": false
     },
     {
       "date": "1876-02-01",
       "price": 4.52,
       "earnings": 0.35,
-      "pe": 13.04,
+      "pe": 12.91,
       "estimated": false
     },
     {
@@ -529,14 +530,14 @@
       "date": "1876-04-01",
       "price": 4.34,
       "earnings": 0.33,
-      "pe": 13.02,
+      "pe": 13.15,
       "estimated": false
     },
     {
       "date": "1876-05-01",
       "price": 4.18,
       "earnings": 0.33,
-      "pe": 12.79,
+      "pe": 12.67,
       "estimated": false
     },
     {
@@ -550,14 +551,14 @@
       "date": "1876-07-01",
       "price": 4.1,
       "earnings": 0.31,
-      "pe": 13.09,
+      "pe": 13.23,
       "estimated": false
     },
     {
       "date": "1876-08-01",
       "price": 3.93,
       "earnings": 0.31,
-      "pe": 12.81,
+      "pe": 12.68,
       "estimated": false
     },
     {
@@ -571,14 +572,14 @@
       "date": "1876-10-01",
       "price": 3.67,
       "earnings": 0.29,
-      "pe": 12.51,
+      "pe": 12.66,
       "estimated": false
     },
     {
       "date": "1876-11-01",
       "price": 3.6,
       "earnings": 0.29,
-      "pe": 12.56,
+      "pe": 12.41,
       "estimated": false
     },
     {
@@ -592,35 +593,35 @@
       "date": "1877-01-01",
       "price": 3.55,
       "earnings": 0.28,
-      "pe": 12.6,
+      "pe": 12.68,
       "estimated": false
     },
     {
       "date": "1877-02-01",
       "price": 3.34,
       "earnings": 0.28,
-      "pe": 11.79,
+      "pe": 11.93,
       "estimated": false
     },
     {
       "date": "1877-03-01",
       "price": 3.17,
       "earnings": 0.28,
-      "pe": 11.12,
+      "pe": 11.32,
       "estimated": false
     },
     {
       "date": "1877-04-01",
       "price": 2.94,
       "earnings": 0.29,
-      "pe": 10.25,
+      "pe": 10.14,
       "estimated": false
     },
     {
       "date": "1877-05-01",
       "price": 2.94,
       "earnings": 0.29,
-      "pe": 10.2,
+      "pe": 10.14,
       "estimated": false
     },
     {
@@ -634,35 +635,35 @@
       "date": "1877-07-01",
       "price": 2.85,
       "earnings": 0.29,
-      "pe": 9.77,
+      "pe": 9.83,
       "estimated": false
     },
     {
       "date": "1877-08-01",
       "price": 3.05,
       "earnings": 0.29,
-      "pe": 10.4,
+      "pe": 10.52,
       "estimated": false
     },
     {
       "date": "1877-09-01",
       "price": 3.24,
       "earnings": 0.29,
-      "pe": 10.98,
+      "pe": 11.17,
       "estimated": false
     },
     {
       "date": "1877-10-01",
       "price": 3.31,
       "earnings": 0.3,
-      "pe": 11.16,
+      "pe": 11.03,
       "estimated": false
     },
     {
       "date": "1877-11-01",
       "price": 3.26,
       "earnings": 0.3,
-      "pe": 10.93,
+      "pe": 10.87,
       "estimated": false
     },
     {
@@ -676,77 +677,77 @@
       "date": "1878-01-01",
       "price": 3.25,
       "earnings": 0.3,
-      "pe": 10.8,
+      "pe": 10.83,
       "estimated": false
     },
     {
       "date": "1878-02-01",
       "price": 3.18,
       "earnings": 0.3,
-      "pe": 10.54,
+      "pe": 10.6,
       "estimated": false
     },
     {
       "date": "1878-03-01",
       "price": 3.24,
       "earnings": 0.3,
-      "pe": 10.71,
+      "pe": 10.8,
       "estimated": false
     },
     {
       "date": "1878-04-01",
       "price": 3.33,
       "earnings": 0.3,
-      "pe": 10.98,
+      "pe": 11.1,
       "estimated": false
     },
     {
       "date": "1878-05-01",
       "price": 3.34,
       "earnings": 0.3,
-      "pe": 10.98,
+      "pe": 11.13,
       "estimated": false
     },
     {
       "date": "1878-06-01",
       "price": 3.41,
       "earnings": 0.3,
-      "pe": 11.18,
+      "pe": 11.37,
       "estimated": false
     },
     {
       "date": "1878-07-01",
       "price": 3.48,
       "earnings": 0.31,
-      "pe": 11.38,
+      "pe": 11.23,
       "estimated": false
     },
     {
       "date": "1878-08-01",
       "price": 3.45,
       "earnings": 0.31,
-      "pe": 11.25,
+      "pe": 11.13,
       "estimated": false
     },
     {
       "date": "1878-09-01",
       "price": 3.52,
       "earnings": 0.31,
-      "pe": 11.45,
+      "pe": 11.35,
       "estimated": false
     },
     {
       "date": "1878-10-01",
       "price": 3.48,
       "earnings": 0.31,
-      "pe": 11.29,
+      "pe": 11.23,
       "estimated": false
     },
     {
       "date": "1878-11-01",
       "price": 3.47,
       "earnings": 0.31,
-      "pe": 11.22,
+      "pe": 11.19,
       "estimated": false
     },
     {
@@ -760,77 +761,77 @@
       "date": "1879-01-01",
       "price": 3.58,
       "earnings": 0.32,
-      "pe": 11.34,
+      "pe": 11.19,
       "estimated": false
     },
     {
       "date": "1879-02-01",
       "price": 3.71,
       "earnings": 0.32,
-      "pe": 11.53,
+      "pe": 11.59,
       "estimated": false
     },
     {
       "date": "1879-03-01",
       "price": 3.65,
       "earnings": 0.33,
-      "pe": 11.15,
+      "pe": 11.06,
       "estimated": false
     },
     {
       "date": "1879-04-01",
       "price": 3.77,
       "earnings": 0.33,
-      "pe": 11.31,
+      "pe": 11.42,
       "estimated": false
     },
     {
       "date": "1879-05-01",
       "price": 3.94,
       "earnings": 0.34,
-      "pe": 11.62,
+      "pe": 11.59,
       "estimated": false
     },
     {
       "date": "1879-06-01",
       "price": 3.96,
       "earnings": 0.34,
-      "pe": 11.48,
+      "pe": 11.65,
       "estimated": false
     },
     {
       "date": "1879-07-01",
       "price": 4.04,
       "earnings": 0.35,
-      "pe": 11.52,
+      "pe": 11.54,
       "estimated": false
     },
     {
       "date": "1879-08-01",
       "price": 4.07,
       "earnings": 0.36,
-      "pe": 11.41,
+      "pe": 11.31,
       "estimated": false
     },
     {
       "date": "1879-09-01",
       "price": 4.22,
       "earnings": 0.36,
-      "pe": 11.64,
+      "pe": 11.72,
       "estimated": false
     },
     {
       "date": "1879-10-01",
       "price": 4.68,
       "earnings": 0.37,
-      "pe": 12.71,
+      "pe": 12.65,
       "estimated": false
     },
     {
       "date": "1879-11-01",
       "price": 4.93,
       "earnings": 0.37,
-      "pe": 13.17,
+      "pe": 13.32,
       "estimated": false
     },
     {
@@ -844,77 +845,77 @@
       "date": "1880-01-01",
       "price": 5.11,
       "earnings": 0.39,
-      "pe": 13.13,
+      "pe": 13.1,
       "estimated": false
     },
     {
       "date": "1880-02-01",
       "price": 5.2,
       "earnings": 0.4,
-      "pe": 13.06,
+      "pe": 13.0,
       "estimated": false
     },
     {
       "date": "1880-03-01",
       "price": 5.3,
       "earnings": 0.41,
-      "pe": 13.01,
+      "pe": 12.93,
       "estimated": false
     },
     {
       "date": "1880-04-01",
       "price": 5.18,
       "earnings": 0.42,
-      "pe": 12.43,
+      "pe": 12.33,
       "estimated": false
     },
     {
       "date": "1880-05-01",
       "price": 4.77,
       "earnings": 0.43,
-      "pe": 11.2,
+      "pe": 11.09,
       "estimated": false
     },
     {
       "date": "1880-06-01",
       "price": 4.79,
       "earnings": 0.43,
-      "pe": 11.01,
+      "pe": 11.14,
       "estimated": false
     },
     {
       "date": "1880-07-01",
       "price": 5.01,
       "earnings": 0.44,
-      "pe": 11.28,
+      "pe": 11.39,
       "estimated": false
     },
     {
       "date": "1880-08-01",
       "price": 5.19,
       "earnings": 0.45,
-      "pe": 11.45,
+      "pe": 11.53,
       "estimated": false
     },
     {
       "date": "1880-09-01",
       "price": 5.18,
       "earnings": 0.46,
-      "pe": 11.2,
+      "pe": 11.26,
       "estimated": false
     },
     {
       "date": "1880-10-01",
       "price": 5.33,
       "earnings": 0.47,
-      "pe": 11.3,
+      "pe": 11.34,
       "estimated": false
     },
     {
       "date": "1880-11-01",
       "price": 5.61,
       "earnings": 0.48,
-      "pe": 11.67,
+      "pe": 11.69,
       "estimated": false
     },
     {
@@ -928,77 +929,77 @@
       "date": "1881-01-01",
       "price": 6.19,
       "earnings": 0.49,
-      "pe": 12.74,
+      "pe": 12.63,
       "estimated": false
     },
     {
       "date": "1881-02-01",
       "price": 6.17,
       "earnings": 0.48,
-      "pe": 12.81,
+      "pe": 12.85,
       "estimated": false
     },
     {
       "date": "1881-03-01",
       "price": 6.24,
       "earnings": 0.48,
-      "pe": 13.07,
+      "pe": 13.0,
       "estimated": false
     },
     {
       "date": "1881-04-01",
       "price": 6.22,
       "earnings": 0.47,
-      "pe": 13.14,
+      "pe": 13.23,
       "estimated": false
     },
     {
       "date": "1881-05-01",
       "price": 6.5,
       "earnings": 0.47,
-      "pe": 13.85,
+      "pe": 13.83,
       "estimated": false
     },
     {
       "date": "1881-06-01",
       "price": 6.58,
       "earnings": 0.47,
-      "pe": 14.15,
+      "pe": 14.0,
       "estimated": false
     },
     {
       "date": "1881-07-01",
       "price": 6.35,
       "earnings": 0.46,
-      "pe": 13.78,
+      "pe": 13.8,
       "estimated": false
     },
     {
       "date": "1881-08-01",
       "price": 6.2,
       "earnings": 0.46,
-      "pe": 13.58,
+      "pe": 13.48,
       "estimated": false
     },
     {
       "date": "1881-09-01",
       "price": 6.25,
       "earnings": 0.45,
-      "pe": 13.81,
+      "pe": 13.89,
       "estimated": false
     },
     {
       "date": "1881-10-01",
       "price": 6.15,
       "earnings": 0.45,
-      "pe": 13.72,
+      "pe": 13.67,
       "estimated": false
     },
     {
       "date": "1881-11-01",
       "price": 6.19,
       "earnings": 0.44,
-      "pe": 13.94,
+      "pe": 14.07,
       "estimated": false
     },
     {
@@ -1012,77 +1013,77 @@
       "date": "1882-01-01",
       "price": 5.92,
       "earnings": 0.44,
-      "pe": 13.48,
+      "pe": 13.45,
       "estimated": false
     },
     {
       "date": "1882-02-01",
       "price": 5.79,
       "earnings": 0.44,
-      "pe": 13.21,
+      "pe": 13.16,
       "estimated": false
     },
     {
       "date": "1882-03-01",
       "price": 5.78,
       "earnings": 0.44,
-      "pe": 13.21,
+      "pe": 13.14,
       "estimated": false
     },
     {
       "date": "1882-04-01",
       "price": 5.78,
       "earnings": 0.44,
-      "pe": 13.24,
+      "pe": 13.14,
       "estimated": false
     },
     {
       "date": "1882-05-01",
       "price": 5.71,
       "earnings": 0.44,
-      "pe": 13.1,
+      "pe": 12.98,
       "estimated": false
     },
     {
       "date": "1882-06-01",
       "price": 5.68,
       "earnings": 0.43,
-      "pe": 13.06,
+      "pe": 13.21,
       "estimated": false
     },
     {
       "date": "1882-07-01",
       "price": 6.0,
       "earnings": 0.43,
-      "pe": 13.82,
+      "pe": 13.95,
       "estimated": false
     },
     {
       "date": "1882-08-01",
       "price": 6.18,
       "earnings": 0.43,
-      "pe": 14.26,
+      "pe": 14.37,
       "estimated": false
     },
     {
       "date": "1882-09-01",
       "price": 6.24,
       "earnings": 0.43,
-      "pe": 14.43,
+      "pe": 14.51,
       "estimated": false
     },
     {
       "date": "1882-10-01",
       "price": 6.07,
       "earnings": 0.43,
-      "pe": 14.06,
+      "pe": 14.12,
       "estimated": false
     },
     {
       "date": "1882-11-01",
       "price": 5.81,
       "earnings": 0.43,
-      "pe": 13.49,
+      "pe": 13.51,
       "estimated": false
     },
     {
@@ -1096,21 +1097,21 @@
       "date": "1883-01-01",
       "price": 5.81,
       "earnings": 0.43,
-      "pe": 13.59,
+      "pe": 13.51,
       "estimated": false
     },
     {
       "date": "1883-02-01",
       "price": 5.68,
       "earnings": 0.42,
-      "pe": 13.36,
+      "pe": 13.52,
       "estimated": false
     },
     {
       "date": "1883-03-01",
       "price": 5.75,
       "earnings": 0.42,
-      "pe": 13.61,
+      "pe": 13.69,
       "estimated": false
     },
     {
@@ -1124,21 +1125,21 @@
       "date": "1883-05-01",
       "price": 5.77,
       "earnings": 0.42,
-      "pe": 13.82,
+      "pe": 13.74,
       "estimated": false
     },
     {
       "date": "1883-06-01",
       "price": 5.82,
       "earnings": 0.41,
-      "pe": 14.02,
+      "pe": 14.2,
       "estimated": false
     },
     {
       "date": "1883-07-01",
       "price": 5.73,
       "earnings": 0.41,
-      "pe": 13.89,
+      "pe": 13.98,
       "estimated": false
     },
     {
@@ -1152,21 +1153,21 @@
       "date": "1883-09-01",
       "price": 5.53,
       "earnings": 0.41,
-      "pe": 13.57,
+      "pe": 13.49,
       "estimated": false
     },
     {
       "date": "1883-10-01",
       "price": 5.38,
       "earnings": 0.41,
-      "pe": 13.28,
+      "pe": 13.12,
       "estimated": false
     },
     {
       "date": "1883-11-01",
       "price": 5.46,
       "earnings": 0.4,
-      "pe": 13.57,
+      "pe": 13.65,
       "estimated": false
     },
     {
@@ -1180,21 +1181,21 @@
       "date": "1884-01-01",
       "price": 5.18,
       "earnings": 0.39,
-      "pe": 13.2,
+      "pe": 13.28,
       "estimated": false
     },
     {
       "date": "1884-02-01",
       "price": 5.32,
       "earnings": 0.39,
-      "pe": 13.82,
+      "pe": 13.64,
       "estimated": false
     },
     {
       "date": "1884-03-01",
       "price": 5.3,
       "earnings": 0.38,
-      "pe": 14.04,
+      "pe": 13.95,
       "estimated": false
     },
     {
@@ -1208,21 +1209,21 @@
       "date": "1884-05-01",
       "price": 4.65,
       "earnings": 0.36,
-      "pe": 12.83,
+      "pe": 12.92,
       "estimated": false
     },
     {
       "date": "1884-06-01",
       "price": 4.46,
       "earnings": 0.35,
-      "pe": 12.56,
+      "pe": 12.74,
       "estimated": false
     },
     {
       "date": "1884-07-01",
       "price": 4.46,
       "earnings": 0.35,
-      "pe": 12.83,
+      "pe": 12.74,
       "estimated": false
     },
     {
@@ -1236,21 +1237,21 @@
       "date": "1884-09-01",
       "price": 4.59,
       "earnings": 0.33,
-      "pe": 13.8,
+      "pe": 13.91,
       "estimated": false
     },
     {
       "date": "1884-10-01",
       "price": 4.44,
       "earnings": 0.33,
-      "pe": 13.66,
+      "pe": 13.45,
       "estimated": false
     },
     {
       "date": "1884-11-01",
       "price": 4.35,
       "earnings": 0.32,
-      "pe": 13.7,
+      "pe": 13.59,
       "estimated": false
     },
     {
@@ -1264,14 +1265,14 @@
       "date": "1885-01-01",
       "price": 4.24,
       "earnings": 0.31,
-      "pe": 13.82,
+      "pe": 13.68,
       "estimated": false
     },
     {
       "date": "1885-02-01",
       "price": 4.37,
       "earnings": 0.3,
-      "pe": 14.41,
+      "pe": 14.57,
       "estimated": false
     },
     {
@@ -1285,14 +1286,14 @@
       "date": "1885-04-01",
       "price": 4.37,
       "earnings": 0.3,
-      "pe": 14.73,
+      "pe": 14.57,
       "estimated": false
     },
     {
       "date": "1885-05-01",
       "price": 4.32,
       "earnings": 0.29,
-      "pe": 14.73,
+      "pe": 14.9,
       "estimated": false
     },
     {
@@ -1306,14 +1307,14 @@
       "date": "1885-07-01",
       "price": 4.46,
       "earnings": 0.29,
-      "pe": 15.56,
+      "pe": 15.38,
       "estimated": false
     },
     {
       "date": "1885-08-01",
       "price": 4.71,
       "earnings": 0.28,
-      "pe": 16.63,
+      "pe": 16.82,
       "estimated": false
     },
     {
@@ -1327,14 +1328,14 @@
       "date": "1885-10-01",
       "price": 4.92,
       "earnings": 0.28,
-      "pe": 17.78,
+      "pe": 17.57,
       "estimated": false
     },
     {
       "date": "1885-11-01",
       "price": 5.24,
       "earnings": 0.27,
-      "pe": 19.17,
+      "pe": 19.41,
       "estimated": false
     },
     {
@@ -1348,7 +1349,7 @@
       "date": "1886-01-01",
       "price": 5.2,
       "earnings": 0.28,
-      "pe": 18.91,
+      "pe": 18.57,
       "estimated": false
     },
     {
@@ -1362,7 +1363,7 @@
       "date": "1886-03-01",
       "price": 5.19,
       "earnings": 0.28,
-      "pe": 18.21,
+      "pe": 18.54,
       "estimated": false
     },
     {
@@ -1376,7 +1377,7 @@
       "date": "1886-05-01",
       "price": 5.02,
       "earnings": 0.29,
-      "pe": 17.02,
+      "pe": 17.31,
       "estimated": false
     },
     {
@@ -1390,7 +1391,7 @@
       "date": "1886-07-01",
       "price": 5.33,
       "earnings": 0.3,
-      "pe": 17.48,
+      "pe": 17.77,
       "estimated": false
     },
     {
@@ -1404,7 +1405,7 @@
       "date": "1886-09-01",
       "price": 5.51,
       "earnings": 0.32,
-      "pe": 17.49,
+      "pe": 17.22,
       "estimated": false
     },
     {
@@ -1418,7 +1419,7 @@
       "date": "1886-11-01",
       "price": 5.79,
       "earnings": 0.33,
-      "pe": 17.82,
+      "pe": 17.55,
       "estimated": false
     },
     {
@@ -1432,21 +1433,21 @@
       "date": "1887-01-01",
       "price": 5.58,
       "earnings": 0.33,
-      "pe": 16.78,
+      "pe": 16.91,
       "estimated": false
     },
     {
       "date": "1887-02-01",
       "price": 5.54,
       "earnings": 0.34,
-      "pe": 16.54,
+      "pe": 16.29,
       "estimated": false
     },
     {
       "date": "1887-03-01",
       "price": 5.67,
       "earnings": 0.34,
-      "pe": 16.8,
+      "pe": 16.68,
       "estimated": false
     },
     {
@@ -1460,21 +1461,21 @@
       "date": "1887-05-01",
       "price": 5.9,
       "earnings": 0.34,
-      "pe": 17.23,
+      "pe": 17.35,
       "estimated": false
     },
     {
       "date": "1887-06-01",
       "price": 5.73,
       "earnings": 0.34,
-      "pe": 16.61,
+      "pe": 16.85,
       "estimated": false
     },
     {
       "date": "1887-07-01",
       "price": 5.59,
       "earnings": 0.35,
-      "pe": 16.09,
+      "pe": 15.97,
       "estimated": false
     },
     {
@@ -1488,21 +1489,21 @@
       "date": "1887-09-01",
       "price": 5.38,
       "earnings": 0.35,
-      "pe": 15.26,
+      "pe": 15.37,
       "estimated": false
     },
     {
       "date": "1887-10-01",
       "price": 5.2,
       "earnings": 0.35,
-      "pe": 14.65,
+      "pe": 14.86,
       "estimated": false
     },
     {
       "date": "1887-11-01",
       "price": 5.3,
       "earnings": 0.36,
-      "pe": 14.83,
+      "pe": 14.72,
       "estimated": false
     },
     {
@@ -1516,35 +1517,35 @@
       "date": "1888-01-01",
       "price": 5.31,
       "earnings": 0.35,
-      "pe": 15.1,
+      "pe": 15.17,
       "estimated": false
     },
     {
       "date": "1888-02-01",
       "price": 5.28,
       "earnings": 0.34,
-      "pe": 15.38,
+      "pe": 15.53,
       "estimated": false
     },
     {
       "date": "1888-03-01",
       "price": 5.08,
       "earnings": 0.34,
-      "pe": 15.16,
+      "pe": 14.94,
       "estimated": false
     },
     {
       "date": "1888-04-01",
       "price": 5.1,
       "earnings": 0.33,
-      "pe": 15.61,
+      "pe": 15.45,
       "estimated": false
     },
     {
       "date": "1888-05-01",
       "price": 5.17,
       "earnings": 0.32,
-      "pe": 16.24,
+      "pe": 16.16,
       "estimated": false
     },
     {
@@ -1558,35 +1559,35 @@
       "date": "1888-07-01",
       "price": 5.14,
       "earnings": 0.3,
-      "pe": 17.04,
+      "pe": 17.13,
       "estimated": false
     },
     {
       "date": "1888-08-01",
       "price": 5.25,
       "earnings": 0.29,
-      "pe": 17.9,
+      "pe": 18.1,
       "estimated": false
     },
     {
       "date": "1888-09-01",
       "price": 5.38,
       "earnings": 0.28,
-      "pe": 18.88,
+      "pe": 19.21,
       "estimated": false
     },
     {
       "date": "1888-10-01",
       "price": 5.35,
       "earnings": 0.28,
-      "pe": 19.34,
+      "pe": 19.11,
       "estimated": false
     },
     {
       "date": "1888-11-01",
       "price": 5.24,
       "earnings": 0.27,
-      "pe": 19.53,
+      "pe": 19.41,
       "estimated": false
     },
     {
@@ -1600,14 +1601,14 @@
       "date": "1889-01-01",
       "price": 5.24,
       "earnings": 0.26,
-      "pe": 19.9,
+      "pe": 20.15,
       "estimated": false
     },
     {
       "date": "1889-02-01",
       "price": 5.3,
       "earnings": 0.27,
-      "pe": 19.87,
+      "pe": 19.63,
       "estimated": false
     },
     {
@@ -1621,14 +1622,14 @@
       "date": "1889-04-01",
       "price": 5.18,
       "earnings": 0.27,
-      "pe": 18.95,
+      "pe": 19.19,
       "estimated": false
     },
     {
       "date": "1889-05-01",
       "price": 5.32,
       "earnings": 0.28,
-      "pe": 19.23,
+      "pe": 19.0,
       "estimated": false
     },
     {
@@ -1642,14 +1643,14 @@
       "date": "1889-07-01",
       "price": 5.3,
       "earnings": 0.28,
-      "pe": 18.71,
+      "pe": 18.93,
       "estimated": false
     },
     {
       "date": "1889-08-01",
       "price": 5.37,
       "earnings": 0.29,
-      "pe": 18.73,
+      "pe": 18.52,
       "estimated": false
     },
     {
@@ -1663,14 +1664,14 @@
       "date": "1889-10-01",
       "price": 5.4,
       "earnings": 0.29,
-      "pe": 18.41,
+      "pe": 18.62,
       "estimated": false
     },
     {
       "date": "1889-11-01",
       "price": 5.35,
       "earnings": 0.3,
-      "pe": 18.03,
+      "pe": 17.83,
       "estimated": false
     },
     {
@@ -1684,77 +1685,77 @@
       "date": "1890-01-01",
       "price": 5.38,
       "earnings": 0.3,
-      "pe": 17.98,
+      "pe": 17.93,
       "estimated": false
     },
     {
       "date": "1890-02-01",
       "price": 5.32,
       "earnings": 0.3,
-      "pe": 17.83,
+      "pe": 17.73,
       "estimated": false
     },
     {
       "date": "1890-03-01",
       "price": 5.28,
       "earnings": 0.3,
-      "pe": 17.75,
+      "pe": 17.6,
       "estimated": false
     },
     {
       "date": "1890-04-01",
       "price": 5.39,
       "earnings": 0.3,
-      "pe": 18.17,
+      "pe": 17.97,
       "estimated": false
     },
     {
       "date": "1890-05-01",
       "price": 5.62,
       "earnings": 0.3,
-      "pe": 19.0,
+      "pe": 18.73,
       "estimated": false
     },
     {
       "date": "1890-06-01",
       "price": 5.58,
       "earnings": 0.29,
-      "pe": 18.92,
+      "pe": 19.24,
       "estimated": false
     },
     {
       "date": "1890-07-01",
       "price": 5.54,
       "earnings": 0.29,
-      "pe": 18.83,
+      "pe": 19.1,
       "estimated": false
     },
     {
       "date": "1890-08-01",
       "price": 5.41,
       "earnings": 0.29,
-      "pe": 18.45,
+      "pe": 18.66,
       "estimated": false
     },
     {
       "date": "1890-09-01",
       "price": 5.32,
       "earnings": 0.29,
-      "pe": 18.19,
+      "pe": 18.34,
       "estimated": false
     },
     {
       "date": "1890-10-01",
       "price": 5.08,
       "earnings": 0.29,
-      "pe": 17.42,
+      "pe": 17.52,
       "estimated": false
     },
     {
       "date": "1890-11-01",
       "price": 4.71,
       "earnings": 0.29,
-      "pe": 16.2,
+      "pe": 16.24,
       "estimated": false
     },
     {
@@ -1768,77 +1769,77 @@
       "date": "1891-01-01",
       "price": 4.84,
       "earnings": 0.29,
-      "pe": 16.45,
+      "pe": 16.69,
       "estimated": false
     },
     {
       "date": "1891-02-01",
       "price": 4.9,
       "earnings": 0.3,
-      "pe": 16.43,
+      "pe": 16.33,
       "estimated": false
     },
     {
       "date": "1891-03-01",
       "price": 4.81,
       "earnings": 0.3,
-      "pe": 15.9,
+      "pe": 16.03,
       "estimated": false
     },
     {
       "date": "1891-04-01",
       "price": 4.97,
       "earnings": 0.31,
-      "pe": 16.2,
+      "pe": 16.03,
       "estimated": false
     },
     {
       "date": "1891-05-01",
       "price": 4.95,
       "earnings": 0.31,
-      "pe": 15.93,
+      "pe": 15.97,
       "estimated": false
     },
     {
       "date": "1891-06-01",
       "price": 4.85,
       "earnings": 0.32,
-      "pe": 15.4,
+      "pe": 15.16,
       "estimated": false
     },
     {
       "date": "1891-07-01",
       "price": 4.77,
       "earnings": 0.32,
-      "pe": 14.94,
+      "pe": 14.91,
       "estimated": false
     },
     {
       "date": "1891-08-01",
       "price": 4.93,
       "earnings": 0.32,
-      "pe": 15.25,
+      "pe": 15.41,
       "estimated": false
     },
     {
       "date": "1891-09-01",
       "price": 5.33,
       "earnings": 0.33,
-      "pe": 16.27,
+      "pe": 16.15,
       "estimated": false
     },
     {
       "date": "1891-10-01",
       "price": 5.33,
       "earnings": 0.33,
-      "pe": 16.07,
+      "pe": 16.15,
       "estimated": false
     },
     {
       "date": "1891-11-01",
       "price": 5.25,
       "earnings": 0.34,
-      "pe": 15.63,
+      "pe": 15.44,
       "estimated": false
     },
     {
@@ -1852,21 +1853,21 @@
       "date": "1892-01-01",
       "price": 5.51,
       "earnings": 0.34,
-      "pe": 16.09,
+      "pe": 16.21,
       "estimated": false
     },
     {
       "date": "1892-02-01",
       "price": 5.52,
       "earnings": 0.34,
-      "pe": 16.0,
+      "pe": 16.24,
       "estimated": false
     },
     {
       "date": "1892-03-01",
       "price": 5.58,
       "earnings": 0.35,
-      "pe": 16.06,
+      "pe": 15.94,
       "estimated": false
     },
     {
@@ -1880,21 +1881,21 @@
       "date": "1892-05-01",
       "price": 5.57,
       "earnings": 0.35,
-      "pe": 15.8,
+      "pe": 15.91,
       "estimated": false
     },
     {
       "date": "1892-06-01",
       "price": 5.54,
       "earnings": 0.35,
-      "pe": 15.61,
+      "pe": 15.83,
       "estimated": false
     },
     {
       "date": "1892-07-01",
       "price": 5.54,
       "earnings": 0.36,
-      "pe": 15.5,
+      "pe": 15.39,
       "estimated": false
     },
     {
@@ -1908,21 +1909,21 @@
       "date": "1892-09-01",
       "price": 5.48,
       "earnings": 0.36,
-      "pe": 15.12,
+      "pe": 15.22,
       "estimated": false
     },
     {
       "date": "1892-10-01",
       "price": 5.59,
       "earnings": 0.36,
-      "pe": 15.32,
+      "pe": 15.53,
       "estimated": false
     },
     {
       "date": "1892-11-01",
       "price": 5.57,
       "earnings": 0.37,
-      "pe": 15.16,
+      "pe": 15.05,
       "estimated": false
     },
     {
@@ -1936,77 +1937,77 @@
       "date": "1893-01-01",
       "price": 5.61,
       "earnings": 0.36,
-      "pe": 15.55,
+      "pe": 15.58,
       "estimated": false
     },
     {
       "date": "1893-02-01",
       "price": 5.51,
       "earnings": 0.35,
-      "pe": 15.67,
+      "pe": 15.74,
       "estimated": false
     },
     {
       "date": "1893-03-01",
       "price": 5.31,
       "earnings": 0.34,
-      "pe": 15.5,
+      "pe": 15.62,
       "estimated": false
     },
     {
       "date": "1893-04-01",
       "price": 5.31,
       "earnings": 0.33,
-      "pe": 15.93,
+      "pe": 16.09,
       "estimated": false
     },
     {
       "date": "1893-05-01",
       "price": 4.84,
       "earnings": 0.32,
-      "pe": 14.93,
+      "pe": 15.12,
       "estimated": false
     },
     {
       "date": "1893-06-01",
       "price": 4.61,
       "earnings": 0.32,
-      "pe": 14.63,
+      "pe": 14.41,
       "estimated": false
     },
     {
       "date": "1893-07-01",
       "price": 4.18,
       "earnings": 0.31,
-      "pe": 13.67,
+      "pe": 13.48,
       "estimated": false
     },
     {
       "date": "1893-08-01",
       "price": 4.08,
       "earnings": 0.3,
-      "pe": 13.75,
+      "pe": 13.6,
       "estimated": false
     },
     {
       "date": "1893-09-01",
       "price": 4.37,
       "earnings": 0.29,
-      "pe": 15.2,
+      "pe": 15.07,
       "estimated": false
     },
     {
       "date": "1893-10-01",
       "price": 4.5,
       "earnings": 0.28,
-      "pe": 16.17,
+      "pe": 16.07,
       "estimated": false
     },
     {
       "date": "1893-11-01",
       "price": 4.57,
       "earnings": 0.27,
-      "pe": 16.98,
+      "pe": 16.93,
       "estimated": false
     },
     {
@@ -2020,35 +2021,35 @@
       "date": "1894-01-01",
       "price": 4.32,
       "earnings": 0.25,
-      "pe": 17.16,
+      "pe": 17.28,
       "estimated": false
     },
     {
       "date": "1894-02-01",
       "price": 4.38,
       "earnings": 0.24,
-      "pe": 18.0,
+      "pe": 18.25,
       "estimated": false
     },
     {
       "date": "1894-03-01",
       "price": 4.51,
       "earnings": 0.23,
-      "pe": 19.19,
+      "pe": 19.61,
       "estimated": false
     },
     {
       "date": "1894-04-01",
       "price": 4.57,
       "earnings": 0.23,
-      "pe": 20.16,
+      "pe": 19.87,
       "estimated": false
     },
     {
       "date": "1894-05-01",
       "price": 4.4,
       "earnings": 0.22,
-      "pe": 20.16,
+      "pe": 20.0,
       "estimated": false
     },
     {
@@ -2062,35 +2063,35 @@
       "date": "1894-07-01",
       "price": 4.25,
       "earnings": 0.2,
-      "pe": 21.07,
+      "pe": 21.25,
       "estimated": false
     },
     {
       "date": "1894-08-01",
       "price": 4.41,
       "earnings": 0.19,
-      "pe": 22.81,
+      "pe": 23.21,
       "estimated": false
     },
     {
       "date": "1894-09-01",
       "price": 4.48,
       "earnings": 0.18,
-      "pe": 24.22,
+      "pe": 24.89,
       "estimated": false
     },
     {
       "date": "1894-10-01",
       "price": 4.34,
       "earnings": 0.18,
-      "pe": 24.56,
+      "pe": 24.11,
       "estimated": false
     },
     {
       "date": "1894-11-01",
       "price": 4.34,
       "earnings": 0.17,
-      "pe": 25.79,
+      "pe": 25.53,
       "estimated": false
     },
     {
@@ -2104,21 +2105,21 @@
       "date": "1895-01-01",
       "price": 4.25,
       "earnings": 0.17,
-      "pe": 25.37,
+      "pe": 25.0,
       "estimated": false
     },
     {
       "date": "1895-02-01",
       "price": 4.19,
       "earnings": 0.17,
-      "pe": 23.94,
+      "pe": 24.65,
       "estimated": false
     },
     {
       "date": "1895-03-01",
       "price": 4.19,
       "earnings": 0.18,
-      "pe": 22.96,
+      "pe": 23.28,
       "estimated": false
     },
     {
@@ -2132,21 +2133,21 @@
       "date": "1895-05-01",
       "price": 4.61,
       "earnings": 0.2,
-      "pe": 23.34,
+      "pe": 23.05,
       "estimated": false
     },
     {
       "date": "1895-06-01",
       "price": 4.7,
       "earnings": 0.2,
-      "pe": 22.93,
+      "pe": 23.5,
       "estimated": false
     },
     {
       "date": "1895-07-01",
       "price": 4.72,
       "earnings": 0.21,
-      "pe": 22.21,
+      "pe": 22.48,
       "estimated": false
     },
     {
@@ -2160,21 +2161,21 @@
       "date": "1895-09-01",
       "price": 4.82,
       "earnings": 0.23,
-      "pe": 21.19,
+      "pe": 20.96,
       "estimated": false
     },
     {
       "date": "1895-10-01",
       "price": 4.75,
       "earnings": 0.23,
-      "pe": 20.21,
+      "pe": 20.65,
       "estimated": false
     },
     {
       "date": "1895-11-01",
       "price": 4.59,
       "earnings": 0.24,
-      "pe": 18.93,
+      "pe": 19.12,
       "estimated": false
     },
     {
@@ -2188,14 +2189,14 @@
       "date": "1896-01-01",
       "price": 4.27,
       "earnings": 0.25,
-      "pe": 17.31,
+      "pe": 17.08,
       "estimated": false
     },
     {
       "date": "1896-02-01",
       "price": 4.45,
       "earnings": 0.24,
-      "pe": 18.29,
+      "pe": 18.54,
       "estimated": false
     },
     {
@@ -2209,14 +2210,14 @@
       "date": "1896-04-01",
       "price": 4.42,
       "earnings": 0.24,
-      "pe": 18.67,
+      "pe": 18.42,
       "estimated": false
     },
     {
       "date": "1896-05-01",
       "price": 4.4,
       "earnings": 0.23,
-      "pe": 18.86,
+      "pe": 19.13,
       "estimated": false
     },
     {
@@ -2230,14 +2231,14 @@
       "date": "1896-07-01",
       "price": 4.04,
       "earnings": 0.23,
-      "pe": 17.82,
+      "pe": 17.57,
       "estimated": false
     },
     {
       "date": "1896-08-01",
       "price": 3.81,
       "earnings": 0.22,
-      "pe": 17.06,
+      "pe": 17.32,
       "estimated": false
     },
     {
@@ -2251,14 +2252,14 @@
       "date": "1896-10-01",
       "price": 4.1,
       "earnings": 0.22,
-      "pe": 18.92,
+      "pe": 18.64,
       "estimated": false
     },
     {
       "date": "1896-11-01",
       "price": 4.38,
       "earnings": 0.21,
-      "pe": 20.53,
+      "pe": 20.86,
       "estimated": false
     },
     {
@@ -2272,35 +2273,35 @@
       "date": "1897-01-01",
       "price": 4.22,
       "earnings": 0.22,
-      "pe": 19.33,
+      "pe": 19.18,
       "estimated": false
     },
     {
       "date": "1897-02-01",
       "price": 4.18,
       "earnings": 0.23,
-      "pe": 18.44,
+      "pe": 18.17,
       "estimated": false
     },
     {
       "date": "1897-03-01",
       "price": 4.19,
       "earnings": 0.23,
-      "pe": 17.83,
+      "pe": 18.22,
       "estimated": false
     },
     {
       "date": "1897-04-01",
       "price": 4.06,
       "earnings": 0.24,
-      "pe": 16.69,
+      "pe": 16.92,
       "estimated": false
     },
     {
       "date": "1897-05-01",
       "price": 4.08,
       "earnings": 0.25,
-      "pe": 16.21,
+      "pe": 16.32,
       "estimated": false
     },
     {
@@ -2314,35 +2315,35 @@
       "date": "1897-07-01",
       "price": 4.46,
       "earnings": 0.27,
-      "pe": 16.62,
+      "pe": 16.52,
       "estimated": false
     },
     {
       "date": "1897-08-01",
       "price": 4.75,
       "earnings": 0.28,
-      "pe": 17.17,
+      "pe": 16.96,
       "estimated": false
     },
     {
       "date": "1897-09-01",
       "price": 4.98,
       "earnings": 0.28,
-      "pe": 17.47,
+      "pe": 17.79,
       "estimated": false
     },
     {
       "date": "1897-10-01",
       "price": 4.82,
       "earnings": 0.29,
-      "pe": 16.43,
+      "pe": 16.62,
       "estimated": false
     },
     {
       "date": "1897-11-01",
       "price": 4.65,
       "earnings": 0.3,
-      "pe": 15.41,
+      "pe": 15.5,
       "estimated": false
     },
     {
@@ -2356,14 +2357,14 @@
       "date": "1898-01-01",
       "price": 4.88,
       "earnings": 0.31,
-      "pe": 15.58,
+      "pe": 15.74,
       "estimated": false
     },
     {
       "date": "1898-02-01",
       "price": 4.87,
       "earnings": 0.32,
-      "pe": 15.38,
+      "pe": 15.22,
       "estimated": false
     },
     {
@@ -2377,14 +2378,14 @@
       "date": "1898-04-01",
       "price": 4.57,
       "earnings": 0.32,
-      "pe": 14.14,
+      "pe": 14.28,
       "estimated": false
     },
     {
       "date": "1898-05-01",
       "price": 4.87,
       "earnings": 0.33,
-      "pe": 14.91,
+      "pe": 14.76,
       "estimated": false
     },
     {
@@ -2398,14 +2399,14 @@
       "date": "1898-07-01",
       "price": 5.08,
       "earnings": 0.33,
-      "pe": 15.24,
+      "pe": 15.39,
       "estimated": false
     },
     {
       "date": "1898-08-01",
       "price": 5.27,
       "earnings": 0.34,
-      "pe": 15.65,
+      "pe": 15.5,
       "estimated": false
     },
     {
@@ -2419,14 +2420,14 @@
       "date": "1898-10-01",
       "price": 5.15,
       "earnings": 0.34,
-      "pe": 15.0,
+      "pe": 15.15,
       "estimated": false
     },
     {
       "date": "1898-11-01",
       "price": 5.32,
       "earnings": 0.35,
-      "pe": 15.34,
+      "pe": 15.2,
       "estimated": false
     },
     {
@@ -2440,77 +2441,77 @@
       "date": "1899-01-01",
       "price": 6.08,
       "earnings": 0.36,
-      "pe": 16.85,
+      "pe": 16.89,
       "estimated": false
     },
     {
       "date": "1899-02-01",
       "price": 6.31,
       "earnings": 0.37,
-      "pe": 16.98,
+      "pe": 17.05,
       "estimated": false
     },
     {
       "date": "1899-03-01",
       "price": 6.4,
       "earnings": 0.38,
-      "pe": 16.73,
+      "pe": 16.84,
       "estimated": false
     },
     {
       "date": "1899-04-01",
       "price": 6.48,
       "earnings": 0.39,
-      "pe": 16.48,
+      "pe": 16.62,
       "estimated": false
     },
     {
       "date": "1899-05-01",
       "price": 6.21,
       "earnings": 0.4,
-      "pe": 15.36,
+      "pe": 15.52,
       "estimated": false
     },
     {
       "date": "1899-06-01",
       "price": 6.07,
       "earnings": 0.41,
-      "pe": 14.63,
+      "pe": 14.8,
       "estimated": false
     },
     {
       "date": "1899-07-01",
       "price": 6.28,
       "earnings": 0.43,
-      "pe": 14.75,
+      "pe": 14.6,
       "estimated": false
     },
     {
       "date": "1899-08-01",
       "price": 6.44,
       "earnings": 0.44,
-      "pe": 14.75,
+      "pe": 14.64,
       "estimated": false
     },
     {
       "date": "1899-09-01",
       "price": 6.37,
       "earnings": 0.45,
-      "pe": 14.23,
+      "pe": 14.16,
       "estimated": false
     },
     {
       "date": "1899-10-01",
       "price": 6.34,
       "earnings": 0.46,
-      "pe": 13.83,
+      "pe": 13.78,
       "estimated": false
     },
     {
       "date": "1899-11-01",
       "price": 6.46,
       "earnings": 0.47,
-      "pe": 13.77,
+      "pe": 13.74,
       "estimated": false
     },
     {
@@ -2608,35 +2609,35 @@
       "date": "1901-01-01",
       "price": 7.07,
       "earnings": 0.48,
-      "pe": 14.68,
+      "pe": 14.73,
       "estimated": false
     },
     {
       "date": "1901-02-01",
       "price": 7.25,
       "earnings": 0.48,
-      "pe": 15.0,
+      "pe": 15.1,
       "estimated": false
     },
     {
       "date": "1901-03-01",
       "price": 7.51,
       "earnings": 0.48,
-      "pe": 15.48,
+      "pe": 15.65,
       "estimated": false
     },
     {
       "date": "1901-04-01",
       "price": 8.14,
       "earnings": 0.49,
-      "pe": 16.72,
+      "pe": 16.61,
       "estimated": false
     },
     {
       "date": "1901-05-01",
       "price": 7.73,
       "earnings": 0.49,
-      "pe": 15.83,
+      "pe": 15.78,
       "estimated": false
     },
     {
@@ -2650,35 +2651,35 @@
       "date": "1901-07-01",
       "price": 7.93,
       "earnings": 0.49,
-      "pe": 16.13,
+      "pe": 16.18,
       "estimated": false
     },
     {
       "date": "1901-08-01",
       "price": 8.04,
       "earnings": 0.49,
-      "pe": 16.3,
+      "pe": 16.41,
       "estimated": false
     },
     {
       "date": "1901-09-01",
       "price": 8.0,
       "earnings": 0.49,
-      "pe": 16.16,
+      "pe": 16.33,
       "estimated": false
     },
     {
       "date": "1901-10-01",
       "price": 7.91,
       "earnings": 0.5,
-      "pe": 15.93,
+      "pe": 15.82,
       "estimated": false
     },
     {
       "date": "1901-11-01",
       "price": 8.08,
       "earnings": 0.5,
-      "pe": 16.22,
+      "pe": 16.16,
       "estimated": false
     },
     {
@@ -2692,77 +2693,77 @@
       "date": "1902-01-01",
       "price": 8.12,
       "earnings": 0.51,
-      "pe": 15.9,
+      "pe": 15.92,
       "estimated": false
     },
     {
       "date": "1902-02-01",
       "price": 8.19,
       "earnings": 0.52,
-      "pe": 15.7,
+      "pe": 15.75,
       "estimated": false
     },
     {
       "date": "1902-03-01",
       "price": 8.2,
       "earnings": 0.53,
-      "pe": 15.4,
+      "pe": 15.47,
       "estimated": false
     },
     {
       "date": "1902-04-01",
       "price": 8.48,
       "earnings": 0.54,
-      "pe": 15.61,
+      "pe": 15.7,
       "estimated": false
     },
     {
       "date": "1902-05-01",
       "price": 8.46,
       "earnings": 0.55,
-      "pe": 15.27,
+      "pe": 15.38,
       "estimated": false
     },
     {
       "date": "1902-06-01",
       "price": 8.41,
       "earnings": 0.56,
-      "pe": 14.88,
+      "pe": 15.02,
       "estimated": false
     },
     {
       "date": "1902-07-01",
       "price": 8.6,
       "earnings": 0.58,
-      "pe": 14.94,
+      "pe": 14.83,
       "estimated": false
     },
     {
       "date": "1902-08-01",
       "price": 8.83,
       "earnings": 0.59,
-      "pe": 15.05,
+      "pe": 14.97,
       "estimated": false
     },
     {
       "date": "1902-09-01",
       "price": 8.85,
       "earnings": 0.6,
-      "pe": 14.81,
+      "pe": 14.75,
       "estimated": false
     },
     {
       "date": "1902-10-01",
       "price": 8.57,
       "earnings": 0.61,
-      "pe": 14.09,
+      "pe": 14.05,
       "estimated": false
     },
     {
       "date": "1902-11-01",
       "price": 8.24,
       "earnings": 0.62,
-      "pe": 13.31,
+      "pe": 13.29,
       "estimated": false
     },
     {
@@ -2776,35 +2777,35 @@
       "date": "1903-01-01",
       "price": 8.46,
       "earnings": 0.62,
-      "pe": 13.61,
+      "pe": 13.65,
       "estimated": false
     },
     {
       "date": "1903-02-01",
       "price": 8.41,
       "earnings": 0.61,
-      "pe": 13.71,
+      "pe": 13.79,
       "estimated": false
     },
     {
       "date": "1903-03-01",
       "price": 8.08,
       "earnings": 0.6,
-      "pe": 13.36,
+      "pe": 13.47,
       "estimated": false
     },
     {
       "date": "1903-04-01",
       "price": 7.75,
       "earnings": 0.6,
-      "pe": 12.99,
+      "pe": 12.92,
       "estimated": false
     },
     {
       "date": "1903-05-01",
       "price": 7.6,
       "earnings": 0.59,
-      "pe": 12.92,
+      "pe": 12.88,
       "estimated": false
     },
     {
@@ -2818,35 +2819,35 @@
       "date": "1903-07-01",
       "price": 6.85,
       "earnings": 0.57,
-      "pe": 11.98,
+      "pe": 12.02,
       "estimated": false
     },
     {
       "date": "1903-08-01",
       "price": 6.63,
       "earnings": 0.56,
-      "pe": 11.77,
+      "pe": 11.84,
       "estimated": false
     },
     {
       "date": "1903-09-01",
       "price": 6.47,
       "earnings": 0.56,
-      "pe": 11.66,
+      "pe": 11.55,
       "estimated": false
     },
     {
       "date": "1903-10-01",
       "price": 6.26,
       "earnings": 0.55,
-      "pe": 11.45,
+      "pe": 11.38,
       "estimated": false
     },
     {
       "date": "1903-11-01",
       "price": 6.28,
       "earnings": 0.54,
-      "pe": 11.67,
+      "pe": 11.63,
       "estimated": false
     },
     {
@@ -2860,14 +2861,14 @@
       "date": "1904-01-01",
       "price": 6.68,
       "earnings": 0.53,
-      "pe": 12.68,
+      "pe": 12.6,
       "estimated": false
     },
     {
       "date": "1904-02-01",
       "price": 6.5,
       "earnings": 0.52,
-      "pe": 12.42,
+      "pe": 12.5,
       "estimated": false
     },
     {
@@ -2881,14 +2882,14 @@
       "date": "1904-04-01",
       "price": 6.64,
       "earnings": 0.52,
-      "pe": 12.85,
+      "pe": 12.77,
       "estimated": false
     },
     {
       "date": "1904-05-01",
       "price": 6.5,
       "earnings": 0.51,
-      "pe": 12.66,
+      "pe": 12.75,
       "estimated": false
     },
     {
@@ -2902,14 +2903,14 @@
       "date": "1904-07-01",
       "price": 6.78,
       "earnings": 0.51,
-      "pe": 13.38,
+      "pe": 13.29,
       "estimated": false
     },
     {
       "date": "1904-08-01",
       "price": 7.01,
       "earnings": 0.5,
-      "pe": 13.93,
+      "pe": 14.02,
       "estimated": false
     },
     {
@@ -2923,14 +2924,14 @@
       "date": "1904-10-01",
       "price": 7.75,
       "earnings": 0.5,
-      "pe": 15.6,
+      "pe": 15.5,
       "estimated": false
     },
     {
       "date": "1904-11-01",
       "price": 8.17,
       "earnings": 0.49,
-      "pe": 16.56,
+      "pe": 16.67,
       "estimated": false
     },
     {
@@ -2944,7 +2945,7 @@
       "date": "1905-01-01",
       "price": 8.43,
       "earnings": 0.51,
-      "pe": 16.69,
+      "pe": 16.53,
       "estimated": false
     },
     {
@@ -2958,7 +2959,7 @@
       "date": "1905-03-01",
       "price": 9.05,
       "earnings": 0.54,
-      "pe": 16.92,
+      "pe": 16.76,
       "estimated": false
     },
     {
@@ -2972,7 +2973,7 @@
       "date": "1905-05-01",
       "price": 8.5,
       "earnings": 0.56,
-      "pe": 15.04,
+      "pe": 15.18,
       "estimated": false
     },
     {
@@ -2986,7 +2987,7 @@
       "date": "1905-07-01",
       "price": 8.87,
       "earnings": 0.59,
-      "pe": 14.91,
+      "pe": 15.03,
       "estimated": false
     },
     {
@@ -3000,7 +3001,7 @@
       "date": "1905-09-01",
       "price": 9.23,
       "earnings": 0.62,
-      "pe": 14.77,
+      "pe": 14.89,
       "estimated": false
     },
     {
@@ -3014,7 +3015,7 @@
       "date": "1905-11-01",
       "price": 9.31,
       "earnings": 0.66,
-      "pe": 14.21,
+      "pe": 14.11,
       "estimated": false
     },
     {
@@ -3028,21 +3029,21 @@
       "date": "1906-01-01",
       "price": 9.87,
       "earnings": 0.68,
-      "pe": 14.57,
+      "pe": 14.51,
       "estimated": false
     },
     {
       "date": "1906-02-01",
       "price": 9.8,
       "earnings": 0.69,
-      "pe": 14.31,
+      "pe": 14.2,
       "estimated": false
     },
     {
       "date": "1906-03-01",
       "price": 9.56,
       "earnings": 0.69,
-      "pe": 13.81,
+      "pe": 13.86,
       "estimated": false
     },
     {
@@ -3056,21 +3057,21 @@
       "date": "1906-05-01",
       "price": 9.18,
       "earnings": 0.71,
-      "pe": 12.98,
+      "pe": 12.93,
       "estimated": false
     },
     {
       "date": "1906-06-01",
       "price": 9.3,
       "earnings": 0.71,
-      "pe": 13.01,
+      "pe": 13.1,
       "estimated": false
     },
     {
       "date": "1906-07-01",
       "price": 9.06,
       "earnings": 0.72,
-      "pe": 12.54,
+      "pe": 12.58,
       "estimated": false
     },
     {
@@ -3084,21 +3085,21 @@
       "date": "1906-09-01",
       "price": 10.03,
       "earnings": 0.74,
-      "pe": 13.6,
+      "pe": 13.55,
       "estimated": false
     },
     {
       "date": "1906-10-01",
       "price": 9.73,
       "earnings": 0.74,
-      "pe": 13.06,
+      "pe": 13.15,
       "estimated": false
     },
     {
       "date": "1906-11-01",
       "price": 9.93,
       "earnings": 0.75,
-      "pe": 13.2,
+      "pe": 13.24,
       "estimated": false
     },
     {
@@ -3112,35 +3113,35 @@
       "date": "1907-01-01",
       "price": 9.56,
       "earnings": 0.75,
-      "pe": 12.72,
+      "pe": 12.75,
       "estimated": false
     },
     {
       "date": "1907-02-01",
       "price": 9.26,
       "earnings": 0.74,
-      "pe": 12.46,
+      "pe": 12.51,
       "estimated": false
     },
     {
       "date": "1907-03-01",
       "price": 8.35,
       "earnings": 0.73,
-      "pe": 11.36,
+      "pe": 11.44,
       "estimated": false
     },
     {
       "date": "1907-04-01",
       "price": 8.39,
       "earnings": 0.73,
-      "pe": 11.55,
+      "pe": 11.49,
       "estimated": false
     },
     {
       "date": "1907-05-01",
       "price": 8.1,
       "earnings": 0.72,
-      "pe": 11.28,
+      "pe": 11.25,
       "estimated": false
     },
     {
@@ -3154,35 +3155,35 @@
       "date": "1907-07-01",
       "price": 8.14,
       "earnings": 0.7,
-      "pe": 11.6,
+      "pe": 11.63,
       "estimated": false
     },
     {
       "date": "1907-08-01",
       "price": 7.53,
       "earnings": 0.69,
-      "pe": 10.86,
+      "pe": 10.91,
       "estimated": false
     },
     {
       "date": "1907-09-01",
       "price": 7.45,
       "earnings": 0.69,
-      "pe": 10.88,
+      "pe": 10.8,
       "estimated": false
     },
     {
       "date": "1907-10-01",
       "price": 6.64,
       "earnings": 0.68,
-      "pe": 9.81,
+      "pe": 9.76,
       "estimated": false
     },
     {
       "date": "1907-11-01",
       "price": 6.25,
       "earnings": 0.67,
-      "pe": 9.35,
+      "pe": 9.33,
       "estimated": false
     },
     {
@@ -3196,14 +3197,14 @@
       "date": "1908-01-01",
       "price": 6.85,
       "earnings": 0.65,
-      "pe": 10.49,
+      "pe": 10.54,
       "estimated": false
     },
     {
       "date": "1908-02-01",
       "price": 6.6,
       "earnings": 0.65,
-      "pe": 10.21,
+      "pe": 10.15,
       "estimated": false
     },
     {
@@ -3217,14 +3218,14 @@
       "date": "1908-04-01",
       "price": 7.24,
       "earnings": 0.63,
-      "pe": 11.43,
+      "pe": 11.49,
       "estimated": false
     },
     {
       "date": "1908-05-01",
       "price": 7.63,
       "earnings": 0.63,
-      "pe": 12.17,
+      "pe": 12.11,
       "estimated": false
     },
     {
@@ -3238,14 +3239,14 @@
       "date": "1908-07-01",
       "price": 7.92,
       "earnings": 0.61,
-      "pe": 12.91,
+      "pe": 12.98,
       "estimated": false
     },
     {
       "date": "1908-08-01",
       "price": 8.26,
       "earnings": 0.61,
-      "pe": 13.61,
+      "pe": 13.54,
       "estimated": false
     },
     {
@@ -3259,14 +3260,14 @@
       "date": "1908-10-01",
       "price": 8.27,
       "earnings": 0.59,
-      "pe": 13.94,
+      "pe": 14.02,
       "estimated": false
     },
     {
       "date": "1908-11-01",
       "price": 8.83,
       "earnings": 0.59,
-      "pe": 15.05,
+      "pe": 14.97,
       "estimated": false
     },
     {
@@ -3280,7 +3281,7 @@
       "date": "1909-01-01",
       "price": 9.06,
       "earnings": 0.59,
-      "pe": 15.23,
+      "pe": 15.36,
       "estimated": false
     },
     {
@@ -3294,7 +3295,7 @@
       "date": "1909-03-01",
       "price": 8.92,
       "earnings": 0.62,
-      "pe": 14.27,
+      "pe": 14.39,
       "estimated": false
     },
     {
@@ -3308,7 +3309,7 @@
       "date": "1909-05-01",
       "price": 9.63,
       "earnings": 0.66,
-      "pe": 14.7,
+      "pe": 14.59,
       "estimated": false
     },
     {
@@ -3322,7 +3323,7 @@
       "date": "1909-07-01",
       "price": 9.94,
       "earnings": 0.69,
-      "pe": 14.51,
+      "pe": 14.41,
       "estimated": false
     },
     {
@@ -3336,7 +3337,7 @@
       "date": "1909-09-01",
       "price": 10.19,
       "earnings": 0.71,
-      "pe": 14.25,
+      "pe": 14.35,
       "estimated": false
     },
     {
@@ -3350,7 +3351,7 @@
       "date": "1909-11-01",
       "price": 10.18,
       "earnings": 0.74,
-      "pe": 13.66,
+      "pe": 13.76,
       "estimated": false
     },
     {
@@ -3364,21 +3365,21 @@
       "date": "1910-01-01",
       "price": 10.08,
       "earnings": 0.76,
-      "pe": 13.31,
+      "pe": 13.26,
       "estimated": false
     },
     {
       "date": "1910-02-01",
       "price": 9.72,
       "earnings": 0.76,
-      "pe": 12.87,
+      "pe": 12.79,
       "estimated": false
     },
     {
       "date": "1910-03-01",
       "price": 9.96,
       "earnings": 0.75,
-      "pe": 13.24,
+      "pe": 13.28,
       "estimated": false
     },
     {
@@ -3392,21 +3393,21 @@
       "date": "1910-05-01",
       "price": 9.56,
       "earnings": 0.75,
-      "pe": 12.79,
+      "pe": 12.75,
       "estimated": false
     },
     {
       "date": "1910-06-01",
       "price": 9.1,
       "earnings": 0.74,
-      "pe": 12.21,
+      "pe": 12.3,
       "estimated": false
     },
     {
       "date": "1910-07-01",
       "price": 8.64,
       "earnings": 0.74,
-      "pe": 11.64,
+      "pe": 11.68,
       "estimated": false
     },
     {
@@ -3420,21 +3421,21 @@
       "date": "1910-09-01",
       "price": 8.91,
       "earnings": 0.74,
-      "pe": 12.08,
+      "pe": 12.04,
       "estimated": false
     },
     {
       "date": "1910-10-01",
       "price": 9.32,
       "earnings": 0.73,
-      "pe": 12.68,
+      "pe": 12.77,
       "estimated": false
     },
     {
       "date": "1910-11-01",
       "price": 9.31,
       "earnings": 0.73,
-      "pe": 12.71,
+      "pe": 12.75,
       "estimated": false
     },
     {
@@ -3448,35 +3449,35 @@
       "date": "1911-01-01",
       "price": 9.27,
       "earnings": 0.72,
-      "pe": 12.91,
+      "pe": 12.88,
       "estimated": false
     },
     {
       "date": "1911-02-01",
       "price": 9.43,
       "earnings": 0.71,
-      "pe": 13.34,
+      "pe": 13.28,
       "estimated": false
     },
     {
       "date": "1911-03-01",
       "price": 9.32,
       "earnings": 0.69,
-      "pe": 13.41,
+      "pe": 13.51,
       "estimated": false
     },
     {
       "date": "1911-04-01",
       "price": 9.28,
       "earnings": 0.68,
-      "pe": 13.58,
+      "pe": 13.65,
       "estimated": false
     },
     {
       "date": "1911-05-01",
       "price": 9.48,
       "earnings": 0.67,
-      "pe": 14.11,
+      "pe": 14.15,
       "estimated": false
     },
     {
@@ -3490,35 +3491,35 @@
       "date": "1911-07-01",
       "price": 9.63,
       "earnings": 0.65,
-      "pe": 14.85,
+      "pe": 14.82,
       "estimated": false
     },
     {
       "date": "1911-08-01",
       "price": 9.17,
       "earnings": 0.64,
-      "pe": 14.4,
+      "pe": 14.33,
       "estimated": false
     },
     {
       "date": "1911-09-01",
       "price": 8.67,
       "earnings": 0.62,
-      "pe": 13.87,
+      "pe": 13.98,
       "estimated": false
     },
     {
       "date": "1911-10-01",
       "price": 8.72,
       "earnings": 0.61,
-      "pe": 14.22,
+      "pe": 14.3,
       "estimated": false
     },
     {
       "date": "1911-11-01",
       "price": 9.07,
       "earnings": 0.6,
-      "pe": 15.07,
+      "pe": 15.12,
       "estimated": false
     },
     {
@@ -3532,77 +3533,77 @@
       "date": "1912-01-01",
       "price": 9.12,
       "earnings": 0.6,
-      "pe": 15.22,
+      "pe": 15.2,
       "estimated": false
     },
     {
       "date": "1912-02-01",
       "price": 9.04,
       "earnings": 0.61,
-      "pe": 14.86,
+      "pe": 14.82,
       "estimated": false
     },
     {
       "date": "1912-03-01",
       "price": 9.3,
       "earnings": 0.62,
-      "pe": 15.06,
+      "pe": 15.0,
       "estimated": false
     },
     {
       "date": "1912-04-01",
       "price": 9.59,
       "earnings": 0.63,
-      "pe": 15.3,
+      "pe": 15.22,
       "estimated": false
     },
     {
       "date": "1912-05-01",
       "price": 9.58,
       "earnings": 0.64,
-      "pe": 15.07,
+      "pe": 14.97,
       "estimated": false
     },
     {
       "date": "1912-06-01",
       "price": 9.58,
       "earnings": 0.65,
-      "pe": 14.85,
+      "pe": 14.74,
       "estimated": false
     },
     {
       "date": "1912-07-01",
       "price": 9.59,
       "earnings": 0.65,
-      "pe": 14.66,
+      "pe": 14.75,
       "estimated": false
     },
     {
       "date": "1912-08-01",
       "price": 9.81,
       "earnings": 0.66,
-      "pe": 14.79,
+      "pe": 14.86,
       "estimated": false
     },
     {
       "date": "1912-09-01",
       "price": 9.86,
       "earnings": 0.67,
-      "pe": 14.66,
+      "pe": 14.72,
       "estimated": false
     },
     {
       "date": "1912-10-01",
       "price": 9.84,
       "earnings": 0.68,
-      "pe": 14.43,
+      "pe": 14.47,
       "estimated": false
     },
     {
       "date": "1912-11-01",
       "price": 9.73,
       "earnings": 0.69,
-      "pe": 14.09,
+      "pe": 14.1,
       "estimated": false
     },
     {
@@ -3616,77 +3617,77 @@
       "date": "1913-01-01",
       "price": 9.3,
       "earnings": 0.69,
-      "pe": 13.4,
+      "pe": 13.48,
       "estimated": false
     },
     {
       "date": "1913-02-01",
       "price": 8.97,
       "earnings": 0.69,
-      "pe": 13.03,
+      "pe": 13.0,
       "estimated": false
     },
     {
       "date": "1913-03-01",
       "price": 8.8,
       "earnings": 0.68,
-      "pe": 12.89,
+      "pe": 12.94,
       "estimated": false
     },
     {
       "date": "1913-04-01",
       "price": 8.79,
       "earnings": 0.68,
-      "pe": 12.99,
+      "pe": 12.93,
       "estimated": false
     },
     {
       "date": "1913-05-01",
       "price": 8.55,
       "earnings": 0.67,
-      "pe": 12.75,
+      "pe": 12.76,
       "estimated": false
     },
     {
       "date": "1913-06-01",
       "price": 8.12,
       "earnings": 0.67,
-      "pe": 12.21,
+      "pe": 12.12,
       "estimated": false
     },
     {
       "date": "1913-07-01",
       "price": 8.23,
       "earnings": 0.66,
-      "pe": 12.48,
+      "pe": 12.47,
       "estimated": false
     },
     {
       "date": "1913-08-01",
       "price": 8.45,
       "earnings": 0.65,
-      "pe": 12.93,
+      "pe": 13.0,
       "estimated": false
     },
     {
       "date": "1913-09-01",
       "price": 8.53,
       "earnings": 0.65,
-      "pe": 13.17,
+      "pe": 13.12,
       "estimated": false
     },
     {
       "date": "1913-10-01",
       "price": 8.26,
       "earnings": 0.64,
-      "pe": 12.87,
+      "pe": 12.91,
       "estimated": false
     },
     {
       "date": "1913-11-01",
       "price": 8.05,
       "earnings": 0.64,
-      "pe": 12.66,
+      "pe": 12.58,
       "estimated": false
     },
     {
@@ -3700,77 +3701,77 @@
       "date": "1914-01-01",
       "price": 8.37,
       "earnings": 0.62,
-      "pe": 13.48,
+      "pe": 13.5,
       "estimated": false
     },
     {
       "date": "1914-02-01",
       "price": 8.48,
       "earnings": 0.61,
-      "pe": 13.86,
+      "pe": 13.9,
       "estimated": false
     },
     {
       "date": "1914-03-01",
       "price": 8.32,
       "earnings": 0.6,
-      "pe": 13.81,
+      "pe": 13.87,
       "estimated": false
     },
     {
       "date": "1914-04-01",
       "price": 8.12,
       "earnings": 0.59,
-      "pe": 13.69,
+      "pe": 13.76,
       "estimated": false
     },
     {
       "date": "1914-05-01",
       "price": 8.17,
       "earnings": 0.58,
-      "pe": 13.98,
+      "pe": 14.09,
       "estimated": false
     },
     {
       "date": "1914-06-01",
       "price": 8.13,
       "earnings": 0.57,
-      "pe": 14.14,
+      "pe": 14.26,
       "estimated": false
     },
     {
       "date": "1914-07-01",
       "price": 7.68,
       "earnings": 0.57,
-      "pe": 13.57,
+      "pe": 13.47,
       "estimated": false
     },
     {
       "date": "1914-08-01",
       "price": 7.68,
       "earnings": 0.56,
-      "pe": 13.8,
+      "pe": 13.71,
       "estimated": false
     },
     {
       "date": "1914-09-01",
       "price": 7.68,
       "earnings": 0.55,
-      "pe": 14.03,
+      "pe": 13.96,
       "estimated": false
     },
     {
       "date": "1914-10-01",
       "price": 7.68,
       "earnings": 0.54,
-      "pe": 14.27,
+      "pe": 14.22,
       "estimated": false
     },
     {
       "date": "1914-11-01",
       "price": 7.68,
       "earnings": 0.53,
-      "pe": 14.51,
+      "pe": 14.49,
       "estimated": false
     },
     {
@@ -3868,42 +3869,42 @@
       "date": "1916-01-01",
       "price": 9.33,
       "earnings": 0.93,
-      "pe": 9.99,
+      "pe": 10.03,
       "estimated": false
     },
     {
       "date": "1916-02-01",
       "price": 9.2,
       "earnings": 0.99,
-      "pe": 9.31,
+      "pe": 9.29,
       "estimated": false
     },
     {
       "date": "1916-03-01",
       "price": 9.17,
       "earnings": 1.04,
-      "pe": 8.8,
+      "pe": 8.82,
       "estimated": false
     },
     {
       "date": "1916-04-01",
       "price": 9.07,
       "earnings": 1.1,
-      "pe": 8.27,
+      "pe": 8.25,
       "estimated": false
     },
     {
       "date": "1916-05-01",
       "price": 9.27,
       "earnings": 1.15,
-      "pe": 8.05,
+      "pe": 8.06,
       "estimated": false
     },
     {
       "date": "1916-06-01",
       "price": 9.36,
       "earnings": 1.21,
-      "pe": 7.77,
+      "pe": 7.74,
       "estimated": false
     },
     {
@@ -3917,28 +3918,28 @@
       "date": "1916-08-01",
       "price": 9.3,
       "earnings": 1.31,
-      "pe": 7.08,
+      "pe": 7.1,
       "estimated": false
     },
     {
       "date": "1916-09-01",
       "price": 9.68,
       "earnings": 1.37,
-      "pe": 7.08,
+      "pe": 7.07,
       "estimated": false
     },
     {
       "date": "1916-10-01",
       "price": 9.98,
       "earnings": 1.42,
-      "pe": 7.02,
+      "pe": 7.03,
       "estimated": false
     },
     {
       "date": "1916-11-01",
       "price": 10.21,
       "earnings": 1.48,
-      "pe": 6.92,
+      "pe": 6.9,
       "estimated": false
     },
     {
@@ -3959,70 +3960,70 @@
       "date": "1917-02-01",
       "price": 9.03,
       "earnings": 1.49,
-      "pe": 6.07,
+      "pe": 6.06,
       "estimated": false
     },
     {
       "date": "1917-03-01",
       "price": 9.31,
       "earnings": 1.47,
-      "pe": 6.34,
+      "pe": 6.33,
       "estimated": false
     },
     {
       "date": "1917-04-01",
       "price": 9.17,
       "earnings": 1.45,
-      "pe": 6.34,
+      "pe": 6.32,
       "estimated": false
     },
     {
       "date": "1917-05-01",
       "price": 8.86,
       "earnings": 1.43,
-      "pe": 6.21,
+      "pe": 6.2,
       "estimated": false
     },
     {
       "date": "1917-06-01",
       "price": 9.04,
       "earnings": 1.41,
-      "pe": 6.43,
+      "pe": 6.41,
       "estimated": false
     },
     {
       "date": "1917-07-01",
       "price": 8.79,
       "earnings": 1.38,
-      "pe": 6.35,
+      "pe": 6.37,
       "estimated": false
     },
     {
       "date": "1917-08-01",
       "price": 8.53,
       "earnings": 1.36,
-      "pe": 6.26,
+      "pe": 6.27,
       "estimated": false
     },
     {
       "date": "1917-09-01",
       "price": 8.12,
       "earnings": 1.34,
-      "pe": 6.05,
+      "pe": 6.06,
       "estimated": false
     },
     {
       "date": "1917-10-01",
       "price": 7.68,
       "earnings": 1.32,
-      "pe": 5.81,
+      "pe": 5.82,
       "estimated": false
     },
     {
       "date": "1917-11-01",
       "price": 7.04,
       "earnings": 1.3,
-      "pe": 5.41,
+      "pe": 5.42,
       "estimated": false
     },
     {
@@ -4036,77 +4037,77 @@
       "date": "1918-01-01",
       "price": 7.21,
       "earnings": 1.26,
-      "pe": 5.74,
+      "pe": 5.72,
       "estimated": false
     },
     {
       "date": "1918-02-01",
       "price": 7.43,
       "earnings": 1.23,
-      "pe": 6.03,
+      "pe": 6.04,
       "estimated": false
     },
     {
       "date": "1918-03-01",
       "price": 7.28,
       "earnings": 1.21,
-      "pe": 6.03,
+      "pe": 6.02,
       "estimated": false
     },
     {
       "date": "1918-04-01",
       "price": 7.21,
       "earnings": 1.18,
-      "pe": 6.09,
+      "pe": 6.11,
       "estimated": false
     },
     {
       "date": "1918-05-01",
       "price": 7.44,
       "earnings": 1.16,
-      "pe": 6.42,
+      "pe": 6.41,
       "estimated": false
     },
     {
       "date": "1918-06-01",
       "price": 7.45,
       "earnings": 1.14,
-      "pe": 6.56,
+      "pe": 6.54,
       "estimated": false
     },
     {
       "date": "1918-07-01",
       "price": 7.51,
       "earnings": 1.11,
-      "pe": 6.76,
+      "pe": 6.77,
       "estimated": false
     },
     {
       "date": "1918-08-01",
       "price": 7.58,
       "earnings": 1.09,
-      "pe": 6.97,
+      "pe": 6.95,
       "estimated": false
     },
     {
       "date": "1918-09-01",
       "price": 7.54,
       "earnings": 1.06,
-      "pe": 7.09,
+      "pe": 7.11,
       "estimated": false
     },
     {
       "date": "1918-10-01",
       "price": 7.86,
       "earnings": 1.04,
-      "pe": 7.57,
+      "pe": 7.56,
       "estimated": false
     },
     {
       "date": "1918-11-01",
       "price": 8.06,
       "earnings": 1.01,
-      "pe": 7.95,
+      "pe": 7.98,
       "estimated": false
     },
     {
@@ -4120,7 +4121,7 @@
       "date": "1919-01-01",
       "price": 7.85,
       "earnings": 0.98,
-      "pe": 7.97,
+      "pe": 8.01,
       "estimated": false
     },
     {
@@ -4134,7 +4135,7 @@
       "date": "1919-03-01",
       "price": 8.12,
       "earnings": 0.97,
-      "pe": 8.33,
+      "pe": 8.37,
       "estimated": false
     },
     {
@@ -4148,7 +4149,7 @@
       "date": "1919-05-01",
       "price": 8.97,
       "earnings": 0.96,
-      "pe": 9.3,
+      "pe": 9.34,
       "estimated": false
     },
     {
@@ -4162,7 +4163,7 @@
       "date": "1919-07-01",
       "price": 9.51,
       "earnings": 0.95,
-      "pe": 9.96,
+      "pe": 10.01,
       "estimated": false
     },
     {
@@ -4176,7 +4177,7 @@
       "date": "1919-09-01",
       "price": 9.01,
       "earnings": 0.94,
-      "pe": 9.53,
+      "pe": 9.59,
       "estimated": false
     },
     {
@@ -4190,7 +4191,7 @@
       "date": "1919-11-01",
       "price": 9.19,
       "earnings": 0.94,
-      "pe": 9.83,
+      "pe": 9.78,
       "estimated": false
     },
     {
@@ -4204,70 +4205,70 @@
       "date": "1920-01-01",
       "price": 8.83,
       "earnings": 0.92,
-      "pe": 9.61,
+      "pe": 9.6,
       "estimated": false
     },
     {
       "date": "1920-02-01",
       "price": 8.1,
       "earnings": 0.91,
-      "pe": 8.92,
+      "pe": 8.9,
       "estimated": false
     },
     {
       "date": "1920-03-01",
       "price": 8.67,
       "earnings": 0.9,
-      "pe": 9.66,
+      "pe": 9.63,
       "estimated": false
     },
     {
       "date": "1920-04-01",
       "price": 8.6,
       "earnings": 0.89,
-      "pe": 9.7,
+      "pe": 9.66,
       "estimated": false
     },
     {
       "date": "1920-05-01",
       "price": 8.06,
       "earnings": 0.88,
-      "pe": 9.2,
+      "pe": 9.16,
       "estimated": false
     },
     {
       "date": "1920-06-01",
       "price": 7.92,
       "earnings": 0.86,
-      "pe": 9.16,
+      "pe": 9.21,
       "estimated": false
     },
     {
       "date": "1920-07-01",
       "price": 7.91,
       "earnings": 0.85,
-      "pe": 9.26,
+      "pe": 9.31,
       "estimated": false
     },
     {
       "date": "1920-08-01",
       "price": 7.6,
       "earnings": 0.84,
-      "pe": 9.01,
+      "pe": 9.05,
       "estimated": false
     },
     {
       "date": "1920-09-01",
       "price": 7.87,
       "earnings": 0.83,
-      "pe": 9.45,
+      "pe": 9.48,
       "estimated": false
     },
     {
       "date": "1920-10-01",
       "price": 7.88,
       "earnings": 0.82,
-      "pe": 9.59,
+      "pe": 9.61,
       "estimated": false
     },
     {
@@ -4288,21 +4289,21 @@
       "date": "1921-01-01",
       "price": 7.11,
       "earnings": 0.76,
-      "pe": 9.39,
+      "pe": 9.36,
       "estimated": false
     },
     {
       "date": "1921-02-01",
       "price": 7.06,
       "earnings": 0.71,
-      "pe": 9.87,
+      "pe": 9.94,
       "estimated": false
     },
     {
       "date": "1921-03-01",
       "price": 6.88,
       "earnings": 0.67,
-      "pe": 10.23,
+      "pe": 10.27,
       "estimated": false
     },
     {
@@ -4316,21 +4317,21 @@
       "date": "1921-05-01",
       "price": 7.12,
       "earnings": 0.59,
-      "pe": 12.12,
+      "pe": 12.07,
       "estimated": false
     },
     {
       "date": "1921-06-01",
       "price": 6.55,
       "earnings": 0.55,
-      "pe": 12.02,
+      "pe": 11.91,
       "estimated": false
     },
     {
       "date": "1921-07-01",
       "price": 6.53,
       "earnings": 0.5,
-      "pe": 13.0,
+      "pe": 13.06,
       "estimated": false
     },
     {
@@ -4344,21 +4345,21 @@
       "date": "1921-09-01",
       "price": 6.61,
       "earnings": 0.42,
-      "pe": 15.83,
+      "pe": 15.74,
       "estimated": false
     },
     {
       "date": "1921-10-01",
       "price": 6.7,
       "earnings": 0.38,
-      "pe": 17.87,
+      "pe": 17.63,
       "estimated": false
     },
     {
       "date": "1921-11-01",
       "price": 7.06,
       "earnings": 0.33,
-      "pe": 21.23,
+      "pe": 21.39,
       "estimated": false
     },
     {
@@ -4372,14 +4373,14 @@
       "date": "1922-01-01",
       "price": 7.3,
       "earnings": 0.32,
-      "pe": 22.58,
+      "pe": 22.81,
       "estimated": false
     },
     {
       "date": "1922-02-01",
       "price": 7.46,
       "earnings": 0.36,
-      "pe": 20.91,
+      "pe": 20.72,
       "estimated": false
     },
     {
@@ -4393,14 +4394,14 @@
       "date": "1922-04-01",
       "price": 8.21,
       "earnings": 0.42,
-      "pe": 19.4,
+      "pe": 19.55,
       "estimated": false
     },
     {
       "date": "1922-05-01",
       "price": 8.53,
       "earnings": 0.46,
-      "pe": 18.68,
+      "pe": 18.54,
       "estimated": false
     },
     {
@@ -4414,14 +4415,14 @@
       "date": "1922-07-01",
       "price": 8.51,
       "earnings": 0.52,
-      "pe": 16.26,
+      "pe": 16.37,
       "estimated": false
     },
     {
       "date": "1922-08-01",
       "price": 8.83,
       "earnings": 0.56,
-      "pe": 15.86,
+      "pe": 15.77,
       "estimated": false
     },
     {
@@ -4435,14 +4436,14 @@
       "date": "1922-10-01",
       "price": 9.26,
       "earnings": 0.62,
-      "pe": 14.86,
+      "pe": 14.94,
       "estimated": false
     },
     {
       "date": "1922-11-01",
       "price": 8.8,
       "earnings": 0.66,
-      "pe": 13.4,
+      "pe": 13.33,
       "estimated": false
     },
     {
@@ -4456,77 +4457,77 @@
       "date": "1923-01-01",
       "price": 8.9,
       "earnings": 0.71,
-      "pe": 12.46,
+      "pe": 12.54,
       "estimated": false
     },
     {
       "date": "1923-02-01",
       "price": 9.28,
       "earnings": 0.74,
-      "pe": 12.57,
+      "pe": 12.54,
       "estimated": false
     },
     {
       "date": "1923-03-01",
       "price": 9.43,
       "earnings": 0.76,
-      "pe": 12.37,
+      "pe": 12.41,
       "estimated": false
     },
     {
       "date": "1923-04-01",
       "price": 9.1,
       "earnings": 0.79,
-      "pe": 11.57,
+      "pe": 11.52,
       "estimated": false
     },
     {
       "date": "1923-05-01",
       "price": 8.67,
       "earnings": 0.81,
-      "pe": 10.69,
+      "pe": 10.7,
       "estimated": false
     },
     {
       "date": "1923-06-01",
       "price": 8.34,
       "earnings": 0.83,
-      "pe": 9.99,
+      "pe": 10.05,
       "estimated": false
     },
     {
       "date": "1923-07-01",
       "price": 8.06,
       "earnings": 0.86,
-      "pe": 9.38,
+      "pe": 9.37,
       "estimated": false
     },
     {
       "date": "1923-08-01",
       "price": 8.1,
       "earnings": 0.88,
-      "pe": 9.17,
+      "pe": 9.2,
       "estimated": false
     },
     {
       "date": "1923-09-01",
       "price": 8.15,
       "earnings": 0.91,
-      "pe": 8.98,
+      "pe": 8.96,
       "estimated": false
     },
     {
       "date": "1923-10-01",
       "price": 8.03,
       "earnings": 0.93,
-      "pe": 8.62,
+      "pe": 8.63,
       "estimated": false
     },
     {
       "date": "1923-11-01",
       "price": 8.27,
       "earnings": 0.96,
-      "pe": 8.65,
+      "pe": 8.61,
       "estimated": false
     },
     {
@@ -4540,77 +4541,77 @@
       "date": "1924-01-01",
       "price": 8.83,
       "earnings": 0.98,
-      "pe": 9.05,
+      "pe": 9.01,
       "estimated": false
     },
     {
       "date": "1924-02-01",
       "price": 8.87,
       "earnings": 0.97,
-      "pe": 9.13,
+      "pe": 9.14,
       "estimated": false
     },
     {
       "date": "1924-03-01",
       "price": 8.7,
       "earnings": 0.97,
-      "pe": 8.99,
+      "pe": 8.97,
       "estimated": false
     },
     {
       "date": "1924-04-01",
       "price": 8.5,
       "earnings": 0.96,
-      "pe": 8.82,
+      "pe": 8.85,
       "estimated": false
     },
     {
       "date": "1924-05-01",
       "price": 8.47,
       "earnings": 0.96,
-      "pe": 8.83,
+      "pe": 8.82,
       "estimated": false
     },
     {
       "date": "1924-06-01",
       "price": 8.63,
       "earnings": 0.95,
-      "pe": 9.04,
+      "pe": 9.08,
       "estimated": false
     },
     {
       "date": "1924-07-01",
       "price": 9.03,
       "earnings": 0.95,
-      "pe": 9.5,
+      "pe": 9.51,
       "estimated": false
     },
     {
       "date": "1924-08-01",
       "price": 9.34,
       "earnings": 0.95,
-      "pe": 9.87,
+      "pe": 9.83,
       "estimated": false
     },
     {
       "date": "1924-09-01",
       "price": 9.25,
       "earnings": 0.94,
-      "pe": 9.81,
+      "pe": 9.84,
       "estimated": false
     },
     {
       "date": "1924-10-01",
       "price": 9.13,
       "earnings": 0.94,
-      "pe": 9.73,
+      "pe": 9.71,
       "estimated": false
     },
     {
       "date": "1924-11-01",
       "price": 9.64,
       "earnings": 0.93,
-      "pe": 10.32,
+      "pe": 10.37,
       "estimated": false
     },
     {
@@ -4624,14 +4625,14 @@
       "date": "1925-01-01",
       "price": 10.58,
       "earnings": 0.96,
-      "pe": 11.06,
+      "pe": 11.02,
       "estimated": false
     },
     {
       "date": "1925-02-01",
       "price": 10.67,
       "earnings": 0.98,
-      "pe": 10.85,
+      "pe": 10.89,
       "estimated": false
     },
     {
@@ -4645,14 +4646,14 @@
       "date": "1925-04-01",
       "price": 10.28,
       "earnings": 1.04,
-      "pe": 9.91,
+      "pe": 9.88,
       "estimated": false
     },
     {
       "date": "1925-05-01",
       "price": 10.61,
       "earnings": 1.06,
-      "pe": 9.98,
+      "pe": 10.01,
       "estimated": false
     },
     {
@@ -4666,14 +4667,14 @@
       "date": "1925-07-01",
       "price": 11.1,
       "earnings": 1.12,
-      "pe": 9.94,
+      "pe": 9.91,
       "estimated": false
     },
     {
       "date": "1925-08-01",
       "price": 11.25,
       "earnings": 1.14,
-      "pe": 9.84,
+      "pe": 9.87,
       "estimated": false
     },
     {
@@ -4687,14 +4688,14 @@
       "date": "1925-10-01",
       "price": 11.89,
       "earnings": 1.2,
-      "pe": 9.93,
+      "pe": 9.91,
       "estimated": false
     },
     {
       "date": "1925-11-01",
       "price": 12.26,
       "earnings": 1.22,
-      "pe": 10.02,
+      "pe": 10.05,
       "estimated": false
     },
     {
@@ -4708,77 +4709,77 @@
       "date": "1926-01-01",
       "price": 12.65,
       "earnings": 1.25,
-      "pe": 10.13,
+      "pe": 10.12,
       "estimated": false
     },
     {
       "date": "1926-02-01",
       "price": 12.67,
       "earnings": 1.25,
-      "pe": 10.15,
+      "pe": 10.14,
       "estimated": false
     },
     {
       "date": "1926-03-01",
       "price": 11.81,
       "earnings": 1.25,
-      "pe": 9.46,
+      "pe": 9.45,
       "estimated": false
     },
     {
       "date": "1926-04-01",
       "price": 11.48,
       "earnings": 1.25,
-      "pe": 9.21,
+      "pe": 9.18,
       "estimated": false
     },
     {
       "date": "1926-05-01",
       "price": 11.56,
       "earnings": 1.25,
-      "pe": 9.28,
+      "pe": 9.25,
       "estimated": false
     },
     {
       "date": "1926-06-01",
       "price": 12.11,
       "earnings": 1.25,
-      "pe": 9.73,
+      "pe": 9.69,
       "estimated": false
     },
     {
       "date": "1926-07-01",
       "price": 12.62,
       "earnings": 1.24,
-      "pe": 10.14,
+      "pe": 10.18,
       "estimated": false
     },
     {
       "date": "1926-08-01",
       "price": 13.12,
       "earnings": 1.24,
-      "pe": 10.56,
+      "pe": 10.58,
       "estimated": false
     },
     {
       "date": "1926-09-01",
       "price": 13.32,
       "earnings": 1.24,
-      "pe": 10.72,
+      "pe": 10.74,
       "estimated": false
     },
     {
       "date": "1926-10-01",
       "price": 13.02,
       "earnings": 1.24,
-      "pe": 10.48,
+      "pe": 10.5,
       "estimated": false
     },
     {
       "date": "1926-11-01",
       "price": 13.19,
       "earnings": 1.24,
-      "pe": 10.63,
+      "pe": 10.64,
       "estimated": false
     },
     {
@@ -4792,77 +4793,77 @@
       "date": "1927-01-01",
       "price": 13.4,
       "earnings": 1.23,
-      "pe": 10.9,
+      "pe": 10.89,
       "estimated": false
     },
     {
       "date": "1927-02-01",
       "price": 13.66,
       "earnings": 1.22,
-      "pe": 11.22,
+      "pe": 11.2,
       "estimated": false
     },
     {
       "date": "1927-03-01",
       "price": 13.87,
       "earnings": 1.21,
-      "pe": 11.48,
+      "pe": 11.46,
       "estimated": false
     },
     {
       "date": "1927-04-01",
       "price": 14.21,
       "earnings": 1.2,
-      "pe": 11.87,
+      "pe": 11.84,
       "estimated": false
     },
     {
       "date": "1927-05-01",
       "price": 14.7,
       "earnings": 1.19,
-      "pe": 12.39,
+      "pe": 12.35,
       "estimated": false
     },
     {
       "date": "1927-06-01",
       "price": 14.89,
       "earnings": 1.18,
-      "pe": 12.67,
+      "pe": 12.62,
       "estimated": false
     },
     {
       "date": "1927-07-01",
       "price": 15.22,
       "earnings": 1.16,
-      "pe": 13.08,
+      "pe": 13.12,
       "estimated": false
     },
     {
       "date": "1927-08-01",
       "price": 16.03,
       "earnings": 1.15,
-      "pe": 13.9,
+      "pe": 13.94,
       "estimated": false
     },
     {
       "date": "1927-09-01",
       "price": 16.94,
       "earnings": 1.14,
-      "pe": 14.82,
+      "pe": 14.86,
       "estimated": false
     },
     {
       "date": "1927-10-01",
       "price": 16.68,
       "earnings": 1.13,
-      "pe": 14.73,
+      "pe": 14.76,
       "estimated": false
     },
     {
       "date": "1927-11-01",
       "price": 17.06,
       "earnings": 1.12,
-      "pe": 15.22,
+      "pe": 15.23,
       "estimated": false
     },
     {
@@ -4876,21 +4877,21 @@
       "date": "1928-01-01",
       "price": 17.53,
       "earnings": 1.13,
-      "pe": 15.47,
+      "pe": 15.51,
       "estimated": false
     },
     {
       "date": "1928-02-01",
       "price": 17.32,
       "earnings": 1.16,
-      "pe": 15.0,
+      "pe": 14.93,
       "estimated": false
     },
     {
       "date": "1928-03-01",
       "price": 18.25,
       "earnings": 1.18,
-      "pe": 15.51,
+      "pe": 15.47,
       "estimated": false
     },
     {
@@ -4904,21 +4905,21 @@
       "date": "1928-05-01",
       "price": 20.0,
       "earnings": 1.22,
-      "pe": 16.37,
+      "pe": 16.39,
       "estimated": false
     },
     {
       "date": "1928-06-01",
       "price": 19.02,
       "earnings": 1.25,
-      "pe": 15.28,
+      "pe": 15.22,
       "estimated": false
     },
     {
       "date": "1928-07-01",
       "price": 19.16,
       "earnings": 1.27,
-      "pe": 15.11,
+      "pe": 15.09,
       "estimated": false
     },
     {
@@ -4932,21 +4933,21 @@
       "date": "1928-09-01",
       "price": 21.17,
       "earnings": 1.31,
-      "pe": 16.14,
+      "pe": 16.16,
       "estimated": false
     },
     {
       "date": "1928-10-01",
       "price": 21.6,
       "earnings": 1.33,
-      "pe": 16.18,
+      "pe": 16.24,
       "estimated": false
     },
     {
       "date": "1928-11-01",
       "price": 23.06,
       "earnings": 1.36,
-      "pe": 16.99,
+      "pe": 16.96,
       "estimated": false
     },
     {
@@ -4960,70 +4961,70 @@
       "date": "1929-01-01",
       "price": 24.86,
       "earnings": 1.4,
-      "pe": 17.77,
+      "pe": 17.76,
       "estimated": false
     },
     {
       "date": "1929-02-01",
       "price": 24.99,
       "earnings": 1.42,
-      "pe": 17.62,
+      "pe": 17.6,
       "estimated": false
     },
     {
       "date": "1929-03-01",
       "price": 25.43,
       "earnings": 1.44,
-      "pe": 17.68,
+      "pe": 17.66,
       "estimated": false
     },
     {
       "date": "1929-04-01",
       "price": 25.28,
       "earnings": 1.46,
-      "pe": 17.35,
+      "pe": 17.32,
       "estimated": false
     },
     {
       "date": "1929-05-01",
       "price": 25.66,
       "earnings": 1.48,
-      "pe": 17.38,
+      "pe": 17.34,
       "estimated": false
     },
     {
       "date": "1929-06-01",
       "price": 26.15,
       "earnings": 1.5,
-      "pe": 17.49,
+      "pe": 17.43,
       "estimated": false
     },
     {
       "date": "1929-07-01",
       "price": 28.48,
       "earnings": 1.51,
-      "pe": 18.81,
+      "pe": 18.86,
       "estimated": false
     },
     {
       "date": "1929-08-01",
       "price": 30.1,
       "earnings": 1.53,
-      "pe": 19.63,
+      "pe": 19.67,
       "estimated": false
     },
     {
       "date": "1929-09-01",
       "price": 31.3,
       "earnings": 1.55,
-      "pe": 20.17,
+      "pe": 20.19,
       "estimated": false
     },
     {
       "date": "1929-10-01",
       "price": 27.99,
       "earnings": 1.57,
-      "pe": 17.81,
+      "pe": 17.83,
       "estimated": false
     },
     {
@@ -5044,14 +5045,14 @@
       "date": "1930-01-01",
       "price": 21.71,
       "earnings": 1.56,
-      "pe": 13.94,
+      "pe": 13.92,
       "estimated": false
     },
     {
       "date": "1930-02-01",
       "price": 23.07,
       "earnings": 1.5,
-      "pe": 15.35,
+      "pe": 15.38,
       "estimated": false
     },
     {
@@ -5065,14 +5066,14 @@
       "date": "1930-04-01",
       "price": 25.46,
       "earnings": 1.4,
-      "pe": 18.22,
+      "pe": 18.19,
       "estimated": false
     },
     {
       "date": "1930-05-01",
       "price": 23.94,
       "earnings": 1.34,
-      "pe": 17.83,
+      "pe": 17.87,
       "estimated": false
     },
     {
@@ -5086,14 +5087,14 @@
       "date": "1930-07-01",
       "price": 21.06,
       "earnings": 1.24,
-      "pe": 17.03,
+      "pe": 16.98,
       "estimated": false
     },
     {
       "date": "1930-08-01",
       "price": 20.79,
       "earnings": 1.18,
-      "pe": 17.57,
+      "pe": 17.62,
       "estimated": false
     },
     {
@@ -5107,14 +5108,14 @@
       "date": "1930-10-01",
       "price": 17.92,
       "earnings": 1.08,
-      "pe": 16.64,
+      "pe": 16.59,
       "estimated": false
     },
     {
       "date": "1930-11-01",
       "price": 16.62,
       "earnings": 1.02,
-      "pe": 16.25,
+      "pe": 16.29,
       "estimated": false
     },
     {
@@ -5212,14 +5213,14 @@
       "date": "1932-01-01",
       "price": 8.3,
       "earnings": 0.59,
-      "pe": 13.99,
+      "pe": 14.07,
       "estimated": false
     },
     {
       "date": "1932-02-01",
       "price": 8.23,
       "earnings": 0.58,
-      "pe": 14.27,
+      "pe": 14.19,
       "estimated": false
     },
     {
@@ -5233,14 +5234,14 @@
       "date": "1932-04-01",
       "price": 6.28,
       "earnings": 0.54,
-      "pe": 11.56,
+      "pe": 11.63,
       "estimated": false
     },
     {
       "date": "1932-05-01",
       "price": 5.51,
       "earnings": 0.53,
-      "pe": 10.46,
+      "pe": 10.4,
       "estimated": false
     },
     {
@@ -5254,14 +5255,14 @@
       "date": "1932-07-01",
       "price": 5.01,
       "earnings": 0.49,
-      "pe": 10.16,
+      "pe": 10.22,
       "estimated": false
     },
     {
       "date": "1932-08-01",
       "price": 7.53,
       "earnings": 0.48,
-      "pe": 15.8,
+      "pe": 15.69,
       "estimated": false
     },
     {
@@ -5275,14 +5276,14 @@
       "date": "1932-10-01",
       "price": 7.12,
       "earnings": 0.44,
-      "pe": 16.06,
+      "pe": 16.18,
       "estimated": false
     },
     {
       "date": "1932-11-01",
       "price": 7.05,
       "earnings": 0.43,
-      "pe": 16.52,
+      "pe": 16.4,
       "estimated": false
     },
     {
@@ -5296,21 +5297,21 @@
       "date": "1933-01-01",
       "price": 7.09,
       "earnings": 0.41,
-      "pe": 17.19,
+      "pe": 17.29,
       "estimated": false
     },
     {
       "date": "1933-02-01",
       "price": 6.25,
       "earnings": 0.41,
-      "pe": 15.06,
+      "pe": 15.24,
       "estimated": false
     },
     {
       "date": "1933-03-01",
       "price": 6.23,
       "earnings": 0.42,
-      "pe": 14.92,
+      "pe": 14.83,
       "estimated": false
     },
     {
@@ -5324,21 +5325,21 @@
       "date": "1933-05-01",
       "price": 8.87,
       "earnings": 0.42,
-      "pe": 20.99,
+      "pe": 21.12,
       "estimated": false
     },
     {
       "date": "1933-06-01",
       "price": 10.39,
       "earnings": 0.42,
-      "pe": 24.45,
+      "pe": 24.74,
       "estimated": false
     },
     {
       "date": "1933-07-01",
       "price": 11.23,
       "earnings": 0.43,
-      "pe": 26.27,
+      "pe": 26.12,
       "estimated": false
     },
     {
@@ -5352,21 +5353,21 @@
       "date": "1933-09-01",
       "price": 10.58,
       "earnings": 0.43,
-      "pe": 24.46,
+      "pe": 24.6,
       "estimated": false
     },
     {
       "date": "1933-10-01",
       "price": 9.55,
       "earnings": 0.43,
-      "pe": 21.95,
+      "pe": 22.21,
       "estimated": false
     },
     {
       "date": "1933-11-01",
       "price": 9.78,
       "earnings": 0.44,
-      "pe": 22.35,
+      "pe": 22.23,
       "estimated": false
     },
     {
@@ -5380,77 +5381,77 @@
       "date": "1934-01-01",
       "price": 10.54,
       "earnings": 0.44,
-      "pe": 23.73,
+      "pe": 23.95,
       "estimated": false
     },
     {
       "date": "1934-02-01",
       "price": 11.32,
       "earnings": 0.45,
-      "pe": 25.25,
+      "pe": 25.16,
       "estimated": false
     },
     {
       "date": "1934-03-01",
       "price": 10.74,
       "earnings": 0.45,
-      "pe": 23.73,
+      "pe": 23.87,
       "estimated": false
     },
     {
       "date": "1934-04-01",
       "price": 10.92,
       "earnings": 0.46,
-      "pe": 23.91,
+      "pe": 23.74,
       "estimated": false
     },
     {
       "date": "1934-05-01",
       "price": 9.81,
       "earnings": 0.46,
-      "pe": 21.29,
+      "pe": 21.33,
       "estimated": false
     },
     {
       "date": "1934-06-01",
       "price": 9.94,
       "earnings": 0.47,
-      "pe": 21.38,
+      "pe": 21.15,
       "estimated": false
     },
     {
       "date": "1934-07-01",
       "price": 9.47,
       "earnings": 0.47,
-      "pe": 20.18,
+      "pe": 20.15,
       "estimated": false
     },
     {
       "date": "1934-08-01",
       "price": 9.1,
       "earnings": 0.47,
-      "pe": 19.23,
+      "pe": 19.36,
       "estimated": false
     },
     {
       "date": "1934-09-01",
       "price": 8.88,
       "earnings": 0.48,
-      "pe": 18.6,
+      "pe": 18.5,
       "estimated": false
     },
     {
       "date": "1934-10-01",
       "price": 8.95,
       "earnings": 0.48,
-      "pe": 18.58,
+      "pe": 18.65,
       "estimated": false
     },
     {
       "date": "1934-11-01",
       "price": 9.2,
       "earnings": 0.49,
-      "pe": 18.94,
+      "pe": 18.78,
       "estimated": false
     },
     {
@@ -5485,14 +5486,14 @@
       "date": "1935-04-01",
       "price": 9.04,
       "earnings": 0.76,
-      "pe": 11.95,
+      "pe": 11.89,
       "estimated": false
     },
     {
       "date": "1935-05-01",
       "price": 9.75,
       "earnings": 0.78,
-      "pe": 12.45,
+      "pe": 12.5,
       "estimated": false
     },
     {
@@ -5506,14 +5507,14 @@
       "date": "1935-07-01",
       "price": 10.65,
       "earnings": 0.79,
-      "pe": 13.42,
+      "pe": 13.48,
       "estimated": false
     },
     {
       "date": "1935-08-01",
       "price": 11.37,
       "earnings": 0.78,
-      "pe": 14.64,
+      "pe": 14.58,
       "estimated": false
     },
     {
@@ -5611,14 +5612,14 @@
       "date": "1936-10-01",
       "price": 16.89,
       "earnings": 0.97,
-      "pe": 17.47,
+      "pe": 17.41,
       "estimated": false
     },
     {
       "date": "1936-11-01",
       "price": 17.36,
       "earnings": 0.99,
-      "pe": 17.48,
+      "pe": 17.54,
       "estimated": false
     },
     {
@@ -5674,14 +5675,14 @@
       "date": "1937-07-01",
       "price": 16.57,
       "earnings": 1.19,
-      "pe": 13.96,
+      "pe": 13.92,
       "estimated": false
     },
     {
       "date": "1937-08-01",
       "price": 16.74,
       "earnings": 1.2,
-      "pe": 13.91,
+      "pe": 13.95,
       "estimated": false
     },
     {
@@ -5716,14 +5717,14 @@
       "date": "1938-01-01",
       "price": 11.31,
       "earnings": 1.08,
-      "pe": 10.5,
+      "pe": 10.47,
       "estimated": false
     },
     {
       "date": "1938-02-01",
       "price": 11.04,
       "earnings": 1.02,
-      "pe": 10.79,
+      "pe": 10.82,
       "estimated": false
     },
     {
@@ -5737,14 +5738,14 @@
       "date": "1938-04-01",
       "price": 9.89,
       "earnings": 0.9,
-      "pe": 10.95,
+      "pe": 10.99,
       "estimated": false
     },
     {
       "date": "1938-05-01",
       "price": 9.98,
       "earnings": 0.84,
-      "pe": 11.93,
+      "pe": 11.88,
       "estimated": false
     },
     {
@@ -5779,14 +5780,14 @@
       "date": "1938-10-01",
       "price": 13.06,
       "earnings": 0.63,
-      "pe": 20.84,
+      "pe": 20.73,
       "estimated": false
     },
     {
       "date": "1938-11-01",
       "price": 13.07,
       "earnings": 0.63,
-      "pe": 20.64,
+      "pe": 20.75,
       "estimated": false
     },
     {
@@ -5800,14 +5801,14 @@
       "date": "1939-01-01",
       "price": 12.5,
       "earnings": 0.66,
-      "pe": 18.84,
+      "pe": 18.94,
       "estimated": false
     },
     {
       "date": "1939-02-01",
       "price": 12.4,
       "earnings": 0.69,
-      "pe": 18.06,
+      "pe": 17.97,
       "estimated": false
     },
     {
@@ -5821,14 +5822,14 @@
       "date": "1939-04-01",
       "price": 10.83,
       "earnings": 0.73,
-      "pe": 14.9,
+      "pe": 14.84,
       "estimated": false
     },
     {
       "date": "1939-05-01",
       "price": 11.23,
       "earnings": 0.74,
-      "pe": 15.11,
+      "pe": 15.18,
       "estimated": false
     },
     {
@@ -5842,14 +5843,14 @@
       "date": "1939-07-01",
       "price": 11.71,
       "earnings": 0.78,
-      "pe": 15.08,
+      "pe": 15.01,
       "estimated": false
     },
     {
       "date": "1939-08-01",
       "price": 11.54,
       "earnings": 0.79,
-      "pe": 14.55,
+      "pe": 14.61,
       "estimated": false
     },
     {
@@ -5905,14 +5906,14 @@
       "date": "1940-04-01",
       "price": 12.27,
       "earnings": 1.01,
-      "pe": 12.19,
+      "pe": 12.15,
       "estimated": false
     },
     {
       "date": "1940-05-01",
       "price": 10.58,
       "earnings": 1.02,
-      "pe": 10.34,
+      "pe": 10.37,
       "estimated": false
     },
     {
@@ -5926,14 +5927,14 @@
       "date": "1940-07-01",
       "price": 9.99,
       "earnings": 1.05,
-      "pe": 9.48,
+      "pe": 9.51,
       "estimated": false
     },
     {
       "date": "1940-08-01",
       "price": 10.2,
       "earnings": 1.07,
-      "pe": 9.56,
+      "pe": 9.53,
       "estimated": false
     },
     {
@@ -5968,14 +5969,14 @@
       "date": "1941-01-01",
       "price": 10.55,
       "earnings": 1.05,
-      "pe": 10.02,
+      "pe": 10.05,
       "estimated": false
     },
     {
       "date": "1941-02-01",
       "price": 9.89,
       "earnings": 1.06,
-      "pe": 9.36,
+      "pe": 9.33,
       "estimated": false
     },
     {
@@ -6010,14 +6011,14 @@
       "date": "1941-07-01",
       "price": 10.26,
       "earnings": 1.12,
-      "pe": 9.13,
+      "pe": 9.16,
       "estimated": false
     },
     {
       "date": "1941-08-01",
       "price": 10.21,
       "earnings": 1.16,
-      "pe": 8.83,
+      "pe": 8.8,
       "estimated": false
     },
     {
@@ -6094,14 +6095,14 @@
       "date": "1942-07-01",
       "price": 8.64,
       "earnings": 0.97,
-      "pe": 8.94,
+      "pe": 8.91,
       "estimated": false
     },
     {
       "date": "1942-08-01",
       "price": 8.59,
       "earnings": 0.95,
-      "pe": 9.01,
+      "pe": 9.04,
       "estimated": false
     },
     {
@@ -6136,14 +6137,14 @@
       "date": "1943-01-01",
       "price": 10.09,
       "earnings": 1.04,
-      "pe": 9.67,
+      "pe": 9.7,
       "estimated": false
     },
     {
       "date": "1943-02-01",
       "price": 10.69,
       "earnings": 1.06,
-      "pe": 10.12,
+      "pe": 10.08,
       "estimated": false
     },
     {
@@ -6178,14 +6179,14 @@
       "date": "1943-07-01",
       "price": 12.35,
       "earnings": 1.09,
-      "pe": 11.3,
+      "pe": 11.33,
       "estimated": false
     },
     {
       "date": "1943-08-01",
       "price": 11.74,
       "earnings": 1.09,
-      "pe": 10.8,
+      "pe": 10.77,
       "estimated": false
     },
     {
@@ -6199,14 +6200,14 @@
       "date": "1943-10-01",
       "price": 11.88,
       "earnings": 1.03,
-      "pe": 11.5,
+      "pe": 11.53,
       "estimated": false
     },
     {
       "date": "1943-11-01",
       "price": 11.33,
       "earnings": 0.99,
-      "pe": 11.48,
+      "pe": 11.44,
       "estimated": false
     },
     {
@@ -6220,14 +6221,14 @@
       "date": "1944-01-01",
       "price": 11.85,
       "earnings": 0.94,
-      "pe": 12.65,
+      "pe": 12.61,
       "estimated": false
     },
     {
       "date": "1944-02-01",
       "price": 11.77,
       "earnings": 0.93,
-      "pe": 12.61,
+      "pe": 12.66,
       "estimated": false
     },
     {
@@ -6241,14 +6242,14 @@
       "date": "1944-04-01",
       "price": 11.89,
       "earnings": 0.93,
-      "pe": 12.83,
+      "pe": 12.78,
       "estimated": false
     },
     {
       "date": "1944-05-01",
       "price": 12.1,
       "earnings": 0.92,
-      "pe": 13.1,
+      "pe": 13.15,
       "estimated": false
     },
     {
@@ -6262,14 +6263,14 @@
       "date": "1944-07-01",
       "price": 13.0,
       "earnings": 0.91,
-      "pe": 14.23,
+      "pe": 14.29,
       "estimated": false
     },
     {
       "date": "1944-08-01",
       "price": 12.81,
       "earnings": 0.91,
-      "pe": 14.13,
+      "pe": 14.08,
       "estimated": false
     },
     {
@@ -6325,14 +6326,14 @@
       "date": "1945-04-01",
       "price": 14.28,
       "earnings": 0.97,
-      "pe": 14.67,
+      "pe": 14.72,
       "estimated": false
     },
     {
       "date": "1945-05-01",
       "price": 14.82,
       "earnings": 0.99,
-      "pe": 15.02,
+      "pe": 14.97,
       "estimated": false
     },
     {
@@ -6346,14 +6347,14 @@
       "date": "1945-07-01",
       "price": 14.78,
       "earnings": 1.0,
-      "pe": 14.83,
+      "pe": 14.78,
       "estimated": false
     },
     {
       "date": "1945-08-01",
       "price": 14.83,
       "earnings": 0.99,
-      "pe": 14.93,
+      "pe": 14.98,
       "estimated": false
     },
     {
@@ -6430,14 +6431,14 @@
       "date": "1946-07-01",
       "price": 18.05,
       "earnings": 0.86,
-      "pe": 21.07,
+      "pe": 20.99,
       "estimated": false
     },
     {
       "date": "1946-08-01",
       "price": 17.7,
       "earnings": 0.87,
-      "pe": 20.27,
+      "pe": 20.34,
       "estimated": false
     },
     {
@@ -6451,14 +6452,14 @@
       "date": "1946-10-01",
       "price": 14.75,
       "earnings": 0.95,
-      "pe": 15.58,
+      "pe": 15.53,
       "estimated": false
     },
     {
       "date": "1946-11-01",
       "price": 14.69,
       "earnings": 1.0,
-      "pe": 14.64,
+      "pe": 14.69,
       "estimated": false
     },
     {
@@ -6493,14 +6494,14 @@
       "date": "1947-04-01",
       "price": 14.6,
       "earnings": 1.33,
-      "pe": 11.0,
+      "pe": 10.98,
       "estimated": false
     },
     {
       "date": "1947-05-01",
       "price": 14.34,
       "earnings": 1.38,
-      "pe": 10.37,
+      "pe": 10.39,
       "estimated": false
     },
     {
@@ -6514,14 +6515,14 @@
       "date": "1947-07-01",
       "price": 15.77,
       "earnings": 1.48,
-      "pe": 10.68,
+      "pe": 10.66,
       "estimated": false
     },
     {
       "date": "1947-08-01",
       "price": 15.46,
       "earnings": 1.51,
-      "pe": 10.22,
+      "pe": 10.24,
       "estimated": false
     },
     {
@@ -6556,14 +6557,14 @@
       "date": "1948-01-01",
       "price": 14.83,
       "earnings": 1.64,
-      "pe": 9.02,
+      "pe": 9.04,
       "estimated": false
     },
     {
       "date": "1948-02-01",
       "price": 14.1,
       "earnings": 1.68,
-      "pe": 8.41,
+      "pe": 8.39,
       "estimated": false
     },
     {
@@ -6619,14 +6620,14 @@
       "date": "1948-10-01",
       "price": 16.19,
       "earnings": 2.14,
-      "pe": 7.55,
+      "pe": 7.57,
       "estimated": false
     },
     {
       "date": "1948-11-01",
       "price": 15.29,
       "earnings": 2.22,
-      "pe": 6.9,
+      "pe": 6.89,
       "estimated": false
     },
     {
@@ -6661,7 +6662,7 @@
       "date": "1949-04-01",
       "price": 14.89,
       "earnings": 2.39,
-      "pe": 6.24,
+      "pe": 6.23,
       "estimated": false
     },
     {
@@ -6682,14 +6683,14 @@
       "date": "1949-07-01",
       "price": 14.76,
       "earnings": 2.4,
-      "pe": 6.16,
+      "pe": 6.15,
       "estimated": false
     },
     {
       "date": "1949-08-01",
       "price": 15.29,
       "earnings": 2.39,
-      "pe": 6.39,
+      "pe": 6.4,
       "estimated": false
     },
     {
@@ -6703,14 +6704,14 @@
       "date": "1949-10-01",
       "price": 15.89,
       "earnings": 2.37,
-      "pe": 6.71,
+      "pe": 6.7,
       "estimated": false
     },
     {
       "date": "1949-11-01",
       "price": 16.11,
       "earnings": 2.34,
-      "pe": 6.87,
+      "pe": 6.88,
       "estimated": false
     },
     {
@@ -6724,14 +6725,14 @@
       "date": "1950-01-01",
       "price": 16.88,
       "earnings": 2.34,
-      "pe": 7.22,
+      "pe": 7.21,
       "estimated": false
     },
     {
       "date": "1950-02-01",
       "price": 17.21,
       "earnings": 2.35,
-      "pe": 7.31,
+      "pe": 7.32,
       "estimated": false
     },
     {
@@ -6745,14 +6746,14 @@
       "date": "1950-04-01",
       "price": 17.84,
       "earnings": 2.43,
-      "pe": 7.35,
+      "pe": 7.34,
       "estimated": false
     },
     {
       "date": "1950-05-01",
       "price": 18.44,
       "earnings": 2.48,
-      "pe": 7.43,
+      "pe": 7.44,
       "estimated": false
     },
     {
@@ -6808,14 +6809,14 @@
       "date": "1951-01-01",
       "price": 21.21,
       "earnings": 2.84,
-      "pe": 7.48,
+      "pe": 7.47,
       "estimated": false
     },
     {
       "date": "1951-02-01",
       "price": 22.0,
       "earnings": 2.83,
-      "pe": 7.76,
+      "pe": 7.77,
       "estimated": false
     },
     {
@@ -6829,14 +6830,14 @@
       "date": "1951-04-01",
       "price": 21.92,
       "earnings": 2.79,
-      "pe": 7.85,
+      "pe": 7.86,
       "estimated": false
     },
     {
       "date": "1951-05-01",
       "price": 21.93,
       "earnings": 2.76,
-      "pe": 7.96,
+      "pe": 7.95,
       "estimated": false
     },
     {
@@ -6871,14 +6872,14 @@
       "date": "1951-10-01",
       "price": 23.36,
       "earnings": 2.49,
-      "pe": 9.39,
+      "pe": 9.38,
       "estimated": false
     },
     {
       "date": "1951-11-01",
       "price": 22.71,
       "earnings": 2.46,
-      "pe": 9.22,
+      "pe": 9.23,
       "estimated": false
     },
     {
@@ -6892,14 +6893,14 @@
       "date": "1952-01-01",
       "price": 24.19,
       "earnings": 2.43,
-      "pe": 9.97,
+      "pe": 9.95,
       "estimated": false
     },
     {
       "date": "1952-02-01",
       "price": 23.75,
       "earnings": 2.41,
-      "pe": 9.84,
+      "pe": 9.85,
       "estimated": false
     },
     {
@@ -6934,14 +6935,14 @@
       "date": "1952-07-01",
       "price": 25.08,
       "earnings": 2.35,
-      "pe": 10.69,
+      "pe": 10.67,
       "estimated": false
     },
     {
       "date": "1952-08-01",
       "price": 25.18,
       "earnings": 2.35,
-      "pe": 10.7,
+      "pe": 10.71,
       "estimated": false
     },
     {
@@ -6955,14 +6956,14 @@
       "date": "1952-10-01",
       "price": 24.26,
       "earnings": 2.37,
-      "pe": 10.22,
+      "pe": 10.24,
       "estimated": false
     },
     {
       "date": "1952-11-01",
       "price": 25.03,
       "earnings": 2.39,
-      "pe": 10.49,
+      "pe": 10.47,
       "estimated": false
     },
     {
@@ -6997,14 +6998,14 @@
       "date": "1953-04-01",
       "price": 24.71,
       "earnings": 2.46,
-      "pe": 10.06,
+      "pe": 10.04,
       "estimated": false
     },
     {
       "date": "1953-05-01",
       "price": 24.84,
       "earnings": 2.48,
-      "pe": 10.0,
+      "pe": 10.02,
       "estimated": false
     },
     {
@@ -7018,14 +7019,14 @@
       "date": "1953-07-01",
       "price": 24.29,
       "earnings": 2.52,
-      "pe": 9.63,
+      "pe": 9.64,
       "estimated": false
     },
     {
       "date": "1953-08-01",
       "price": 24.39,
       "earnings": 2.54,
-      "pe": 9.61,
+      "pe": 9.6,
       "estimated": false
     },
     {
@@ -7039,14 +7040,14 @@
       "date": "1953-10-01",
       "price": 23.97,
       "earnings": 2.54,
-      "pe": 9.45,
+      "pe": 9.44,
       "estimated": false
     },
     {
       "date": "1953-11-01",
       "price": 24.5,
       "earnings": 2.52,
-      "pe": 9.71,
+      "pe": 9.72,
       "estimated": false
     },
     {
@@ -7060,14 +7061,14 @@
       "date": "1954-01-01",
       "price": 25.46,
       "earnings": 2.52,
-      "pe": 10.09,
+      "pe": 10.1,
       "estimated": false
     },
     {
       "date": "1954-02-01",
       "price": 26.02,
       "earnings": 2.54,
-      "pe": 10.26,
+      "pe": 10.24,
       "estimated": false
     },
     {
@@ -7081,14 +7082,14 @@
       "date": "1954-04-01",
       "price": 27.63,
       "earnings": 2.57,
-      "pe": 10.74,
+      "pe": 10.75,
       "estimated": false
     },
     {
       "date": "1954-05-01",
       "price": 28.73,
       "earnings": 2.6,
-      "pe": 11.06,
+      "pe": 11.05,
       "estimated": false
     },
     {
@@ -7102,14 +7103,14 @@
       "date": "1954-07-01",
       "price": 30.13,
       "earnings": 2.62,
-      "pe": 11.49,
+      "pe": 11.5,
       "estimated": false
     },
     {
       "date": "1954-08-01",
       "price": 30.73,
       "earnings": 2.63,
-      "pe": 11.7,
+      "pe": 11.68,
       "estimated": false
     },
     {
@@ -7123,14 +7124,14 @@
       "date": "1954-10-01",
       "price": 32.18,
       "earnings": 2.68,
-      "pe": 12.02,
+      "pe": 12.01,
       "estimated": false
     },
     {
       "date": "1954-11-01",
       "price": 33.44,
       "earnings": 2.72,
-      "pe": 12.28,
+      "pe": 12.29,
       "estimated": false
     },
     {
@@ -7144,14 +7145,14 @@
       "date": "1955-01-01",
       "price": 35.6,
       "earnings": 2.83,
-      "pe": 12.56,
+      "pe": 12.58,
       "estimated": false
     },
     {
       "date": "1955-02-01",
       "price": 36.79,
       "earnings": 2.9,
-      "pe": 12.7,
+      "pe": 12.69,
       "estimated": false
     },
     {
@@ -7165,14 +7166,14 @@
       "date": "1955-04-01",
       "price": 37.76,
       "earnings": 3.05,
-      "pe": 12.39,
+      "pe": 12.38,
       "estimated": false
     },
     {
       "date": "1955-05-01",
       "price": 37.6,
       "earnings": 3.13,
-      "pe": 12.0,
+      "pe": 12.01,
       "estimated": false
     },
     {
@@ -7186,14 +7187,14 @@
       "date": "1955-07-01",
       "price": 42.69,
       "earnings": 3.29,
-      "pe": 12.96,
+      "pe": 12.98,
       "estimated": false
     },
     {
       "date": "1955-08-01",
       "price": 42.43,
       "earnings": 3.37,
-      "pe": 12.6,
+      "pe": 12.59,
       "estimated": false
     },
     {
@@ -7228,14 +7229,14 @@
       "date": "1956-01-01",
       "price": 44.15,
       "earnings": 3.64,
-      "pe": 12.12,
+      "pe": 12.13,
       "estimated": false
     },
     {
       "date": "1956-02-01",
       "price": 44.43,
       "earnings": 3.67,
-      "pe": 12.12,
+      "pe": 12.11,
       "estimated": false
     },
     {
@@ -7270,14 +7271,14 @@
       "date": "1956-07-01",
       "price": 48.78,
       "earnings": 3.55,
-      "pe": 13.73,
+      "pe": 13.74,
       "estimated": false
     },
     {
       "date": "1956-08-01",
       "price": 48.49,
       "earnings": 3.51,
-      "pe": 13.83,
+      "pe": 13.81,
       "estimated": false
     },
     {
@@ -7291,14 +7292,14 @@
       "date": "1956-10-01",
       "price": 46.24,
       "earnings": 3.44,
-      "pe": 13.43,
+      "pe": 13.44,
       "estimated": false
     },
     {
       "date": "1956-11-01",
       "price": 45.76,
       "earnings": 3.43,
-      "pe": 13.35,
+      "pe": 13.34,
       "estimated": false
     },
     {
@@ -7312,14 +7313,14 @@
       "date": "1957-01-01",
       "price": 45.43,
       "earnings": 3.41,
-      "pe": 13.34,
+      "pe": 13.32,
       "estimated": false
     },
     {
       "date": "1957-02-01",
       "price": 43.47,
       "earnings": 3.4,
-      "pe": 12.77,
+      "pe": 12.79,
       "estimated": false
     },
     {
@@ -7333,14 +7334,14 @@
       "date": "1957-04-01",
       "price": 45.05,
       "earnings": 3.41,
-      "pe": 13.22,
+      "pe": 13.21,
       "estimated": false
     },
     {
       "date": "1957-05-01",
       "price": 46.78,
       "earnings": 3.41,
-      "pe": 13.71,
+      "pe": 13.72,
       "estimated": false
     },
     {
@@ -7354,14 +7355,14 @@
       "date": "1957-07-01",
       "price": 48.51,
       "earnings": 3.44,
-      "pe": 14.12,
+      "pe": 14.1,
       "estimated": false
     },
     {
       "date": "1957-08-01",
       "price": 45.84,
       "earnings": 3.45,
-      "pe": 13.27,
+      "pe": 13.29,
       "estimated": false
     },
     {
@@ -7375,14 +7376,14 @@
       "date": "1957-10-01",
       "price": 41.24,
       "earnings": 3.44,
-      "pe": 12.0,
+      "pe": 11.99,
       "estimated": false
     },
     {
       "date": "1957-11-01",
       "price": 40.35,
       "earnings": 3.4,
-      "pe": 11.86,
+      "pe": 11.87,
       "estimated": false
     },
     {
@@ -7396,14 +7397,14 @@
       "date": "1958-01-01",
       "price": 41.12,
       "earnings": 3.29,
-      "pe": 12.49,
+      "pe": 12.5,
       "estimated": false
     },
     {
       "date": "1958-02-01",
       "price": 41.26,
       "earnings": 3.22,
-      "pe": 12.83,
+      "pe": 12.81,
       "estimated": false
     },
     {
@@ -7438,14 +7439,14 @@
       "date": "1958-07-01",
       "price": 45.98,
       "earnings": 2.91,
-      "pe": 15.78,
+      "pe": 15.8,
       "estimated": false
     },
     {
       "date": "1958-08-01",
       "price": 47.7,
       "earnings": 2.9,
-      "pe": 16.47,
+      "pe": 16.45,
       "estimated": false
     },
     {
@@ -7459,14 +7460,14 @@
       "date": "1958-10-01",
       "price": 50.95,
       "earnings": 2.88,
-      "pe": 17.67,
+      "pe": 17.69,
       "estimated": false
     },
     {
       "date": "1958-11-01",
       "price": 52.5,
       "earnings": 2.89,
-      "pe": 18.19,
+      "pe": 18.17,
       "estimated": false
     },
     {
@@ -7480,14 +7481,14 @@
       "date": "1959-01-01",
       "price": 55.62,
       "earnings": 2.96,
-      "pe": 18.77,
+      "pe": 18.79,
       "estimated": false
     },
     {
       "date": "1959-02-01",
       "price": 54.77,
       "earnings": 3.04,
-      "pe": 18.04,
+      "pe": 18.02,
       "estimated": false
     },
     {
@@ -7501,14 +7502,14 @@
       "date": "1959-04-01",
       "price": 57.1,
       "earnings": 3.21,
-      "pe": 17.81,
+      "pe": 17.79,
       "estimated": false
     },
     {
       "date": "1959-05-01",
       "price": 57.96,
       "earnings": 3.3,
-      "pe": 17.55,
+      "pe": 17.56,
       "estimated": false
     },
     {
@@ -7543,14 +7544,14 @@
       "date": "1959-10-01",
       "price": 57.0,
       "earnings": 3.42,
-      "pe": 16.68,
+      "pe": 16.67,
       "estimated": false
     },
     {
       "date": "1959-11-01",
       "price": 57.23,
       "earnings": 3.4,
-      "pe": 16.82,
+      "pe": 16.83,
       "estimated": false
     },
     {
@@ -7585,14 +7586,14 @@
       "date": "1960-04-01",
       "price": 55.73,
       "earnings": 3.35,
-      "pe": 16.65,
+      "pe": 16.64,
       "estimated": false
     },
     {
       "date": "1960-05-01",
       "price": 55.22,
       "earnings": 3.3,
-      "pe": 16.72,
+      "pe": 16.73,
       "estimated": false
     },
     {
@@ -7606,14 +7607,14 @@
       "date": "1960-07-01",
       "price": 55.84,
       "earnings": 3.26,
-      "pe": 17.11,
+      "pe": 17.13,
       "estimated": false
     },
     {
       "date": "1960-08-01",
       "price": 56.51,
       "earnings": 3.27,
-      "pe": 17.3,
+      "pe": 17.28,
       "estimated": false
     },
     {
@@ -7690,14 +7691,14 @@
       "date": "1961-07-01",
       "price": 65.44,
       "earnings": 3.04,
-      "pe": 21.55,
+      "pe": 21.53,
       "estimated": false
     },
     {
       "date": "1961-08-01",
       "price": 67.79,
       "earnings": 3.04,
-      "pe": 22.27,
+      "pe": 22.3,
       "estimated": false
     },
     {
@@ -7711,14 +7712,14 @@
       "date": "1961-10-01",
       "price": 68.0,
       "earnings": 3.1,
-      "pe": 21.96,
+      "pe": 21.94,
       "estimated": false
     },
     {
       "date": "1961-11-01",
       "price": 71.08,
       "earnings": 3.14,
-      "pe": 22.61,
+      "pe": 22.64,
       "estimated": false
     },
     {
@@ -7753,14 +7754,14 @@
       "date": "1962-04-01",
       "price": 68.05,
       "earnings": 3.4,
-      "pe": 20.0,
+      "pe": 20.01,
       "estimated": false
     },
     {
       "date": "1962-05-01",
       "price": 62.99,
       "earnings": 3.44,
-      "pe": 18.33,
+      "pe": 18.31,
       "estimated": false
     },
     {
@@ -7795,14 +7796,14 @@
       "date": "1962-10-01",
       "price": 56.17,
       "earnings": 3.58,
-      "pe": 15.7,
+      "pe": 15.69,
       "estimated": false
     },
     {
       "date": "1962-11-01",
       "price": 60.04,
       "earnings": 3.62,
-      "pe": 16.57,
+      "pe": 16.59,
       "estimated": false
     },
     {
@@ -7816,14 +7817,14 @@
       "date": "1963-01-01",
       "price": 65.06,
       "earnings": 3.68,
-      "pe": 17.66,
+      "pe": 17.68,
       "estimated": false
     },
     {
       "date": "1963-02-01",
       "price": 65.92,
       "earnings": 3.7,
-      "pe": 17.83,
+      "pe": 17.82,
       "estimated": false
     },
     {
@@ -7837,14 +7838,14 @@
       "date": "1963-04-01",
       "price": 68.76,
       "earnings": 3.75,
-      "pe": 18.32,
+      "pe": 18.34,
       "estimated": false
     },
     {
       "date": "1963-05-01",
       "price": 70.14,
       "earnings": 3.8,
-      "pe": 18.47,
+      "pe": 18.46,
       "estimated": false
     },
     {
@@ -7900,14 +7901,14 @@
       "date": "1964-01-01",
       "price": 76.45,
       "earnings": 4.07,
-      "pe": 18.77,
+      "pe": 18.78,
       "estimated": false
     },
     {
       "date": "1964-02-01",
       "price": 77.39,
       "earnings": 4.13,
-      "pe": 18.75,
+      "pe": 18.74,
       "estimated": false
     },
     {
@@ -7942,14 +7943,14 @@
       "date": "1964-07-01",
       "price": 83.22,
       "earnings": 4.38,
-      "pe": 19.01,
+      "pe": 19.0,
       "estimated": false
     },
     {
       "date": "1964-08-01",
       "price": 82.0,
       "earnings": 4.42,
-      "pe": 18.54,
+      "pe": 18.55,
       "estimated": false
     },
     {
@@ -7963,14 +7964,14 @@
       "date": "1964-10-01",
       "price": 84.85,
       "earnings": 4.5,
-      "pe": 18.87,
+      "pe": 18.86,
       "estimated": false
     },
     {
       "date": "1964-11-01",
       "price": 85.44,
       "earnings": 4.52,
-      "pe": 18.89,
+      "pe": 18.9,
       "estimated": false
     },
     {
@@ -7984,14 +7985,14 @@
       "date": "1965-01-01",
       "price": 86.12,
       "earnings": 4.59,
-      "pe": 18.75,
+      "pe": 18.76,
       "estimated": false
     },
     {
       "date": "1965-02-01",
       "price": 86.75,
       "earnings": 4.64,
-      "pe": 18.71,
+      "pe": 18.7,
       "estimated": false
     },
     {
@@ -8005,14 +8006,14 @@
       "date": "1965-04-01",
       "price": 87.97,
       "earnings": 4.73,
-      "pe": 18.59,
+      "pe": 18.6,
       "estimated": false
     },
     {
       "date": "1965-05-01",
       "price": 89.28,
       "earnings": 4.79,
-      "pe": 18.65,
+      "pe": 18.64,
       "estimated": false
     },
     {
@@ -8026,14 +8027,14 @@
       "date": "1965-07-01",
       "price": 84.91,
       "earnings": 4.89,
-      "pe": 17.38,
+      "pe": 17.36,
       "estimated": false
     },
     {
       "date": "1965-08-01",
       "price": 86.49,
       "earnings": 4.93,
-      "pe": 17.53,
+      "pe": 17.54,
       "estimated": false
     },
     {
@@ -8110,14 +8111,14 @@
       "date": "1966-07-01",
       "price": 85.84,
       "earnings": 5.48,
-      "pe": 15.67,
+      "pe": 15.66,
       "estimated": false
     },
     {
       "date": "1966-08-01",
       "price": 80.65,
       "earnings": 5.49,
-      "pe": 14.68,
+      "pe": 14.69,
       "estimated": false
     },
     {
@@ -8131,14 +8132,14 @@
       "date": "1966-10-01",
       "price": 77.13,
       "earnings": 5.52,
-      "pe": 13.96,
+      "pe": 13.97,
       "estimated": false
     },
     {
       "date": "1966-11-01",
       "price": 80.99,
       "earnings": 5.54,
-      "pe": 14.63,
+      "pe": 14.62,
       "estimated": false
     },
     {
@@ -8152,14 +8153,14 @@
       "date": "1967-01-01",
       "price": 84.45,
       "earnings": 5.52,
-      "pe": 15.31,
+      "pe": 15.3,
       "estimated": false
     },
     {
       "date": "1967-02-01",
       "price": 87.36,
       "earnings": 5.48,
-      "pe": 15.93,
+      "pe": 15.94,
       "estimated": false
     },
     {
@@ -8236,14 +8237,14 @@
       "date": "1968-01-01",
       "price": 95.04,
       "earnings": 5.37,
-      "pe": 17.71,
+      "pe": 17.7,
       "estimated": false
     },
     {
       "date": "1968-02-01",
       "price": 90.75,
       "earnings": 5.4,
-      "pe": 16.8,
+      "pe": 16.81,
       "estimated": false
     },
     {
@@ -8257,14 +8258,14 @@
       "date": "1968-04-01",
       "price": 95.67,
       "earnings": 5.48,
-      "pe": 17.45,
+      "pe": 17.46,
       "estimated": false
     },
     {
       "date": "1968-05-01",
       "price": 97.87,
       "earnings": 5.53,
-      "pe": 17.71,
+      "pe": 17.7,
       "estimated": false
     },
     {
@@ -8299,14 +8300,14 @@
       "date": "1968-10-01",
       "price": 103.8,
       "earnings": 5.69,
-      "pe": 18.23,
+      "pe": 18.24,
       "estimated": false
     },
     {
       "date": "1968-11-01",
       "price": 105.4,
       "earnings": 5.73,
-      "pe": 18.41,
+      "pe": 18.39,
       "estimated": false
     },
     {
@@ -8341,14 +8342,14 @@
       "date": "1969-04-01",
       "price": 101.3,
       "earnings": 5.83,
-      "pe": 17.39,
+      "pe": 17.38,
       "estimated": false
     },
     {
       "date": "1969-05-01",
       "price": 104.6,
       "earnings": 5.83,
-      "pe": 17.93,
+      "pe": 17.94,
       "estimated": false
     },
     {
@@ -8362,7 +8363,7 @@
       "date": "1969-07-01",
       "price": 94.71,
       "earnings": 5.86,
-      "pe": 16.17,
+      "pe": 16.16,
       "estimated": false
     },
     {
@@ -8383,14 +8384,14 @@
       "date": "1969-10-01",
       "price": 95.52,
       "earnings": 5.85,
-      "pe": 16.32,
+      "pe": 16.33,
       "estimated": false
     },
     {
       "date": "1969-11-01",
       "price": 96.21,
       "earnings": 5.82,
-      "pe": 16.54,
+      "pe": 16.53,
       "estimated": false
     },
     {
@@ -8425,14 +8426,14 @@
       "date": "1970-04-01",
       "price": 85.95,
       "earnings": 5.59,
-      "pe": 15.37,
+      "pe": 15.38,
       "estimated": false
     },
     {
       "date": "1970-05-01",
       "price": 76.06,
       "earnings": 5.56,
-      "pe": 13.69,
+      "pe": 13.68,
       "estimated": false
     },
     {
@@ -8446,14 +8447,14 @@
       "date": "1970-07-01",
       "price": 75.72,
       "earnings": 5.47,
-      "pe": 13.85,
+      "pe": 13.84,
       "estimated": false
     },
     {
       "date": "1970-08-01",
       "price": 77.92,
       "earnings": 5.41,
-      "pe": 14.39,
+      "pe": 14.4,
       "estimated": false
     },
     {
@@ -8467,14 +8468,14 @@
       "date": "1970-10-01",
       "price": 84.37,
       "earnings": 5.28,
-      "pe": 15.97,
+      "pe": 15.98,
       "estimated": false
     },
     {
       "date": "1970-11-01",
       "price": 84.28,
       "earnings": 5.21,
-      "pe": 16.19,
+      "pe": 16.18,
       "estimated": false
     },
     {
@@ -8509,14 +8510,14 @@
       "date": "1971-04-01",
       "price": 103.0,
       "earnings": 5.25,
-      "pe": 19.61,
+      "pe": 19.62,
       "estimated": false
     },
     {
       "date": "1971-05-01",
       "price": 101.6,
       "earnings": 5.29,
-      "pe": 19.22,
+      "pe": 19.21,
       "estimated": false
     },
     {
@@ -8530,14 +8531,14 @@
       "date": "1971-07-01",
       "price": 99.0,
       "earnings": 5.36,
-      "pe": 18.48,
+      "pe": 18.47,
       "estimated": false
     },
     {
       "date": "1971-08-01",
       "price": 97.24,
       "earnings": 5.39,
-      "pe": 18.03,
+      "pe": 18.04,
       "estimated": false
     },
     {
@@ -8572,14 +8573,14 @@
       "date": "1972-01-01",
       "price": 103.3,
       "earnings": 5.74,
-      "pe": 18.01,
+      "pe": 18.0,
       "estimated": false
     },
     {
       "date": "1972-02-01",
       "price": 105.2,
       "earnings": 5.77,
-      "pe": 18.22,
+      "pe": 18.23,
       "estimated": false
     },
     {
@@ -8593,14 +8594,14 @@
       "date": "1972-04-01",
       "price": 108.8,
       "earnings": 5.86,
-      "pe": 18.56,
+      "pe": 18.57,
       "estimated": false
     },
     {
       "date": "1972-05-01",
       "price": 107.7,
       "earnings": 5.92,
-      "pe": 18.2,
+      "pe": 18.19,
       "estimated": false
     },
     {
@@ -8614,14 +8615,14 @@
       "date": "1972-07-01",
       "price": 107.2,
       "earnings": 6.03,
-      "pe": 17.79,
+      "pe": 17.78,
       "estimated": false
     },
     {
       "date": "1972-08-01",
       "price": 111.0,
       "earnings": 6.08,
-      "pe": 18.25,
+      "pe": 18.26,
       "estimated": false
     },
     {
@@ -8635,14 +8636,14 @@
       "date": "1972-10-01",
       "price": 109.6,
       "earnings": 6.23,
-      "pe": 17.58,
+      "pe": 17.59,
       "estimated": false
     },
     {
       "date": "1972-11-01",
       "price": 115.1,
       "earnings": 6.33,
-      "pe": 18.19,
+      "pe": 18.18,
       "estimated": false
     },
     {
@@ -8656,14 +8657,14 @@
       "date": "1973-01-01",
       "price": 118.4,
       "earnings": 6.55,
-      "pe": 18.09,
+      "pe": 18.08,
       "estimated": false
     },
     {
       "date": "1973-02-01",
       "price": 114.2,
       "earnings": 6.67,
-      "pe": 17.11,
+      "pe": 17.12,
       "estimated": false
     },
     {
@@ -8684,7 +8685,7 @@
       "date": "1973-05-01",
       "price": 107.2,
       "earnings": 7.09,
-      "pe": 15.13,
+      "pe": 15.12,
       "estimated": false
     },
     {
@@ -8698,7 +8699,7 @@
       "date": "1973-07-01",
       "price": 105.8,
       "earnings": 7.38,
-      "pe": 14.33,
+      "pe": 14.34,
       "estimated": false
     },
     {
@@ -8726,7 +8727,7 @@
       "date": "1973-11-01",
       "price": 102.0,
       "earnings": 8.0,
-      "pe": 12.74,
+      "pe": 12.75,
       "estimated": false
     },
     {
@@ -8810,7 +8811,7 @@
       "date": "1974-11-01",
       "price": 71.74,
       "earnings": 8.96,
-      "pe": 8.0,
+      "pe": 8.01,
       "estimated": false
     },
     {
@@ -8831,7 +8832,7 @@
       "date": "1975-02-01",
       "price": 80.1,
       "earnings": 8.6,
-      "pe": 9.32,
+      "pe": 9.31,
       "estimated": false
     },
     {
@@ -8852,7 +8853,7 @@
       "date": "1975-05-01",
       "price": 90.1,
       "earnings": 8.12,
-      "pe": 11.09,
+      "pe": 11.1,
       "estimated": false
     },
     {
@@ -8887,14 +8888,14 @@
       "date": "1975-10-01",
       "price": 88.57,
       "earnings": 7.83,
-      "pe": 11.32,
+      "pe": 11.31,
       "estimated": false
     },
     {
       "date": "1975-11-01",
       "price": 90.07,
       "earnings": 7.89,
-      "pe": 11.41,
+      "pe": 11.42,
       "estimated": false
     },
     {
@@ -8908,14 +8909,14 @@
       "date": "1976-01-01",
       "price": 96.86,
       "earnings": 8.19,
-      "pe": 11.82,
+      "pe": 11.83,
       "estimated": false
     },
     {
       "date": "1976-02-01",
       "price": 100.6,
       "earnings": 8.43,
-      "pe": 11.94,
+      "pe": 11.93,
       "estimated": false
     },
     {
@@ -8929,7 +8930,7 @@
       "date": "1976-04-01",
       "price": 101.9,
       "earnings": 8.86,
-      "pe": 11.51,
+      "pe": 11.5,
       "estimated": false
     },
     {
@@ -9034,7 +9035,7 @@
       "date": "1977-07-01",
       "price": 100.2,
       "earnings": 10.52,
-      "pe": 9.53,
+      "pe": 9.52,
       "estimated": false
     },
     {
@@ -9223,14 +9224,14 @@
       "date": "1979-10-01",
       "price": 104.5,
       "earnings": 14.71,
-      "pe": 7.11,
+      "pe": 7.1,
       "estimated": false
     },
     {
       "date": "1979-11-01",
       "price": 103.7,
       "earnings": 14.78,
-      "pe": 7.01,
+      "pe": 7.02,
       "estimated": false
     },
     {
@@ -9475,14 +9476,14 @@
       "date": "1982-10-01",
       "price": 132.7,
       "earnings": 13.25,
-      "pe": 10.01,
+      "pe": 10.02,
       "estimated": false
     },
     {
       "date": "1982-11-01",
       "price": 138.1,
       "earnings": 12.95,
-      "pe": 10.67,
+      "pe": 10.66,
       "estimated": false
     },
     {
@@ -9524,7 +9525,7 @@
       "date": "1983-05-01",
       "price": 164.1,
       "earnings": 12.53,
-      "pe": 13.09,
+      "pe": 13.1,
       "estimated": false
     },
     {
@@ -9559,7 +9560,7 @@
       "date": "1983-10-01",
       "price": 167.7,
       "earnings": 13.54,
-      "pe": 12.38,
+      "pe": 12.39,
       "estimated": false
     },
     {
@@ -9643,7 +9644,7 @@
       "date": "1984-10-01",
       "price": 164.8,
       "earnings": 16.59,
-      "pe": 9.94,
+      "pe": 9.93,
       "estimated": false
     },
     {
@@ -9706,7 +9707,7 @@
       "date": "1985-07-01",
       "price": 192.5,
       "earnings": 15.48,
-      "pe": 12.43,
+      "pe": 12.44,
       "estimated": false
     },
     {
@@ -9727,7 +9728,7 @@
       "date": "1985-10-01",
       "price": 186.2,
       "earnings": 15.02,
-      "pe": 12.39,
+      "pe": 12.4,
       "estimated": false
     },
     {
@@ -9790,7 +9791,7 @@
       "date": "1986-07-01",
       "price": 240.2,
       "earnings": 14.76,
-      "pe": 16.28,
+      "pe": 16.27,
       "estimated": false
     },
     {
@@ -9818,7 +9819,7 @@
       "date": "1986-11-01",
       "price": 245.1,
       "earnings": 14.6,
-      "pe": 16.78,
+      "pe": 16.79,
       "estimated": false
     },
     {
@@ -9839,7 +9840,7 @@
       "date": "1987-02-01",
       "price": 280.9,
       "earnings": 14.89,
-      "pe": 18.86,
+      "pe": 18.87,
       "estimated": false
     },
     {
@@ -9853,14 +9854,14 @@
       "date": "1987-04-01",
       "price": 289.3,
       "earnings": 14.87,
-      "pe": 19.45,
+      "pe": 19.46,
       "estimated": false
     },
     {
       "date": "1987-05-01",
       "price": 289.1,
       "earnings": 14.65,
-      "pe": 19.74,
+      "pe": 19.73,
       "estimated": false
     },
     {
@@ -9895,7 +9896,7 @@
       "date": "1987-10-01",
       "price": 280.2,
       "earnings": 16.41,
-      "pe": 17.08,
+      "pe": 17.07,
       "estimated": false
     },
     {
@@ -9916,7 +9917,7 @@
       "date": "1988-01-01",
       "price": 250.5,
       "earnings": 17.86,
-      "pe": 14.02,
+      "pe": 14.03,
       "estimated": false
     },
     {
@@ -9937,7 +9938,7 @@
       "date": "1988-04-01",
       "price": 262.6,
       "earnings": 19.62,
-      "pe": 13.39,
+      "pe": 13.38,
       "estimated": false
     },
     {
@@ -10105,7 +10106,7 @@
       "date": "1990-04-01",
       "price": 338.18,
       "earnings": 21.53,
-      "pe": 15.7,
+      "pe": 15.71,
       "estimated": false
     },
     {
@@ -10154,7 +10155,7 @@
       "date": "1990-11-01",
       "price": 315.29,
       "earnings": 21.47,
-      "pe": 14.68,
+      "pe": 14.69,
       "estimated": false
     },
     {
@@ -10196,7 +10197,7 @@
       "date": "1991-05-01",
       "price": 377.99,
       "earnings": 19.86,
-      "pe": 19.04,
+      "pe": 19.03,
       "estimated": false
     },
     {
@@ -10238,7 +10239,7 @@
       "date": "1991-11-01",
       "price": 385.92,
       "earnings": 16.59,
-      "pe": 23.27,
+      "pe": 23.26,
       "estimated": false
     },
     {
@@ -10252,7 +10253,7 @@
       "date": "1992-01-01",
       "price": 416.08,
       "earnings": 16.05,
-      "pe": 25.93,
+      "pe": 25.92,
       "estimated": false
     },
     {
@@ -10420,7 +10421,7 @@
       "date": "1994-01-01",
       "price": 472.99,
       "earnings": 22.16,
-      "pe": 21.35,
+      "pe": 21.34,
       "estimated": false
     },
     {
@@ -10567,7 +10568,7 @@
       "date": "1995-10-01",
       "price": 582.92,
       "earnings": 34.77,
-      "pe": 16.76,
+      "pe": 16.77,
       "estimated": false
     },
     {
@@ -10637,7 +10638,7 @@
       "date": "1996-08-01",
       "price": 662.68,
       "earnings": 35.64,
-      "pe": 18.6,
+      "pe": 18.59,
       "estimated": false
     },
     {
@@ -10826,7 +10827,7 @@
       "date": "1998-11-01",
       "price": 1144.43,
       "earnings": 37.84,
-      "pe": 30.25,
+      "pe": 30.24,
       "estimated": false
     },
     {
@@ -10924,14 +10925,14 @@
       "date": "2000-01-01",
       "price": 1425.59,
       "earnings": 49.1,
-      "pe": 29.04,
+      "pe": 29.03,
       "estimated": false
     },
     {
       "date": "2000-02-01",
       "price": 1388.87,
       "earnings": 50.02,
-      "pe": 27.76,
+      "pe": 27.77,
       "estimated": false
     },
     {
@@ -10987,7 +10988,7 @@
       "date": "2000-10-01",
       "price": 1390.14,
       "earnings": 52.47,
-      "pe": 26.5,
+      "pe": 26.49,
       "estimated": false
     },
     {
@@ -11050,7 +11051,7 @@
       "date": "2001-07-01",
       "price": 1204.45,
       "earnings": 33.96,
-      "pe": 35.46,
+      "pe": 35.47,
       "estimated": false
     },
     {
@@ -11071,7 +11072,7 @@
       "date": "2001-10-01",
       "price": 1076.59,
       "earnings": 27.1,
-      "pe": 39.72,
+      "pe": 39.73,
       "estimated": false
     },
     {
@@ -11092,14 +11093,14 @@
       "date": "2002-01-01",
       "price": 1140.21,
       "earnings": 24.69,
-      "pe": 46.17,
+      "pe": 46.18,
       "estimated": false
     },
     {
       "date": "2002-02-01",
       "price": 1100.67,
       "earnings": 24.7,
-      "pe": 44.57,
+      "pe": 44.56,
       "estimated": false
     },
     {
@@ -11155,7 +11156,7 @@
       "date": "2002-10-01",
       "price": 854.63,
       "earnings": 29.22,
-      "pe": 29.24,
+      "pe": 29.25,
       "estimated": false
     },
     {
@@ -11218,7 +11219,7 @@
       "date": "2003-07-01",
       "price": 992.54,
       "earnings": 35.89,
-      "pe": 27.65,
+      "pe": 27.66,
       "estimated": false
     },
     {
@@ -11288,7 +11289,7 @@
       "date": "2004-05-01",
       "price": 1102.78,
       "earnings": 54.77,
-      "pe": 20.14,
+      "pe": 20.13,
       "estimated": false
     },
     {
@@ -11624,7 +11625,7 @@
       "date": "2008-05-01",
       "price": 1403.22,
       "earnings": 54.38,
-      "pe": 25.81,
+      "pe": 25.8,
       "estimated": false
     },
     {
@@ -11680,14 +11681,14 @@
       "date": "2009-01-01",
       "price": 865.58,
       "earnings": 12.21,
-      "pe": 70.91,
+      "pe": 70.89,
       "estimated": false
     },
     {
       "date": "2009-02-01",
       "price": 805.23,
       "earnings": 9.53,
-      "pe": 84.46,
+      "pe": 84.49,
       "estimated": false
     },
     {
@@ -11701,14 +11702,14 @@
       "date": "2009-04-01",
       "price": 848.15,
       "earnings": 7.08,
-      "pe": 119.85,
+      "pe": 119.8,
       "estimated": false
     },
     {
       "date": "2009-05-01",
       "price": 902.41,
       "earnings": 7.29,
-      "pe": 123.73,
+      "pe": 123.79,
       "estimated": false
     },
     {
@@ -11722,14 +11723,14 @@
       "date": "2009-07-01",
       "price": 935.82,
       "earnings": 9.19,
-      "pe": 101.87,
+      "pe": 101.83,
       "estimated": false
     },
     {
       "date": "2009-08-01",
       "price": 1009.73,
       "earnings": 10.86,
-      "pe": 92.95,
+      "pe": 92.98,
       "estimated": false
     },
     {
@@ -12674,7 +12675,7 @@
       "date": "2020-11-01",
       "price": 3548.99,
       "earnings": 95.49,
-      "pe": 37.16,
+      "pe": 37.17,
       "estimated": false
     },
     {
@@ -12876,288 +12877,288 @@
     {
       "date": "2023-04-01",
       "price": 4121.47,
-      "earnings": 177.17,
-      "pe": 23.26,
+      "earnings": 177.12,
+      "pe": 23.27,
       "estimated": false
     },
     {
       "date": "2023-05-01",
       "price": 4146.17,
-      "earnings": 179.17,
-      "pe": 23.14,
+      "earnings": 179.06,
+      "pe": 23.16,
       "estimated": false
     },
     {
       "date": "2023-06-01",
       "price": 4345.37,
-      "earnings": 181.17,
-      "pe": 23.99,
+      "earnings": 181.01,
+      "pe": 24.01,
       "estimated": false
     },
     {
       "date": "2023-07-01",
       "price": 4508.08,
-      "earnings": 181.01,
-      "pe": 24.91,
+      "earnings": 182.09,
+      "pe": 24.76,
       "estimated": false
     },
     {
       "date": "2023-08-01",
       "price": 4457.36,
-      "earnings": 181.01,
-      "pe": 24.62,
+      "earnings": 183.17,
+      "pe": 24.33,
       "estimated": false
     },
     {
       "date": "2023-09-01",
-      "price": 4409.1,
-      "earnings": 181.01,
-      "pe": 24.36,
+      "price": 4409.09,
+      "earnings": 184.25,
+      "pe": 23.93,
       "estimated": false
     },
     {
       "date": "2023-10-01",
       "price": 4269.4,
-      "earnings": 184.25,
-      "pe": 23.17,
+      "earnings": 186.98,
+      "pe": 22.83,
       "estimated": false
     },
     {
       "date": "2023-11-01",
       "price": 4460.06,
-      "earnings": 184.25,
-      "pe": 24.21,
+      "earnings": 189.7,
+      "pe": 23.51,
       "estimated": false
     },
     {
       "date": "2023-12-01",
       "price": 4685.05,
-      "earnings": 184.25,
-      "pe": 25.43,
+      "earnings": 192.43,
+      "pe": 24.35,
       "estimated": false
     },
     {
       "date": "2024-01-01",
-      "price": 4804.49,
-      "earnings": 192.43,
-      "pe": 24.97,
+      "price": 4815.61,
+      "earnings": 192.08,
+      "pe": 25.07,
       "estimated": false
     },
     {
       "date": "2024-02-01",
       "price": 5011.96,
-      "earnings": 192.43,
-      "pe": 26.05,
+      "earnings": 191.74,
+      "pe": 26.14,
       "estimated": false
     },
     {
       "date": "2024-03-01",
       "price": 5170.57,
-      "earnings": 192.43,
-      "pe": 26.87,
+      "earnings": 191.39,
+      "pe": 27.02,
       "estimated": false
     },
     {
       "date": "2024-04-01",
       "price": 5112.49,
-      "earnings": 191.39,
-      "pe": 26.71,
+      "earnings": 193.18,
+      "pe": 26.46,
       "estimated": false
     },
     {
       "date": "2024-05-01",
       "price": 5235.23,
-      "earnings": 191.39,
-      "pe": 27.35,
+      "earnings": 194.97,
+      "pe": 26.85,
       "estimated": false
     },
     {
       "date": "2024-06-01",
       "price": 5415.14,
-      "earnings": 191.39,
-      "pe": 28.29,
+      "earnings": 196.76,
+      "pe": 27.52,
       "estimated": false
     },
     {
       "date": "2024-07-01",
       "price": 5538.0,
-      "earnings": 195.93,
-      "pe": 28.27,
+      "earnings": 197.93,
+      "pe": 27.98,
       "estimated": false
     },
     {
       "date": "2024-08-01",
       "price": 5478.21,
-      "earnings": 195.93,
-      "pe": 27.96,
+      "earnings": 199.1,
+      "pe": 27.51,
       "estimated": false
     },
     {
       "date": "2024-09-01",
       "price": 5621.26,
-      "earnings": 195.93,
-      "pe": 28.69,
+      "earnings": 200.27,
+      "pe": 28.07,
       "estimated": false
     },
     {
       "date": "2024-10-01",
       "price": 5792.32,
-      "earnings": 200.27,
-      "pe": 28.92,
+      "earnings": 203.57,
+      "pe": 28.45,
       "estimated": false
     },
     {
       "date": "2024-11-01",
       "price": 5929.92,
-      "earnings": 200.27,
-      "pe": 29.61,
+      "earnings": 206.87,
+      "pe": 28.66,
       "estimated": false
     },
     {
       "date": "2024-12-01",
       "price": 6010.91,
-      "earnings": 200.27,
-      "pe": 30.01,
+      "earnings": 210.17,
+      "pe": 28.6,
       "estimated": false
     },
     {
       "date": "2025-01-01",
       "price": 5979.52,
-      "earnings": 210.17,
-      "pe": 28.45,
+      "earnings": 212.34,
+      "pe": 28.16,
       "estimated": false
     },
     {
       "date": "2025-02-01",
       "price": 6038.69,
-      "earnings": 210.17,
-      "pe": 28.73,
+      "earnings": 214.52,
+      "pe": 28.15,
       "estimated": false
     },
     {
       "date": "2025-03-01",
       "price": 5683.98,
-      "earnings": 210.17,
-      "pe": 27.04,
+      "earnings": 216.69,
+      "pe": 26.23,
       "estimated": false
     },
     {
       "date": "2025-04-01",
       "price": 5369.5,
-      "earnings": 216.69,
-      "pe": 24.78,
+      "earnings": 218.64,
+      "pe": 24.56,
       "estimated": false
     },
     {
       "date": "2025-05-01",
       "price": 5810.92,
-      "earnings": 216.69,
-      "pe": 26.82,
+      "earnings": 220.58,
+      "pe": 26.34,
       "estimated": false
     },
     {
       "date": "2025-06-01",
       "price": 6029.95,
-      "earnings": 216.69,
-      "pe": 27.83,
+      "earnings": 222.53,
+      "pe": 27.1,
       "estimated": false
     },
     {
       "date": "2025-07-01",
       "price": 6296.5,
-      "earnings": 222.53,
-      "pe": 28.3,
+      "earnings": 226.77,
+      "pe": 27.77,
       "estimated": false
     },
     {
       "date": "2025-08-01",
       "price": 6408.95,
-      "earnings": 222.53,
-      "pe": 28.8,
+      "earnings": 231.01,
+      "pe": 27.74,
       "estimated": false
     },
     {
       "date": "2025-09-01",
       "price": 6584.02,
-      "earnings": 222.53,
-      "pe": 29.59,
+      "earnings": 235.25,
+      "pe": 27.99,
       "estimated": false
     },
     {
       "date": "2025-10-01",
       "price": 6735.69,
-      "earnings": 234.06,
-      "pe": 28.78,
+      "earnings": 237.04,
+      "pe": 28.42,
       "estimated": false
     },
     {
       "date": "2025-11-01",
       "price": 6740.89,
-      "earnings": 234.06,
-      "pe": 28.8,
+      "earnings": 238.84,
+      "pe": 28.22,
       "estimated": false
     },
     {
       "date": "2025-12-01",
       "price": 6853.03,
-      "earnings": 234.06,
-      "pe": 29.28,
+      "earnings": 240.63,
+      "pe": 28.48,
       "estimated": false
     },
     {
       "date": "2026-01-01",
       "price": 6929.12,
-      "earnings": 234.06,
-      "pe": 29.6,
-      "estimated": true
+      "earnings": 247.66,
+      "pe": 27.98,
+      "estimated": false
     },
     {
       "date": "2026-02-01",
       "price": 6893.81,
-      "earnings": 234.06,
-      "pe": 29.45,
-      "estimated": true
+      "earnings": 254.69,
+      "pe": 27.07,
+      "estimated": false
     },
     {
       "date": "2026-03-01",
       "price": 6654.42,
-      "earnings": 234.06,
-      "pe": 28.43,
-      "estimated": true
+      "earnings": 261.72,
+      "pe": 25.43,
+      "estimated": false
     },
     {
       "date": "2026-04-01",
       "price": 6957.01,
-      "earnings": 234.06,
-      "pe": 29.72,
-      "estimated": true
+      "earnings": 272.94,
+      "pe": 25.49,
+      "estimated": false
     },
     {
       "date": "2026-05-01",
       "price": 7412.55,
-      "earnings": 234.06,
-      "pe": 31.67,
-      "estimated": true
+      "earnings": 284.17,
+      "pe": 26.08,
+      "estimated": false
     },
     {
       "date": "2026-06-01",
       "price": 7450.03,
-      "earnings": 234.06,
-      "pe": 31.83,
-      "estimated": true
+      "earnings": 295.39,
+      "pe": 25.22,
+      "estimated": false
     },
     {
       "date": "2026-07-01",
       "price": 7481.34,
-      "earnings": 234.06,
-      "pe": 31.96,
+      "earnings": 295.39,
+      "pe": 25.33,
       "estimated": true
     },
     {
       "date": "2026-08-01",
       "price": 7711.32,
-      "earnings": 234.06,
-      "pe": 32.95,
+      "earnings": 295.39,
+      "pe": 26.11,
       "estimated": true
     }
   ]

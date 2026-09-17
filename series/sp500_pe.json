@@ -7,18 +7,12 @@
   "cadence": "monthly",
   "publication_lag_business_days": 1,
   "revisions": "occasional",
-  "revision_note": "Shiller periodically restates historical earnings figures. The site always shows the latest revision; the gh-pages deploy history is the vintage archive.",
-  "source_line": "Shiller/Yale · S&P Global · FRED SP500",
+  "revision_note": "Shiller periodically restates historical earnings figures, and interpolated months in the current quarter can shift slightly until the next quarter-end anchor lands. The site always shows the latest revision; the gh-pages deploy history is the vintage archive.",
+  "source_line": "Shiller/Yale · FRED SP500",
   "sources": [
     {
       "slug": "shiller",
       "dataset": "ie-data"
-    },
-    {
-      "slug": "spglobal",
-      "dataset": "sp-500-eps",
-      "url": "https://www.spglobal.com/spdji/en/indices/equity/sp-500/",
-      "note": "Only the derived trailing-twelve-month EPS figure is published here"
     },
     {
       "slug": "spglobal",
@@ -39,25 +33,22 @@
     {
       "id": "earnings",
       "label": "Trailing 12-month as-reported EPS",
-      "source": "spglobal",
-      "dataset": "sp-500-eps",
+      "source": "shiller",
+      "dataset": "ie-data",
       "cadence": "quarterly",
-      "publication_lag_business_days": 60,
-      "manual": true,
-      "status": "discontinued",
-      "status_note": "S&P's public EPS file was discontinued on 31 Jan 2026; earnings are estimated from the last confirmed quarter until a replacement source is found."
+      "publication_lag_business_days": 60
     }
   ],
   "methodology": [
     "P/E = monthly average S&P 500 price / trailing 12-month as-reported (GAAP) EPS.",
-    "Historical months (1871 through Shiller's last confirmed month) use Shiller/Yale's own price and earnings, both confirmed.",
-    "Later months use FRED's SP500 monthly average price with TTM earnings from data/earnings_overrides.json (S&P Global quarterly scorecard): a month is confirmed once the calendar quarter ending before it begins is in the file, and estimated (forward-filled from the last confirmed quarter) otherwise.",
-    "The current, not-yet-completed month is never included: FRED's monthly average of a month in progress changes daily, while every other point in the series is a full-month average."
+    "Historical months (1871 through Shiller's last confirmed quarter) use Shiller/Yale's own price and earnings: Shiller interpolates TTM earnings monthly between quarter-end anchors, so every interpolated month through that last anchor is treated as confirmed, matching his own construction.",
+    "The month after the last confirmed quarter, and the following two, hold TTM earnings flat at that quarter's value (estimated=true) paired with Shiller's own price where he already has it, else FRED's SP500 monthly average. Beyond that one-calendar-quarter grace window the series stops rather than forward-filling an increasingly stale earnings figure indefinitely.",
+    "The current, not-yet-completed month is never included: a partial month's average price changes daily (and Shiller's own row for it is a placeholder, e.g. a single day's close), while every other point in the series is a full-month figure."
   ],
   "notes": [
-    "The dashed portion of the chart marks estimated months, starting the first month not yet covered by a confirmed quarter.",
-    "The S&P Global earnings workbook was discontinued by its publisher on 31 Jan 2026 (see the earnings input's status_note); the P/E has been running on forward-filled earnings since and will continue to until a replacement source is adopted.",
-    "Not published on joemirza.com since 2026-09-15: the price and earnings behind this ratio are S&P Dow Jones Indices' data, and S&P declined free permission to display index values on a public site (case 01015670, 2026-09-15). presentation.publish is false, so the generator leaves the page and data/sp500_pe.json out of the deployed site; scripts/dev.sh still builds it locally."
+    "The dashed portion of the chart marks estimated months: the one-calendar-quarter grace window after the last confirmed quarter, described above.",
+    "Repointed 2026-09-16 (S9b) from the frozen Yale mirror of ie_data.xls to the actively maintained shillerdata.com copy, and from data/earnings_overrides.json (S&P Global's quarterly scorecard, discontinued by its publisher 31 Jan 2026) to Shiller's own earnings column, which reaches nearly as current and updates on its own; the overrides file is kept only as a cross-check, logged at fetch time. This also fixed a real bug: the old unlimited forward-fill had been overstating the P/E by roughly 26% by Aug 2026 (32.95× vs 26.1× on Shiller's own June 2026 earnings).",
+    "Not published on joemirza.com since 2026-09-15: the price and earnings behind this ratio are S&P Dow Jones Indices' data (reached here via Shiller and FRED rather than directly), and S&P declined free permission to display index values on a public site (case 01015670, 2026-09-15). Shiller's own terms are separately unknown (see catalog/sources/shiller.json). presentation.publish is false, so the generator leaves the page and data/sp500_pe.json out of the deployed site; scripts/dev.sh still builds it locally."
   ],
   "presentation": {
     "sections": [

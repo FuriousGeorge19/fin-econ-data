@@ -1,0 +1,66 @@
+{
+  "id": "sp500_dividend_yield",
+  "title": "S&P 500 Dividend Yield",
+  "short_title": "S&P 500 Div Yield",
+  "kind": "timeseries",
+  "fetcher": "fetch_sp500_pe.py",
+  "units": "Percent",
+  "cadence": "monthly",
+  "publication_lag_business_days": 60,
+  "revisions": "occasional",
+  "revision_note": "Shiller periodically restates historical dividend figures; the site always shows the latest revision.",
+  "source_line": "Shiller/Yale",
+  "sources": [
+    {
+      "slug": "shiller",
+      "dataset": "ie-data"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "dividend_yield",
+      "label": "Trailing 12-month dividend / price",
+      "source": "shiller",
+      "dataset": "ie-data",
+      "cadence": "monthly",
+      "publication_lag_business_days": 60
+    }
+  ],
+  "methodology": [
+    "Dividend yield = trailing 12-month S&P Composite dividend per share / monthly average price, both read from Shiller's ie_data.xls (columns D and P).",
+    "Shiller interpolates monthly dividend figures between quarter-end anchors the same way he does earnings (see the S&P 500 P/E chart's methodology); a month appears here once he has published it, with no forward-fill beyond that.",
+    "The current, not-yet-completed month is never included."
+  ],
+  "notes": [
+    "Built for S9b/S10 (equity-valuation roadmap) alongside CAPE and earnings yield, all read from the same ie_data.xls download.",
+    "Not published on joemirza.com: Shiller's terms are unknown (no statement on the Yale page or shillerdata.com), and the underlying price and dividend columns are S&P's. presentation.publish is false pending an answer from shillerdata.com's maintainer (asked 2026-09-16); scripts/dev.sh builds it locally regardless."
+  ],
+  "presentation": {
+    "sections": [
+      "markets"
+    ],
+    "publish": false,
+    "order": 9,
+    "summary": "Monthly S&P 500 trailing dividend yield, Shiller/Yale data back to 1871.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "suffix": "%",
+        "format": ".2f"
+      },
+      "presets": [
+        "1Y",
+        "10Y",
+        "25Y",
+        "50Y",
+        "All"
+      ],
+      "recessions": false
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 30
+    }
+  }
+}
