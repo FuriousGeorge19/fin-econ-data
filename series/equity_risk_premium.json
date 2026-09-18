@@ -1,0 +1,97 @@
+{
+  "id": "equity_risk_premium",
+  "title": "Equity Risk Premium (CAPE Yield − Real 10-Year Treasury)",
+  "short_title": "Equity Risk Premium",
+  "kind": "timeseries",
+  "units": "Percentage points",
+  "cadence": "monthly",
+  "publication_lag_business_days": 5,
+  "revisions": "occasional",
+  "revision_note": "The CAPE leg comes from Shiller's workbook, whose recent months are revised as S&P finalises earnings; the two FRED legs are not revised after publication.",
+  "source_line": "Shiller CAPE, FRED GS10, EXPINF10YR",
+  "sources": [
+    {
+      "slug": "shiller",
+      "dataset": "ie-data"
+    },
+    {
+      "slug": "fred",
+      "dataset": "gs",
+      "url": "https://fred.stlouisfed.org/series/GS10"
+    },
+    {
+      "slug": "fred",
+      "dataset": "expinf",
+      "url": "https://fred.stlouisfed.org/series/EXPINF10YR"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "cape",
+      "label": "Cyclically adjusted P/E ratio (CAPE, P/E10)",
+      "source": "shiller",
+      "dataset": "ie-data",
+      "cadence": "monthly",
+      "publication_lag_business_days": 5
+    },
+    {
+      "id": "nominal",
+      "label": "10-year Treasury constant-maturity yield, monthly average (FRED GS10)",
+      "source": "fred",
+      "dataset": "gs",
+      "series_id": "GS10",
+      "cadence": "monthly",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "expected_inflation",
+      "label": "10-year expected inflation, Cleveland Fed model (FRED EXPINF10YR)",
+      "source": "fred",
+      "dataset": "expinf",
+      "series_id": "EXPINF10YR",
+      "cadence": "monthly",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "ERP = (100 ÷ CAPE) − (GS10 − EXPINF10YR), computed per month in Python. A month is emitted only where all three legs report — no forward-fill and no interpolation — so the series begins 1982-01, the first month the Cleveland Fed's expected-inflation model covers.",
+    "The equity leg is the CAPE earnings yield: the reciprocal of Shiller's cyclically adjusted price-to-earnings ratio, which divides the real S&P Composite price by the average of ten years of real earnings. Inverting a P/E gives the earnings the market buys per dollar invested, so 100 ÷ 41 is a 2.4% yield. Ten-year averaging is the point of using CAPE rather than a trailing P/E here: it keeps a single bad earnings year from making stocks look cheap or dear when they are not.",
+    "The bond leg is an EX-ANTE real yield: the nominal 10-year Treasury yield minus what investors expected inflation to average over the same ten years, per the Cleveland Fed's model. It is what a bond buyer expected to earn in purchasing power at the moment of purchase, not what they turned out to earn. Chart 5 (Ex-Post Real Short Rate) is the realized counterpart at the short end, and the two are not comparable.",
+    "GS10 − EXPINF10YR rather than the directly observed TIPS yield (FRED DFII10), which would need no inflation model but only starts 2003-01. The model-based construction reaches back to 1982 and so covers the disinflation of the 1980s, the 1990s bull market and the dot-com peak — the episodes that make the chart worth drawing. From 2003 onward the two constructions track each other closely."
+  ],
+  "notes": [
+    "Values are percentage points. A positive reading means the CAPE earnings yield exceeds the expected real bond yield — stocks are compensating for their extra risk. A negative reading means they are not, on this measure.",
+    "This is a valuation-based estimate of the premium investors are being offered, not a forecast of the premium they will earn and not a trading signal. It has been low or negative for long stretches during which equities went on to do well.",
+    "Each observation also stores its two legs, `cape_yield` and `real_yield`, so the difference can be decomposed — which side moved matters, since a falling premium means either richer stocks or cheaper real bonds. They are carried in the data file and the JSON export; the chart line, its hover and the CSV export all show the premium alone.",
+    "The premium compressed to roughly +0.3pp by August 2026, near the low end of the series' own history — a high CAPE meeting a positive real bond yield, the two forces working the same direction.",
+    "Not published (`presentation.publish: false`). The CAPE yield is 1 ÷ CAPE, and CAPE is built from S&P's price and earnings columns in Shiller's workbook. S&P Dow Jones Indices declined free permission on 2026-09-15 and excluded \"the P/E values\" even from its paid Web Display Agreement; Shiller's own side answered on 2026-09-17 that it licenses nothing and that S&P's wishes govern. Settled rather than pending."
+  ],
+  "presentation": {
+    "publish": false,
+    "sections": [
+      "markets"
+    ],
+    "order": 11,
+    "summary": "The CAPE earnings yield minus an ex-ante real 10-year Treasury yield, monthly from 1982, with NBER recessions shaded.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "suffix": "%",
+        "format": "+.2f"
+      },
+      "presets": [
+        "5Y",
+        "10Y",
+        "25Y",
+        "All"
+      ],
+      "recessions": true,
+      "zeroline": true
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 24
+    }
+  }
+}

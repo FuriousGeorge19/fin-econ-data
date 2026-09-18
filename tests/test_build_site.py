@@ -400,6 +400,68 @@ def test_curated_manifest_skips_an_unpublished_chart(sandbox):
     assert [b["id"] for b in home["blocks"]] == ["alpha", "delta"]
 
 
+# Series that must carry presentation.publish false as a matter of licence, not
+# preference. The generic test below proves "marked unpublished ⇒ absent from a
+# default build"; this one proves the marking is still there, so flipping a flag
+# fails loudly with the reason attached rather than silently publishing data we
+# were refused permission to display.
+LICENCE_RESTRICTED = {
+    "sp500_pe": "S&P DJI declined free permission (case 01015670, 2026-09-15) and "
+                "excluded 'the P/E values' even from its paid Web Display Agreement",
+    "sp500_cape": "CAPE is a P/E built from S&P's price and earnings columns",
+    "sp500_earnings_yield": "the inverse of a P/E built from S&P's columns",
+    "sp500_dividend_yield": "S&P's dividends over S&P's price",
+    "equity_risk_premium": "its equity leg is 1/CAPE, so it inherits the CAPE bar",
+}
+
+
+@pytest.mark.parametrize("series_id,reason", sorted(LICENCE_RESTRICTED.items()))
+def test_licence_restricted_series_stay_unpublished(series_id, reason):
+    """Shiller's side deferred to S&P on 2026-09-17, so every S&P-derived
+    series here is settled as local-only rather than pending. Publishing one
+    needs a terms decision recorded in the Session Plan, not just a flag flip.
+    """
+    presentation = series_meta.load(series_id).get("presentation") or {}
+    assert presentation.get("publish") is False, (
+        f"{series_id} must stay unpublished: {reason}. If this is a deliberate "
+        "change, record the terms decision first and update LICENCE_RESTRICTED."
+    )
+
+
+def test_real_repo_omits_every_unpublished_series(tmp_path):
+    """Whatever is marked presentation.publish false must be absent from a
+    default build and present under --include-unpublished — for ALL of them,
+    not just the one this was first written for.
+
+    Parametrizing over the descriptors rather than naming ids keeps a new
+    unpublished series covered the day it is added. As of S11c the set is the
+    four sp500_* charts (S&P DJI declined free permission, case 01015670,
+    2026-09-15; Shiller's side deferred to S&P 2026-09-17) and
+    equity_risk_premium, whose CAPE yield is 1/CAPE and inherits the same bar.
+    """
+    unpublished = [
+        series_id for series_id in series_meta.ids()
+        if (series_meta.load(series_id).get("presentation") or {}).get("publish") is False
+    ]
+    assert unpublished, "no unpublished series found — has the publish flag moved?"
+
+    written = build_site.build(output_dir=str(tmp_path / "public"))
+    public = {os.path.relpath(p, str(tmp_path / "public")) for p in written}
+    assert os.path.join("charts", "dgs10", "index.html") in public
+
+    written_local = build_site.build(
+        output_dir=str(tmp_path / "local"), include_unpublished=True,
+    )
+    local = {os.path.relpath(p, str(tmp_path / "local")) for p in written_local}
+
+    for series_id in unpublished:
+        assert not [p for p in public if series_id in p], (
+            f"{series_id} is marked publish:false but reached a default build"
+        )
+        assert os.path.join("charts", series_id, "index.html") in local
+        assert os.path.join("data", f"{series_id}.json") in local
+
+
 def test_real_repo_omits_the_sp500_pe_chart(tmp_path):
     """The live site must not carry the S&P 500 P/E: S&P Dow Jones Indices
     declined free permission to display index values publicly (case

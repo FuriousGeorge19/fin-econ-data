@@ -1,0 +1,3330 @@
+{
+  "meta": {
+    "id": "equity_risk_premium",
+    "title": "Equity Risk Premium (CAPE Yield \u2212 Real 10-Year Treasury)",
+    "short_title": "Equity Risk Premium",
+    "kind": "timeseries",
+    "units": "Percentage points",
+    "cadence": "monthly",
+    "publication_lag_business_days": 5,
+    "revisions": "occasional",
+    "revision_note": "The CAPE leg comes from Shiller's workbook, whose recent months are revised as S&P finalises earnings; the two FRED legs are not revised after publication.",
+    "source_line": "Shiller CAPE, FRED GS10, EXPINF10YR",
+    "sources": [
+      {
+        "slug": "shiller",
+        "short_name": "Shiller/Yale",
+        "dataset": "ie-data",
+        "name": "Robert J. Shiller (Yale) \u2014 U.S. Stock Markets 1871\u2013Present and CAPE Ratio",
+        "dataset_name": "U.S. stock markets 1871\u2013present and CAPE, monthly",
+        "url": "http://www.econ.yale.edu/~shiller/data.htm",
+        "licence": "Free download; no published terms on the Yale data page or shillerdata.com. Asked by email, Shiller's index advisor answered on 2026-09-17 that Shiller does not license the CAPE ratio, does not own its S&P components, and that S&P's wishes govern \u2014 so the S&P-derived columns (price, dividends, earnings, CAPE) follow S&P Dow Jones Indices' terms",
+        "terms_status": "unknown"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "gs",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Treasury constant-maturity yields, monthly averages (H.15)",
+        "url": "https://fred.stlouisfed.org/series/GS10",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "expinf",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Cleveland Fed inflation expectations, monthly",
+        "url": "https://fred.stlouisfed.org/series/EXPINF10YR",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "cape",
+        "label": "Cyclically adjusted P/E ratio (CAPE, P/E10)",
+        "source": "shiller",
+        "dataset": "ie-data",
+        "cadence": "monthly",
+        "publication_lag_business_days": 5
+      },
+      {
+        "id": "nominal",
+        "label": "10-year Treasury constant-maturity yield, monthly average (FRED GS10)",
+        "source": "fred",
+        "dataset": "gs",
+        "series_id": "GS10",
+        "cadence": "monthly",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "expected_inflation",
+        "label": "10-year expected inflation, Cleveland Fed model (FRED EXPINF10YR)",
+        "source": "fred",
+        "dataset": "expinf",
+        "series_id": "EXPINF10YR",
+        "cadence": "monthly",
+        "publication_lag_business_days": 1
+      }
+    ],
+    "methodology": [
+      "ERP = (100 \u00f7 CAPE) \u2212 (GS10 \u2212 EXPINF10YR), computed per month in Python. A month is emitted only where all three legs report \u2014 no forward-fill and no interpolation \u2014 so the series begins 1982-01, the first month the Cleveland Fed's expected-inflation model covers.",
+      "The equity leg is the CAPE earnings yield: the reciprocal of Shiller's cyclically adjusted price-to-earnings ratio, which divides the real S&P Composite price by the average of ten years of real earnings. Inverting a P/E gives the earnings the market buys per dollar invested, so 100 \u00f7 41 is a 2.4% yield. Ten-year averaging is the point of using CAPE rather than a trailing P/E here: it keeps a single bad earnings year from making stocks look cheap or dear when they are not.",
+      "The bond leg is an EX-ANTE real yield: the nominal 10-year Treasury yield minus what investors expected inflation to average over the same ten years, per the Cleveland Fed's model. It is what a bond buyer expected to earn in purchasing power at the moment of purchase, not what they turned out to earn. Chart 5 (Ex-Post Real Short Rate) is the realized counterpart at the short end, and the two are not comparable.",
+      "GS10 \u2212 EXPINF10YR rather than the directly observed TIPS yield (FRED DFII10), which would need no inflation model but only starts 2003-01. The model-based construction reaches back to 1982 and so covers the disinflation of the 1980s, the 1990s bull market and the dot-com peak \u2014 the episodes that make the chart worth drawing. From 2003 onward the two constructions track each other closely."
+    ],
+    "notes": [
+      "Values are percentage points. A positive reading means the CAPE earnings yield exceeds the expected real bond yield \u2014 stocks are compensating for their extra risk. A negative reading means they are not, on this measure.",
+      "This is a valuation-based estimate of the premium investors are being offered, not a forecast of the premium they will earn and not a trading signal. It has been low or negative for long stretches during which equities went on to do well.",
+      "Each observation also stores its two legs, `cape_yield` and `real_yield`, so the difference can be decomposed \u2014 which side moved matters, since a falling premium means either richer stocks or cheaper real bonds. They are carried in the data file and the JSON export; the chart line, its hover and the CSV export all show the premium alone.",
+      "The premium compressed to roughly +0.3pp by August 2026, near the low end of the series' own history \u2014 a high CAPE meeting a positive real bond yield, the two forces working the same direction.",
+      "Not published (`presentation.publish: false`). The CAPE yield is 1 \u00f7 CAPE, and CAPE is built from S&P's price and earnings columns in Shiller's workbook. S&P Dow Jones Indices declined free permission on 2026-09-15 and excluded \"the P/E values\" even from its paid Web Display Agreement; Shiller's own side answered on 2026-09-17 that it licenses nothing and that S&P's wishes govern. Settled rather than pending."
+    ]
+  },
+  "as_of": {
+    "fetched_at": "2026-09-18T03:31:43Z",
+    "last_observation": "2026-08-01",
+    "period_label": "Aug 2026",
+    "first_observation": "1982-01-01",
+    "observation_count": 536,
+    "inputs": {
+      "cape": {
+        "last_observation": "2026-09-01",
+        "period_label": "Sep 2026",
+        "due_by": "2026-11-06"
+      },
+      "nominal": {
+        "last_observation": "2026-08-01",
+        "period_label": "Aug 2026",
+        "due_by": "2026-10-01"
+      },
+      "expected_inflation": {
+        "last_observation": "2026-09-01",
+        "period_label": "Sep 2026",
+        "due_by": "2026-11-02"
+      }
+    },
+    "due_by": "2026-10-01"
+  },
+  "observations": [
+    {
+      "date": "1982-01-01",
+      "value": 5.14,
+      "cape_yield": 13.53,
+      "real_yield": 8.39
+    },
+    {
+      "date": "1982-02-01",
+      "value": 5.58,
+      "cape_yield": 13.93,
+      "real_yield": 8.35
+    },
+    {
+      "date": "1982-03-01",
+      "value": 6.18,
+      "cape_yield": 14.39,
+      "real_yield": 8.21
+    },
+    {
+      "date": "1982-04-01",
+      "value": 5.61,
+      "cape_yield": 13.77,
+      "real_yield": 8.16
+    },
+    {
+      "date": "1982-05-01",
+      "value": 5.98,
+      "cape_yield": 13.91,
+      "real_yield": 7.93
+    },
+    {
+      "date": "1982-06-01",
+      "value": 6.25,
+      "cape_yield": 14.95,
+      "real_yield": 8.7
+    },
+    {
+      "date": "1982-07-01",
+      "value": 7.03,
+      "cape_yield": 15.06,
+      "real_yield": 8.03
+    },
+    {
+      "date": "1982-08-01",
+      "value": 7.7,
+      "cape_yield": 15.06,
+      "real_yield": 7.36
+    },
+    {
+      "date": "1982-09-01",
+      "value": 6.9,
+      "cape_yield": 13.51,
+      "real_yield": 6.61
+    },
+    {
+      "date": "1982-10-01",
+      "value": 6.93,
+      "cape_yield": 12.5,
+      "real_yield": 5.57
+    },
+    {
+      "date": "1982-11-01",
+      "value": 6.15,
+      "cape_yield": 11.98,
+      "real_yield": 5.83
+    },
+    {
+      "date": "1982-12-01",
+      "value": 6.13,
+      "cape_yield": 11.81,
+      "real_yield": 5.68
+    },
+    {
+      "date": "1983-01-01",
+      "value": 5.68,
+      "cape_yield": 11.42,
+      "real_yield": 5.74
+    },
+    {
+      "date": "1983-02-01",
+      "value": 5.36,
+      "cape_yield": 11.22,
+      "real_yield": 5.86
+    },
+    {
+      "date": "1983-03-01",
+      "value": 4.93,
+      "cape_yield": 10.83,
+      "real_yield": 5.9
+    },
+    {
+      "date": "1983-04-01",
+      "value": 4.83,
+      "cape_yield": 10.49,
+      "real_yield": 5.66
+    },
+    {
+      "date": "1983-05-01",
+      "value": 4.29,
+      "cape_yield": 10.13,
+      "real_yield": 5.84
+    },
+    {
+      "date": "1983-06-01",
+      "value": 3.87,
+      "cape_yield": 10.0,
+      "real_yield": 6.13
+    },
+    {
+      "date": "1983-07-01",
+      "value": 3.48,
+      "cape_yield": 9.99,
+      "real_yield": 6.51
+    },
+    {
+      "date": "1983-08-01",
+      "value": 3.45,
+      "cape_yield": 10.28,
+      "real_yield": 6.83
+    },
+    {
+      "date": "1983-09-01",
+      "value": 3.48,
+      "cape_yield": 10.02,
+      "real_yield": 6.54
+    },
+    {
+      "date": "1983-10-01",
+      "value": 3.43,
+      "cape_yield": 10.0,
+      "real_yield": 6.57
+    },
+    {
+      "date": "1983-11-01",
+      "value": 3.53,
+      "cape_yield": 10.15,
+      "real_yield": 6.62
+    },
+    {
+      "date": "1983-12-01",
+      "value": 3.44,
+      "cape_yield": 10.18,
+      "real_yield": 6.74
+    },
+    {
+      "date": "1984-01-01",
+      "value": 3.5,
+      "cape_yield": 10.11,
+      "real_yield": 6.61
+    },
+    {
+      "date": "1984-02-01",
+      "value": 3.92,
+      "cape_yield": 10.73,
+      "real_yield": 6.81
+    },
+    {
+      "date": "1984-03-01",
+      "value": 3.57,
+      "cape_yield": 10.72,
+      "real_yield": 7.15
+    },
+    {
+      "date": "1984-04-01",
+      "value": 3.42,
+      "cape_yield": 10.74,
+      "real_yield": 7.32
+    },
+    {
+      "date": "1984-05-01",
+      "value": 2.87,
+      "cape_yield": 10.83,
+      "real_yield": 7.96
+    },
+    {
+      "date": "1984-06-01",
+      "value": 3.28,
+      "cape_yield": 11.1,
+      "real_yield": 7.82
+    },
+    {
+      "date": "1984-07-01",
+      "value": 3.65,
+      "cape_yield": 11.27,
+      "real_yield": 7.62
+    },
+    {
+      "date": "1984-08-01",
+      "value": 3.11,
+      "cape_yield": 10.4,
+      "real_yield": 7.29
+    },
+    {
+      "date": "1984-09-01",
+      "value": 3.24,
+      "cape_yield": 10.32,
+      "real_yield": 7.08
+    },
+    {
+      "date": "1984-10-01",
+      "value": 3.47,
+      "cape_yield": 10.42,
+      "real_yield": 6.95
+    },
+    {
+      "date": "1984-11-01",
+      "value": 3.77,
+      "cape_yield": 10.32,
+      "real_yield": 6.55
+    },
+    {
+      "date": "1984-12-01",
+      "value": 3.95,
+      "cape_yield": 10.42,
+      "real_yield": 6.47
+    },
+    {
+      "date": "1985-01-01",
+      "value": 3.73,
+      "cape_yield": 10.0,
+      "real_yield": 6.27
+    },
+    {
+      "date": "1985-02-01",
+      "value": 3.06,
+      "cape_yield": 9.53,
+      "real_yield": 6.47
+    },
+    {
+      "date": "1985-03-01",
+      "value": 3.04,
+      "cape_yield": 9.64,
+      "real_yield": 6.6
+    },
+    {
+      "date": "1985-04-01",
+      "value": 3.21,
+      "cape_yield": 9.62,
+      "real_yield": 6.41
+    },
+    {
+      "date": "1985-05-01",
+      "value": 3.56,
+      "cape_yield": 9.43,
+      "real_yield": 5.87
+    },
+    {
+      "date": "1985-06-01",
+      "value": 3.68,
+      "cape_yield": 9.25,
+      "real_yield": 5.57
+    },
+    {
+      "date": "1985-07-01",
+      "value": 3.34,
+      "cape_yield": 9.09,
+      "real_yield": 5.75
+    },
+    {
+      "date": "1985-08-01",
+      "value": 3.7,
+      "cape_yield": 9.31,
+      "real_yield": 5.61
+    },
+    {
+      "date": "1985-09-01",
+      "value": 3.8,
+      "cape_yield": 9.55,
+      "real_yield": 5.75
+    },
+    {
+      "date": "1985-10-01",
+      "value": 3.86,
+      "cape_yield": 9.48,
+      "real_yield": 5.62
+    },
+    {
+      "date": "1985-11-01",
+      "value": 3.68,
+      "cape_yield": 8.96,
+      "real_yield": 5.28
+    },
+    {
+      "date": "1985-12-01",
+      "value": 3.66,
+      "cape_yield": 8.55,
+      "real_yield": 4.89
+    },
+    {
+      "date": "1986-01-01",
+      "value": 3.48,
+      "cape_yield": 8.53,
+      "real_yield": 5.05
+    },
+    {
+      "date": "1986-02-01",
+      "value": 3.49,
+      "cape_yield": 8.07,
+      "real_yield": 4.58
+    },
+    {
+      "date": "1986-03-01",
+      "value": 3.54,
+      "cape_yield": 7.58,
+      "real_yield": 4.04
+    },
+    {
+      "date": "1986-04-01",
+      "value": 3.63,
+      "cape_yield": 7.38,
+      "real_yield": 3.75
+    },
+    {
+      "date": "1986-05-01",
+      "value": 3.27,
+      "cape_yield": 7.37,
+      "real_yield": 4.1
+    },
+    {
+      "date": "1986-06-01",
+      "value": 3.33,
+      "cape_yield": 7.2,
+      "real_yield": 3.87
+    },
+    {
+      "date": "1986-07-01",
+      "value": 3.71,
+      "cape_yield": 7.34,
+      "real_yield": 3.63
+    },
+    {
+      "date": "1986-08-01",
+      "value": 3.66,
+      "cape_yield": 7.2,
+      "real_yield": 3.54
+    },
+    {
+      "date": "1986-09-01",
+      "value": 3.41,
+      "cape_yield": 7.42,
+      "real_yield": 4.01
+    },
+    {
+      "date": "1986-10-01",
+      "value": 3.65,
+      "cape_yield": 7.45,
+      "real_yield": 3.8
+    },
+    {
+      "date": "1986-11-01",
+      "value": 3.52,
+      "cape_yield": 7.21,
+      "real_yield": 3.69
+    },
+    {
+      "date": "1986-12-01",
+      "value": 3.47,
+      "cape_yield": 7.1,
+      "real_yield": 3.63
+    },
+    {
+      "date": "1987-01-01",
+      "value": 3.14,
+      "cape_yield": 6.7,
+      "real_yield": 3.56
+    },
+    {
+      "date": "1987-02-01",
+      "value": 2.59,
+      "cape_yield": 6.32,
+      "real_yield": 3.73
+    },
+    {
+      "date": "1987-03-01",
+      "value": 2.23,
+      "cape_yield": 6.09,
+      "real_yield": 3.86
+    },
+    {
+      "date": "1987-04-01",
+      "value": 1.78,
+      "cape_yield": 6.17,
+      "real_yield": 4.39
+    },
+    {
+      "date": "1987-05-01",
+      "value": 1.56,
+      "cape_yield": 6.19,
+      "real_yield": 4.63
+    },
+    {
+      "date": "1987-06-01",
+      "value": 1.45,
+      "cape_yield": 5.94,
+      "real_yield": 4.49
+    },
+    {
+      "date": "1987-07-01",
+      "value": 1.3,
+      "cape_yield": 5.78,
+      "real_yield": 4.48
+    },
+    {
+      "date": "1987-08-01",
+      "value": 0.75,
+      "cape_yield": 5.46,
+      "real_yield": 4.71
+    },
+    {
+      "date": "1987-09-01",
+      "value": 0.39,
+      "cape_yield": 5.66,
+      "real_yield": 5.27
+    },
+    {
+      "date": "1987-10-01",
+      "value": 1.17,
+      "cape_yield": 6.44,
+      "real_yield": 5.27
+    },
+    {
+      "date": "1987-11-01",
+      "value": 2.67,
+      "cape_yield": 7.36,
+      "real_yield": 4.69
+    },
+    {
+      "date": "1987-12-01",
+      "value": 2.74,
+      "cape_yield": 7.47,
+      "real_yield": 4.73
+    },
+    {
+      "date": "1988-01-01",
+      "value": 2.74,
+      "cape_yield": 7.19,
+      "real_yield": 4.45
+    },
+    {
+      "date": "1988-02-01",
+      "value": 2.63,
+      "cape_yield": 6.99,
+      "real_yield": 4.36
+    },
+    {
+      "date": "1988-03-01",
+      "value": 2.26,
+      "cape_yield": 6.82,
+      "real_yield": 4.56
+    },
+    {
+      "date": "1988-04-01",
+      "value": 2.23,
+      "cape_yield": 6.93,
+      "real_yield": 4.7
+    },
+    {
+      "date": "1988-05-01",
+      "value": 2.1,
+      "cape_yield": 7.13,
+      "real_yield": 5.03
+    },
+    {
+      "date": "1988-06-01",
+      "value": 1.98,
+      "cape_yield": 6.77,
+      "real_yield": 4.79
+    },
+    {
+      "date": "1988-07-01",
+      "value": 1.86,
+      "cape_yield": 6.84,
+      "real_yield": 4.98
+    },
+    {
+      "date": "1988-08-01",
+      "value": 1.85,
+      "cape_yield": 7.02,
+      "real_yield": 5.17
+    },
+    {
+      "date": "1988-09-01",
+      "value": 2.15,
+      "cape_yield": 6.96,
+      "real_yield": 4.81
+    },
+    {
+      "date": "1988-10-01",
+      "value": 2.0,
+      "cape_yield": 6.75,
+      "real_yield": 4.75
+    },
+    {
+      "date": "1988-11-01",
+      "value": 1.96,
+      "cape_yield": 6.92,
+      "real_yield": 4.96
+    },
+    {
+      "date": "1988-12-01",
+      "value": 1.81,
+      "cape_yield": 6.8,
+      "real_yield": 4.99
+    },
+    {
+      "date": "1989-01-01",
+      "value": 1.83,
+      "cape_yield": 6.63,
+      "real_yield": 4.8
+    },
+    {
+      "date": "1989-02-01",
+      "value": 1.48,
+      "cape_yield": 6.46,
+      "real_yield": 4.98
+    },
+    {
+      "date": "1989-03-01",
+      "value": 1.51,
+      "cape_yield": 6.54,
+      "real_yield": 5.03
+    },
+    {
+      "date": "1989-04-01",
+      "value": 1.46,
+      "cape_yield": 6.37,
+      "real_yield": 4.91
+    },
+    {
+      "date": "1989-05-01",
+      "value": 1.42,
+      "cape_yield": 6.18,
+      "real_yield": 4.76
+    },
+    {
+      "date": "1989-06-01",
+      "value": 1.69,
+      "cape_yield": 6.01,
+      "real_yield": 4.32
+    },
+    {
+      "date": "1989-07-01",
+      "value": 1.6,
+      "cape_yield": 5.88,
+      "real_yield": 4.28
+    },
+    {
+      "date": "1989-08-01",
+      "value": 1.11,
+      "cape_yield": 5.64,
+      "real_yield": 4.53
+    },
+    {
+      "date": "1989-09-01",
+      "value": 1.26,
+      "cape_yield": 5.65,
+      "real_yield": 4.39
+    },
+    {
+      "date": "1989-10-01",
+      "value": 1.49,
+      "cape_yield": 5.67,
+      "real_yield": 4.18
+    },
+    {
+      "date": "1989-11-01",
+      "value": 1.62,
+      "cape_yield": 5.8,
+      "real_yield": 4.18
+    },
+    {
+      "date": "1989-12-01",
+      "value": 1.49,
+      "cape_yield": 5.67,
+      "real_yield": 4.18
+    },
+    {
+      "date": "1990-01-01",
+      "value": 1.45,
+      "cape_yield": 5.87,
+      "real_yield": 4.42
+    },
+    {
+      "date": "1990-02-01",
+      "value": 1.56,
+      "cape_yield": 6.06,
+      "real_yield": 4.5
+    },
+    {
+      "date": "1990-03-01",
+      "value": 1.31,
+      "cape_yield": 5.94,
+      "real_yield": 4.63
+    },
+    {
+      "date": "1990-04-01",
+      "value": 1.12,
+      "cape_yield": 5.95,
+      "real_yield": 4.83
+    },
+    {
+      "date": "1990-05-01",
+      "value": 1.13,
+      "cape_yield": 5.75,
+      "real_yield": 4.62
+    },
+    {
+      "date": "1990-06-01",
+      "value": 1.08,
+      "cape_yield": 5.61,
+      "real_yield": 4.53
+    },
+    {
+      "date": "1990-07-01",
+      "value": 1.02,
+      "cape_yield": 5.63,
+      "real_yield": 4.61
+    },
+    {
+      "date": "1990-08-01",
+      "value": 1.26,
+      "cape_yield": 6.18,
+      "real_yield": 4.92
+    },
+    {
+      "date": "1990-09-01",
+      "value": 1.72,
+      "cape_yield": 6.54,
+      "real_yield": 4.82
+    },
+    {
+      "date": "1990-10-01",
+      "value": 2.02,
+      "cape_yield": 6.75,
+      "real_yield": 4.73
+    },
+    {
+      "date": "1990-11-01",
+      "value": 2.17,
+      "cape_yield": 6.58,
+      "real_yield": 4.41
+    },
+    {
+      "date": "1990-12-01",
+      "value": 2.09,
+      "cape_yield": 6.31,
+      "real_yield": 4.22
+    },
+    {
+      "date": "1991-01-01",
+      "value": 2.12,
+      "cape_yield": 6.41,
+      "real_yield": 4.29
+    },
+    {
+      "date": "1991-02-01",
+      "value": 1.64,
+      "cape_yield": 5.76,
+      "real_yield": 4.12
+    },
+    {
+      "date": "1991-03-01",
+      "value": 1.37,
+      "cape_yield": 5.61,
+      "real_yield": 4.24
+    },
+    {
+      "date": "1991-04-01",
+      "value": 1.24,
+      "cape_yield": 5.51,
+      "real_yield": 4.27
+    },
+    {
+      "date": "1991-05-01",
+      "value": 1.25,
+      "cape_yield": 5.54,
+      "real_yield": 4.29
+    },
+    {
+      "date": "1991-06-01",
+      "value": 1.14,
+      "cape_yield": 5.55,
+      "real_yield": 4.41
+    },
+    {
+      "date": "1991-07-01",
+      "value": 1.14,
+      "cape_yield": 5.52,
+      "real_yield": 4.38
+    },
+    {
+      "date": "1991-08-01",
+      "value": 1.36,
+      "cape_yield": 5.4,
+      "real_yield": 4.04
+    },
+    {
+      "date": "1991-09-01",
+      "value": 1.49,
+      "cape_yield": 5.45,
+      "real_yield": 3.96
+    },
+    {
+      "date": "1991-10-01",
+      "value": 1.51,
+      "cape_yield": 5.45,
+      "real_yield": 3.94
+    },
+    {
+      "date": "1991-11-01",
+      "value": 1.6,
+      "cape_yield": 5.47,
+      "real_yield": 3.87
+    },
+    {
+      "date": "1991-12-01",
+      "value": 1.83,
+      "cape_yield": 5.42,
+      "real_yield": 3.59
+    },
+    {
+      "date": "1992-01-01",
+      "value": 1.4,
+      "cape_yield": 5.06,
+      "real_yield": 3.66
+    },
+    {
+      "date": "1992-02-01",
+      "value": 1.35,
+      "cape_yield": 5.11,
+      "real_yield": 3.76
+    },
+    {
+      "date": "1992-03-01",
+      "value": 1.26,
+      "cape_yield": 5.19,
+      "real_yield": 3.93
+    },
+    {
+      "date": "1992-04-01",
+      "value": 1.34,
+      "cape_yield": 5.18,
+      "real_yield": 3.84
+    },
+    {
+      "date": "1992-05-01",
+      "value": 1.37,
+      "cape_yield": 5.09,
+      "real_yield": 3.72
+    },
+    {
+      "date": "1992-06-01",
+      "value": 1.51,
+      "cape_yield": 5.18,
+      "real_yield": 3.67
+    },
+    {
+      "date": "1992-07-01",
+      "value": 1.71,
+      "cape_yield": 5.1,
+      "real_yield": 3.39
+    },
+    {
+      "date": "1992-08-01",
+      "value": 1.8,
+      "cape_yield": 5.07,
+      "real_yield": 3.27
+    },
+    {
+      "date": "1992-09-01",
+      "value": 1.86,
+      "cape_yield": 5.07,
+      "real_yield": 3.21
+    },
+    {
+      "date": "1992-10-01",
+      "value": 1.66,
+      "cape_yield": 5.16,
+      "real_yield": 3.5
+    },
+    {
+      "date": "1992-11-01",
+      "value": 1.51,
+      "cape_yield": 5.04,
+      "real_yield": 3.53
+    },
+    {
+      "date": "1992-12-01",
+      "value": 1.56,
+      "cape_yield": 4.89,
+      "real_yield": 3.33
+    },
+    {
+      "date": "1993-01-01",
+      "value": 1.65,
+      "cape_yield": 4.92,
+      "real_yield": 3.27
+    },
+    {
+      "date": "1993-02-01",
+      "value": 1.8,
+      "cape_yield": 4.87,
+      "real_yield": 3.07
+    },
+    {
+      "date": "1993-03-01",
+      "value": 1.82,
+      "cape_yield": 4.79,
+      "real_yield": 2.97
+    },
+    {
+      "date": "1993-04-01",
+      "value": 1.98,
+      "cape_yield": 4.89,
+      "real_yield": 2.91
+    },
+    {
+      "date": "1993-05-01",
+      "value": 1.84,
+      "cape_yield": 4.87,
+      "real_yield": 3.03
+    },
+    {
+      "date": "1993-06-01",
+      "value": 1.89,
+      "cape_yield": 4.85,
+      "real_yield": 2.96
+    },
+    {
+      "date": "1993-07-01",
+      "value": 2.0,
+      "cape_yield": 4.86,
+      "real_yield": 2.86
+    },
+    {
+      "date": "1993-08-01",
+      "value": 2.12,
+      "cape_yield": 4.81,
+      "real_yield": 2.69
+    },
+    {
+      "date": "1993-09-01",
+      "value": 2.25,
+      "cape_yield": 4.76,
+      "real_yield": 2.51
+    },
+    {
+      "date": "1993-10-01",
+      "value": 2.26,
+      "cape_yield": 4.74,
+      "real_yield": 2.48
+    },
+    {
+      "date": "1993-11-01",
+      "value": 1.94,
+      "cape_yield": 4.75,
+      "real_yield": 2.81
+    },
+    {
+      "date": "1993-12-01",
+      "value": 1.94,
+      "cape_yield": 4.73,
+      "real_yield": 2.79
+    },
+    {
+      "date": "1994-01-01",
+      "value": 1.94,
+      "cape_yield": 4.67,
+      "real_yield": 2.73
+    },
+    {
+      "date": "1994-02-01",
+      "value": 1.7,
+      "cape_yield": 4.7,
+      "real_yield": 3.0
+    },
+    {
+      "date": "1994-03-01",
+      "value": 1.52,
+      "cape_yield": 4.8,
+      "real_yield": 3.28
+    },
+    {
+      "date": "1994-04-01",
+      "value": 1.5,
+      "cape_yield": 4.99,
+      "real_yield": 3.49
+    },
+    {
+      "date": "1994-05-01",
+      "value": 1.22,
+      "cape_yield": 4.95,
+      "real_yield": 3.73
+    },
+    {
+      "date": "1994-06-01",
+      "value": 1.32,
+      "cape_yield": 4.93,
+      "real_yield": 3.61
+    },
+    {
+      "date": "1994-07-01",
+      "value": 1.28,
+      "cape_yield": 4.98,
+      "real_yield": 3.7
+    },
+    {
+      "date": "1994-08-01",
+      "value": 1.08,
+      "cape_yield": 4.87,
+      "real_yield": 3.79
+    },
+    {
+      "date": "1994-09-01",
+      "value": 0.88,
+      "cape_yield": 4.86,
+      "real_yield": 3.98
+    },
+    {
+      "date": "1994-10-01",
+      "value": 0.83,
+      "cape_yield": 4.9,
+      "real_yield": 4.07
+    },
+    {
+      "date": "1994-11-01",
+      "value": 0.77,
+      "cape_yield": 4.95,
+      "real_yield": 4.18
+    },
+    {
+      "date": "1994-12-01",
+      "value": 1.03,
+      "cape_yield": 5.02,
+      "real_yield": 3.99
+    },
+    {
+      "date": "1995-01-01",
+      "value": 1.04,
+      "cape_yield": 4.95,
+      "real_yield": 3.91
+    },
+    {
+      "date": "1995-02-01",
+      "value": 1.11,
+      "cape_yield": 4.81,
+      "real_yield": 3.7
+    },
+    {
+      "date": "1995-03-01",
+      "value": 1.11,
+      "cape_yield": 4.73,
+      "real_yield": 3.62
+    },
+    {
+      "date": "1995-04-01",
+      "value": 1.08,
+      "cape_yield": 4.62,
+      "real_yield": 3.54
+    },
+    {
+      "date": "1995-05-01",
+      "value": 1.2,
+      "cape_yield": 4.5,
+      "real_yield": 3.3
+    },
+    {
+      "date": "1995-06-01",
+      "value": 1.25,
+      "cape_yield": 4.4,
+      "real_yield": 3.15
+    },
+    {
+      "date": "1995-07-01",
+      "value": 1.08,
+      "cape_yield": 4.28,
+      "real_yield": 3.2
+    },
+    {
+      "date": "1995-08-01",
+      "value": 0.98,
+      "cape_yield": 4.3,
+      "real_yield": 3.32
+    },
+    {
+      "date": "1995-09-01",
+      "value": 1.1,
+      "cape_yield": 4.18,
+      "real_yield": 3.08
+    },
+    {
+      "date": "1995-10-01",
+      "value": 1.21,
+      "cape_yield": 4.18,
+      "real_yield": 2.97
+    },
+    {
+      "date": "1995-11-01",
+      "value": 1.2,
+      "cape_yield": 4.11,
+      "real_yield": 2.91
+    },
+    {
+      "date": "1995-12-01",
+      "value": 1.13,
+      "cape_yield": 4.0,
+      "real_yield": 2.87
+    },
+    {
+      "date": "1996-01-01",
+      "value": 1.27,
+      "cape_yield": 4.04,
+      "real_yield": 2.77
+    },
+    {
+      "date": "1996-02-01",
+      "value": 0.91,
+      "cape_yield": 3.85,
+      "real_yield": 2.94
+    },
+    {
+      "date": "1996-03-01",
+      "value": 0.59,
+      "cape_yield": 3.9,
+      "real_yield": 3.31
+    },
+    {
+      "date": "1996-04-01",
+      "value": 0.53,
+      "cape_yield": 3.93,
+      "real_yield": 3.4
+    },
+    {
+      "date": "1996-05-01",
+      "value": 0.4,
+      "cape_yield": 3.87,
+      "real_yield": 3.47
+    },
+    {
+      "date": "1996-06-01",
+      "value": 0.3,
+      "cape_yield": 3.85,
+      "real_yield": 3.55
+    },
+    {
+      "date": "1996-07-01",
+      "value": 0.41,
+      "cape_yield": 4.02,
+      "real_yield": 3.61
+    },
+    {
+      "date": "1996-08-01",
+      "value": 0.56,
+      "cape_yield": 3.94,
+      "real_yield": 3.38
+    },
+    {
+      "date": "1996-09-01",
+      "value": 0.41,
+      "cape_yield": 3.89,
+      "real_yield": 3.48
+    },
+    {
+      "date": "1996-10-01",
+      "value": 0.52,
+      "cape_yield": 3.78,
+      "real_yield": 3.26
+    },
+    {
+      "date": "1996-11-01",
+      "value": 0.62,
+      "cape_yield": 3.62,
+      "real_yield": 3.0
+    },
+    {
+      "date": "1996-12-01",
+      "value": 0.35,
+      "cape_yield": 3.61,
+      "real_yield": 3.26
+    },
+    {
+      "date": "1997-01-01",
+      "value": 0.19,
+      "cape_yield": 3.53,
+      "real_yield": 3.34
+    },
+    {
+      "date": "1997-02-01",
+      "value": 0.24,
+      "cape_yield": 3.42,
+      "real_yield": 3.18
+    },
+    {
+      "date": "1997-03-01",
+      "value": 0.04,
+      "cape_yield": 3.47,
+      "real_yield": 3.43
+    },
+    {
+      "date": "1997-04-01",
+      "value": 0.1,
+      "cape_yield": 3.62,
+      "real_yield": 3.52
+    },
+    {
+      "date": "1997-05-01",
+      "value": -0.06,
+      "cape_yield": 3.34,
+      "real_yield": 3.4
+    },
+    {
+      "date": "1997-06-01",
+      "value": 0.01,
+      "cape_yield": 3.2,
+      "real_yield": 3.19
+    },
+    {
+      "date": "1997-07-01",
+      "value": 0.03,
+      "cape_yield": 3.05,
+      "real_yield": 3.02
+    },
+    {
+      "date": "1997-08-01",
+      "value": -0.09,
+      "cape_yield": 3.07,
+      "real_yield": 3.16
+    },
+    {
+      "date": "1997-09-01",
+      "value": -0.01,
+      "cape_yield": 3.06,
+      "real_yield": 3.07
+    },
+    {
+      "date": "1997-10-01",
+      "value": 0.12,
+      "cape_yield": 3.04,
+      "real_yield": 2.92
+    },
+    {
+      "date": "1997-11-01",
+      "value": 0.3,
+      "cape_yield": 3.09,
+      "real_yield": 2.79
+    },
+    {
+      "date": "1997-12-01",
+      "value": 0.21,
+      "cape_yield": 3.03,
+      "real_yield": 2.82
+    },
+    {
+      "date": "1998-01-01",
+      "value": 0.45,
+      "cape_yield": 3.04,
+      "real_yield": 2.59
+    },
+    {
+      "date": "1998-02-01",
+      "value": 0.22,
+      "cape_yield": 2.88,
+      "real_yield": 2.66
+    },
+    {
+      "date": "1998-03-01",
+      "value": 0.04,
+      "cape_yield": 2.75,
+      "real_yield": 2.71
+    },
+    {
+      "date": "1998-04-01",
+      "value": -0.03,
+      "cape_yield": 2.68,
+      "real_yield": 2.71
+    },
+    {
+      "date": "1998-05-01",
+      "value": 0.03,
+      "cape_yield": 2.71,
+      "real_yield": 2.68
+    },
+    {
+      "date": "1998-06-01",
+      "value": 0.14,
+      "cape_yield": 2.72,
+      "real_yield": 2.58
+    },
+    {
+      "date": "1998-07-01",
+      "value": 0.08,
+      "cape_yield": 2.61,
+      "real_yield": 2.53
+    },
+    {
+      "date": "1998-08-01",
+      "value": 0.4,
+      "cape_yield": 2.82,
+      "real_yield": 2.42
+    },
+    {
+      "date": "1998-09-01",
+      "value": 0.91,
+      "cape_yield": 2.98,
+      "real_yield": 2.07
+    },
+    {
+      "date": "1998-10-01",
+      "value": 0.84,
+      "cape_yield": 2.96,
+      "real_yield": 2.12
+    },
+    {
+      "date": "1998-11-01",
+      "value": 0.39,
+      "cape_yield": 2.68,
+      "real_yield": 2.29
+    },
+    {
+      "date": "1998-12-01",
+      "value": 0.43,
+      "cape_yield": 2.58,
+      "real_yield": 2.15
+    },
+    {
+      "date": "1999-01-01",
+      "value": 0.33,
+      "cape_yield": 2.46,
+      "real_yield": 2.13
+    },
+    {
+      "date": "1999-02-01",
+      "value": 0.11,
+      "cape_yield": 2.48,
+      "real_yield": 2.37
+    },
+    {
+      "date": "1999-03-01",
+      "value": -0.02,
+      "cape_yield": 2.42,
+      "real_yield": 2.44
+    },
+    {
+      "date": "1999-04-01",
+      "value": -0.04,
+      "cape_yield": 2.34,
+      "real_yield": 2.38
+    },
+    {
+      "date": "1999-05-01",
+      "value": -0.34,
+      "cape_yield": 2.35,
+      "real_yield": 2.69
+    },
+    {
+      "date": "1999-06-01",
+      "value": -0.59,
+      "cape_yield": 2.37,
+      "real_yield": 2.96
+    },
+    {
+      "date": "1999-07-01",
+      "value": -0.5,
+      "cape_yield": 2.28,
+      "real_yield": 2.78
+    },
+    {
+      "date": "1999-08-01",
+      "value": -0.5,
+      "cape_yield": 2.38,
+      "real_yield": 2.88
+    },
+    {
+      "date": "1999-09-01",
+      "value": -0.41,
+      "cape_yield": 2.42,
+      "real_yield": 2.83
+    },
+    {
+      "date": "1999-10-01",
+      "value": -0.51,
+      "cape_yield": 2.47,
+      "real_yield": 2.98
+    },
+    {
+      "date": "1999-11-01",
+      "value": -0.57,
+      "cape_yield": 2.31,
+      "real_yield": 2.88
+    },
+    {
+      "date": "1999-12-01",
+      "value": -0.8,
+      "cape_yield": 2.26,
+      "real_yield": 3.06
+    },
+    {
+      "date": "2000-01-01",
+      "value": -1.11,
+      "cape_yield": 2.28,
+      "real_yield": 3.39
+    },
+    {
+      "date": "2000-02-01",
+      "value": -0.8,
+      "cape_yield": 2.37,
+      "real_yield": 3.17
+    },
+    {
+      "date": "2000-03-01",
+      "value": -0.62,
+      "cape_yield": 2.31,
+      "real_yield": 2.93
+    },
+    {
+      "date": "2000-04-01",
+      "value": -0.51,
+      "cape_yield": 2.3,
+      "real_yield": 2.81
+    },
+    {
+      "date": "2000-05-01",
+      "value": -0.79,
+      "cape_yield": 2.38,
+      "real_yield": 3.17
+    },
+    {
+      "date": "2000-06-01",
+      "value": -0.43,
+      "cape_yield": 2.34,
+      "real_yield": 2.77
+    },
+    {
+      "date": "2000-07-01",
+      "value": -0.62,
+      "cape_yield": 2.34,
+      "real_yield": 2.96
+    },
+    {
+      "date": "2000-08-01",
+      "value": -0.43,
+      "cape_yield": 2.33,
+      "real_yield": 2.76
+    },
+    {
+      "date": "2000-09-01",
+      "value": -0.42,
+      "cape_yield": 2.39,
+      "real_yield": 2.81
+    },
+    {
+      "date": "2000-10-01",
+      "value": -0.24,
+      "cape_yield": 2.54,
+      "real_yield": 2.78
+    },
+    {
+      "date": "2000-11-01",
+      "value": -0.18,
+      "cape_yield": 2.58,
+      "real_yield": 2.76
+    },
+    {
+      "date": "2000-12-01",
+      "value": 0.32,
+      "cape_yield": 2.68,
+      "real_yield": 2.36
+    },
+    {
+      "date": "2001-01-01",
+      "value": 0.07,
+      "cape_yield": 2.7,
+      "real_yield": 2.63
+    },
+    {
+      "date": "2001-02-01",
+      "value": 0.33,
+      "cape_yield": 2.79,
+      "real_yield": 2.46
+    },
+    {
+      "date": "2001-03-01",
+      "value": 0.7,
+      "cape_yield": 3.09,
+      "real_yield": 2.39
+    },
+    {
+      "date": "2001-04-01",
+      "value": 0.56,
+      "cape_yield": 3.11,
+      "real_yield": 2.55
+    },
+    {
+      "date": "2001-05-01",
+      "value": 0.31,
+      "cape_yield": 2.94,
+      "real_yield": 2.63
+    },
+    {
+      "date": "2001-06-01",
+      "value": 0.59,
+      "cape_yield": 3.02,
+      "real_yield": 2.43
+    },
+    {
+      "date": "2001-07-01",
+      "value": 0.68,
+      "cape_yield": 3.11,
+      "real_yield": 2.43
+    },
+    {
+      "date": "2001-08-01",
+      "value": 0.9,
+      "cape_yield": 3.18,
+      "real_yield": 2.28
+    },
+    {
+      "date": "2001-09-01",
+      "value": 1.63,
+      "cape_yield": 3.61,
+      "real_yield": 1.98
+    },
+    {
+      "date": "2001-10-01",
+      "value": 1.46,
+      "cape_yield": 3.5,
+      "real_yield": 2.04
+    },
+    {
+      "date": "2001-11-01",
+      "value": 1.08,
+      "cape_yield": 3.33,
+      "real_yield": 2.25
+    },
+    {
+      "date": "2001-12-01",
+      "value": 0.83,
+      "cape_yield": 3.28,
+      "real_yield": 2.45
+    },
+    {
+      "date": "2002-01-01",
+      "value": 1.05,
+      "cape_yield": 3.3,
+      "real_yield": 2.25
+    },
+    {
+      "date": "2002-02-01",
+      "value": 1.24,
+      "cape_yield": 3.44,
+      "real_yield": 2.2
+    },
+    {
+      "date": "2002-03-01",
+      "value": 0.72,
+      "cape_yield": 3.3,
+      "real_yield": 2.58
+    },
+    {
+      "date": "2002-04-01",
+      "value": 1.19,
+      "cape_yield": 3.45,
+      "real_yield": 2.26
+    },
+    {
+      "date": "2002-05-01",
+      "value": 1.18,
+      "cape_yield": 3.55,
+      "real_yield": 2.37
+    },
+    {
+      "date": "2002-06-01",
+      "value": 1.59,
+      "cape_yield": 3.79,
+      "real_yield": 2.2
+    },
+    {
+      "date": "2002-07-01",
+      "value": 2.26,
+      "cape_yield": 4.26,
+      "real_yield": 2.0
+    },
+    {
+      "date": "2002-08-01",
+      "value": 2.37,
+      "cape_yield": 4.24,
+      "real_yield": 1.87
+    },
+    {
+      "date": "2002-09-01",
+      "value": 2.82,
+      "cape_yield": 4.47,
+      "real_yield": 1.65
+    },
+    {
+      "date": "2002-10-01",
+      "value": 2.73,
+      "cape_yield": 4.55,
+      "real_yield": 1.82
+    },
+    {
+      "date": "2002-11-01",
+      "value": 2.42,
+      "cape_yield": 4.28,
+      "real_yield": 1.86
+    },
+    {
+      "date": "2002-12-01",
+      "value": 2.63,
+      "cape_yield": 4.33,
+      "real_yield": 1.7
+    },
+    {
+      "date": "2003-01-01",
+      "value": 2.56,
+      "cape_yield": 4.37,
+      "real_yield": 1.81
+    },
+    {
+      "date": "2003-02-01",
+      "value": 3.06,
+      "cape_yield": 4.71,
+      "real_yield": 1.65
+    },
+    {
+      "date": "2003-03-01",
+      "value": 2.96,
+      "cape_yield": 4.69,
+      "real_yield": 1.73
+    },
+    {
+      "date": "2003-04-01",
+      "value": 2.62,
+      "cape_yield": 4.46,
+      "real_yield": 1.84
+    },
+    {
+      "date": "2003-05-01",
+      "value": 2.79,
+      "cape_yield": 4.24,
+      "real_yield": 1.45
+    },
+    {
+      "date": "2003-06-01",
+      "value": 2.68,
+      "cape_yield": 4.03,
+      "real_yield": 1.35
+    },
+    {
+      "date": "2003-07-01",
+      "value": 2.01,
+      "cape_yield": 4.02,
+      "real_yield": 2.01
+    },
+    {
+      "date": "2003-08-01",
+      "value": 1.9,
+      "cape_yield": 4.06,
+      "real_yield": 2.16
+    },
+    {
+      "date": "2003-09-01",
+      "value": 2.09,
+      "cape_yield": 3.96,
+      "real_yield": 1.87
+    },
+    {
+      "date": "2003-10-01",
+      "value": 1.71,
+      "cape_yield": 3.89,
+      "real_yield": 2.18
+    },
+    {
+      "date": "2003-11-01",
+      "value": 1.84,
+      "cape_yield": 3.85,
+      "real_yield": 2.01
+    },
+    {
+      "date": "2003-12-01",
+      "value": 1.85,
+      "cape_yield": 3.75,
+      "real_yield": 1.9
+    },
+    {
+      "date": "2004-01-01",
+      "value": 1.79,
+      "cape_yield": 3.62,
+      "real_yield": 1.83
+    },
+    {
+      "date": "2004-02-01",
+      "value": 1.82,
+      "cape_yield": 3.62,
+      "real_yield": 1.8
+    },
+    {
+      "date": "2004-03-01",
+      "value": 2.06,
+      "cape_yield": 3.72,
+      "real_yield": 1.66
+    },
+    {
+      "date": "2004-04-01",
+      "value": 1.52,
+      "cape_yield": 3.72,
+      "real_yield": 2.2
+    },
+    {
+      "date": "2004-05-01",
+      "value": 1.59,
+      "cape_yield": 3.86,
+      "real_yield": 2.27
+    },
+    {
+      "date": "2004-06-01",
+      "value": 1.63,
+      "cape_yield": 3.79,
+      "real_yield": 2.16
+    },
+    {
+      "date": "2004-07-01",
+      "value": 1.89,
+      "cape_yield": 3.89,
+      "real_yield": 2.0
+    },
+    {
+      "date": "2004-08-01",
+      "value": 2.16,
+      "cape_yield": 3.97,
+      "real_yield": 1.81
+    },
+    {
+      "date": "2004-09-01",
+      "value": 2.13,
+      "cape_yield": 3.9,
+      "real_yield": 1.77
+    },
+    {
+      "date": "2004-10-01",
+      "value": 2.19,
+      "cape_yield": 3.94,
+      "real_yield": 1.75
+    },
+    {
+      "date": "2004-11-01",
+      "value": 1.9,
+      "cape_yield": 3.78,
+      "real_yield": 1.88
+    },
+    {
+      "date": "2004-12-01",
+      "value": 1.8,
+      "cape_yield": 3.68,
+      "real_yield": 1.88
+    },
+    {
+      "date": "2005-01-01",
+      "value": 1.91,
+      "cape_yield": 3.76,
+      "real_yield": 1.85
+    },
+    {
+      "date": "2005-02-01",
+      "value": 1.94,
+      "cape_yield": 3.74,
+      "real_yield": 1.8
+    },
+    {
+      "date": "2005-03-01",
+      "value": 1.77,
+      "cape_yield": 3.8,
+      "real_yield": 2.03
+    },
+    {
+      "date": "2005-04-01",
+      "value": 2.12,
+      "cape_yield": 3.94,
+      "real_yield": 1.82
+    },
+    {
+      "date": "2005-05-01",
+      "value": 2.16,
+      "cape_yield": 3.9,
+      "real_yield": 1.74
+    },
+    {
+      "date": "2005-06-01",
+      "value": 2.13,
+      "cape_yield": 3.84,
+      "real_yield": 1.71
+    },
+    {
+      "date": "2005-07-01",
+      "value": 1.98,
+      "cape_yield": 3.8,
+      "real_yield": 1.82
+    },
+    {
+      "date": "2005-08-01",
+      "value": 2.04,
+      "cape_yield": 3.83,
+      "real_yield": 1.79
+    },
+    {
+      "date": "2005-09-01",
+      "value": 2.04,
+      "cape_yield": 3.89,
+      "real_yield": 1.85
+    },
+    {
+      "date": "2005-10-01",
+      "value": 2.11,
+      "cape_yield": 4.02,
+      "real_yield": 1.91
+    },
+    {
+      "date": "2005-11-01",
+      "value": 1.9,
+      "cape_yield": 3.86,
+      "real_yield": 1.96
+    },
+    {
+      "date": "2005-12-01",
+      "value": 1.88,
+      "cape_yield": 3.78,
+      "real_yield": 1.9
+    },
+    {
+      "date": "2006-01-01",
+      "value": 1.81,
+      "cape_yield": 3.78,
+      "real_yield": 1.97
+    },
+    {
+      "date": "2006-02-01",
+      "value": 1.75,
+      "cape_yield": 3.81,
+      "real_yield": 2.06
+    },
+    {
+      "date": "2006-03-01",
+      "value": 1.55,
+      "cape_yield": 3.8,
+      "real_yield": 2.25
+    },
+    {
+      "date": "2006-04-01",
+      "value": 1.46,
+      "cape_yield": 3.82,
+      "real_yield": 2.36
+    },
+    {
+      "date": "2006-05-01",
+      "value": 1.45,
+      "cape_yield": 3.9,
+      "real_yield": 2.45
+    },
+    {
+      "date": "2006-06-01",
+      "value": 1.6,
+      "cape_yield": 4.04,
+      "real_yield": 2.44
+    },
+    {
+      "date": "2006-07-01",
+      "value": 1.68,
+      "cape_yield": 4.05,
+      "real_yield": 2.37
+    },
+    {
+      "date": "2006-08-01",
+      "value": 1.73,
+      "cape_yield": 3.99,
+      "real_yield": 2.26
+    },
+    {
+      "date": "2006-09-01",
+      "value": 1.7,
+      "cape_yield": 3.9,
+      "real_yield": 2.2
+    },
+    {
+      "date": "2006-10-01",
+      "value": 1.53,
+      "cape_yield": 3.77,
+      "real_yield": 2.24
+    },
+    {
+      "date": "2006-11-01",
+      "value": 1.49,
+      "cape_yield": 3.71,
+      "real_yield": 2.22
+    },
+    {
+      "date": "2006-12-01",
+      "value": 1.46,
+      "cape_yield": 3.67,
+      "real_yield": 2.21
+    },
+    {
+      "date": "2007-01-01",
+      "value": 1.45,
+      "cape_yield": 3.68,
+      "real_yield": 2.23
+    },
+    {
+      "date": "2007-02-01",
+      "value": 1.52,
+      "cape_yield": 3.66,
+      "real_yield": 2.14
+    },
+    {
+      "date": "2007-03-01",
+      "value": 1.71,
+      "cape_yield": 3.81,
+      "real_yield": 2.1
+    },
+    {
+      "date": "2007-04-01",
+      "value": 1.5,
+      "cape_yield": 3.71,
+      "real_yield": 2.21
+    },
+    {
+      "date": "2007-05-01",
+      "value": 1.4,
+      "cape_yield": 3.63,
+      "real_yield": 2.23
+    },
+    {
+      "date": "2007-06-01",
+      "value": 1.22,
+      "cape_yield": 3.65,
+      "real_yield": 2.43
+    },
+    {
+      "date": "2007-07-01",
+      "value": 1.29,
+      "cape_yield": 3.65,
+      "real_yield": 2.36
+    },
+    {
+      "date": "2007-08-01",
+      "value": 1.64,
+      "cape_yield": 3.82,
+      "real_yield": 2.18
+    },
+    {
+      "date": "2007-09-01",
+      "value": 1.63,
+      "cape_yield": 3.74,
+      "real_yield": 2.11
+    },
+    {
+      "date": "2007-10-01",
+      "value": 1.58,
+      "cape_yield": 3.66,
+      "real_yield": 2.08
+    },
+    {
+      "date": "2007-11-01",
+      "value": 2.12,
+      "cape_yield": 3.89,
+      "real_yield": 1.77
+    },
+    {
+      "date": "2007-12-01",
+      "value": 1.9,
+      "cape_yield": 3.85,
+      "real_yield": 1.95
+    },
+    {
+      "date": "2008-01-01",
+      "value": 2.59,
+      "cape_yield": 4.16,
+      "real_yield": 1.57
+    },
+    {
+      "date": "2008-02-01",
+      "value": 2.59,
+      "cape_yield": 4.26,
+      "real_yield": 1.67
+    },
+    {
+      "date": "2008-03-01",
+      "value": 2.85,
+      "cape_yield": 4.42,
+      "real_yield": 1.57
+    },
+    {
+      "date": "2008-04-01",
+      "value": 2.6,
+      "cape_yield": 4.28,
+      "real_yield": 1.68
+    },
+    {
+      "date": "2008-05-01",
+      "value": 2.56,
+      "cape_yield": 4.22,
+      "real_yield": 1.66
+    },
+    {
+      "date": "2008-06-01",
+      "value": 2.66,
+      "cape_yield": 4.46,
+      "real_yield": 1.8
+    },
+    {
+      "date": "2008-07-01",
+      "value": 3.11,
+      "cape_yield": 4.78,
+      "real_yield": 1.67
+    },
+    {
+      "date": "2008-08-01",
+      "value": 3.13,
+      "cape_yield": 4.67,
+      "real_yield": 1.54
+    },
+    {
+      "date": "2008-09-01",
+      "value": 3.43,
+      "cape_yield": 4.91,
+      "real_yield": 1.48
+    },
+    {
+      "date": "2008-10-01",
+      "value": 4.4,
+      "cape_yield": 6.1,
+      "real_yield": 1.7
+    },
+    {
+      "date": "2008-11-01",
+      "value": 5.03,
+      "cape_yield": 6.55,
+      "real_yield": 1.52
+    },
+    {
+      "date": "2008-12-01",
+      "value": 5.66,
+      "cape_yield": 6.5,
+      "real_yield": 0.84
+    },
+    {
+      "date": "2009-01-01",
+      "value": 5.69,
+      "cape_yield": 6.59,
+      "real_yield": 0.9
+    },
+    {
+      "date": "2009-02-01",
+      "value": 5.88,
+      "cape_yield": 7.08,
+      "real_yield": 1.2
+    },
+    {
+      "date": "2009-03-01",
+      "value": 6.32,
+      "cape_yield": 7.51,
+      "real_yield": 1.19
+    },
+    {
+      "date": "2009-04-01",
+      "value": 5.45,
+      "cape_yield": 6.68,
+      "real_yield": 1.23
+    },
+    {
+      "date": "2009-05-01",
+      "value": 4.82,
+      "cape_yield": 6.25,
+      "real_yield": 1.43
+    },
+    {
+      "date": "2009-06-01",
+      "value": 4.4,
+      "cape_yield": 6.11,
+      "real_yield": 1.71
+    },
+    {
+      "date": "2009-07-01",
+      "value": 4.47,
+      "cape_yield": 5.99,
+      "real_yield": 1.52
+    },
+    {
+      "date": "2009-08-01",
+      "value": 4.03,
+      "cape_yield": 5.53,
+      "real_yield": 1.5
+    },
+    {
+      "date": "2009-09-01",
+      "value": 3.98,
+      "cape_yield": 5.31,
+      "real_yield": 1.33
+    },
+    {
+      "date": "2009-10-01",
+      "value": 3.74,
+      "cape_yield": 5.17,
+      "real_yield": 1.43
+    },
+    {
+      "date": "2009-11-01",
+      "value": 3.67,
+      "cape_yield": 5.05,
+      "real_yield": 1.38
+    },
+    {
+      "date": "2009-12-01",
+      "value": 3.24,
+      "cape_yield": 4.92,
+      "real_yield": 1.68
+    },
+    {
+      "date": "2010-01-01",
+      "value": 3.23,
+      "cape_yield": 4.87,
+      "real_yield": 1.64
+    },
+    {
+      "date": "2010-02-01",
+      "value": 3.35,
+      "cape_yield": 5.02,
+      "real_yield": 1.67
+    },
+    {
+      "date": "2010-03-01",
+      "value": 3.04,
+      "cape_yield": 4.76,
+      "real_yield": 1.72
+    },
+    {
+      "date": "2010-04-01",
+      "value": 2.8,
+      "cape_yield": 4.59,
+      "real_yield": 1.79
+    },
+    {
+      "date": "2010-05-01",
+      "value": 3.48,
+      "cape_yield": 4.88,
+      "real_yield": 1.4
+    },
+    {
+      "date": "2010-06-01",
+      "value": 3.75,
+      "cape_yield": 5.07,
+      "real_yield": 1.32
+    },
+    {
+      "date": "2010-07-01",
+      "value": 3.8,
+      "cape_yield": 5.08,
+      "real_yield": 1.28
+    },
+    {
+      "date": "2010-08-01",
+      "value": 4.07,
+      "cape_yield": 5.06,
+      "real_yield": 0.99
+    },
+    {
+      "date": "2010-09-01",
+      "value": 3.84,
+      "cape_yield": 4.91,
+      "real_yield": 1.07
+    },
+    {
+      "date": "2010-10-01",
+      "value": 3.74,
+      "cape_yield": 4.71,
+      "real_yield": 0.97
+    },
+    {
+      "date": "2010-11-01",
+      "value": 3.4,
+      "cape_yield": 4.61,
+      "real_yield": 1.21
+    },
+    {
+      "date": "2010-12-01",
+      "value": 2.86,
+      "cape_yield": 4.46,
+      "real_yield": 1.6
+    },
+    {
+      "date": "2011-01-01",
+      "value": 2.93,
+      "cape_yield": 4.35,
+      "real_yield": 1.42
+    },
+    {
+      "date": "2011-02-01",
+      "value": 2.67,
+      "cape_yield": 4.26,
+      "real_yield": 1.59
+    },
+    {
+      "date": "2011-03-01",
+      "value": 3.01,
+      "cape_yield": 4.37,
+      "real_yield": 1.36
+    },
+    {
+      "date": "2011-04-01",
+      "value": 2.96,
+      "cape_yield": 4.32,
+      "real_yield": 1.36
+    },
+    {
+      "date": "2011-05-01",
+      "value": 3.2,
+      "cape_yield": 4.34,
+      "real_yield": 1.14
+    },
+    {
+      "date": "2011-06-01",
+      "value": 3.41,
+      "cape_yield": 4.52,
+      "real_yield": 1.11
+    },
+    {
+      "date": "2011-07-01",
+      "value": 3.41,
+      "cape_yield": 4.42,
+      "real_yield": 1.01
+    },
+    {
+      "date": "2011-08-01",
+      "value": 4.42,
+      "cape_yield": 4.99,
+      "real_yield": 0.57
+    },
+    {
+      "date": "2011-09-01",
+      "value": 4.66,
+      "cape_yield": 5.08,
+      "real_yield": 0.42
+    },
+    {
+      "date": "2011-10-01",
+      "value": 4.4,
+      "cape_yield": 4.96,
+      "real_yield": 0.56
+    },
+    {
+      "date": "2011-11-01",
+      "value": 4.51,
+      "cape_yield": 4.91,
+      "real_yield": 0.4
+    },
+    {
+      "date": "2011-12-01",
+      "value": 4.53,
+      "cape_yield": 4.87,
+      "real_yield": 0.34
+    },
+    {
+      "date": "2012-01-01",
+      "value": 4.34,
+      "cape_yield": 4.71,
+      "real_yield": 0.37
+    },
+    {
+      "date": "2012-02-01",
+      "value": 4.17,
+      "cape_yield": 4.59,
+      "real_yield": 0.42
+    },
+    {
+      "date": "2012-03-01",
+      "value": 3.95,
+      "cape_yield": 4.54,
+      "real_yield": 0.59
+    },
+    {
+      "date": "2012-04-01",
+      "value": 4.19,
+      "cape_yield": 4.59,
+      "real_yield": 0.4
+    },
+    {
+      "date": "2012-05-01",
+      "value": 4.54,
+      "cape_yield": 4.78,
+      "real_yield": 0.24
+    },
+    {
+      "date": "2012-06-01",
+      "value": 4.67,
+      "cape_yield": 4.87,
+      "real_yield": 0.2
+    },
+    {
+      "date": "2012-07-01",
+      "value": 4.72,
+      "cape_yield": 4.76,
+      "real_yield": 0.04
+    },
+    {
+      "date": "2012-08-01",
+      "value": 4.47,
+      "cape_yield": 4.67,
+      "real_yield": 0.2
+    },
+    {
+      "date": "2012-09-01",
+      "value": 4.4,
+      "cape_yield": 4.59,
+      "real_yield": 0.19
+    },
+    {
+      "date": "2012-10-01",
+      "value": 4.38,
+      "cape_yield": 4.63,
+      "real_yield": 0.25
+    },
+    {
+      "date": "2012-11-01",
+      "value": 4.65,
+      "cape_yield": 4.78,
+      "real_yield": 0.13
+    },
+    {
+      "date": "2012-12-01",
+      "value": 4.52,
+      "cape_yield": 4.71,
+      "real_yield": 0.19
+    },
+    {
+      "date": "2013-01-01",
+      "value": 4.15,
+      "cape_yield": 4.57,
+      "real_yield": 0.42
+    },
+    {
+      "date": "2013-02-01",
+      "value": 4.1,
+      "cape_yield": 4.54,
+      "real_yield": 0.44
+    },
+    {
+      "date": "2013-03-01",
+      "value": 3.91,
+      "cape_yield": 4.46,
+      "real_yield": 0.55
+    },
+    {
+      "date": "2013-04-01",
+      "value": 4.12,
+      "cape_yield": 4.42,
+      "real_yield": 0.3
+    },
+    {
+      "date": "2013-05-01",
+      "value": 3.75,
+      "cape_yield": 4.27,
+      "real_yield": 0.52
+    },
+    {
+      "date": "2013-06-01",
+      "value": 3.61,
+      "cape_yield": 4.36,
+      "real_yield": 0.75
+    },
+    {
+      "date": "2013-07-01",
+      "value": 3.31,
+      "cape_yield": 4.26,
+      "real_yield": 0.95
+    },
+    {
+      "date": "2013-08-01",
+      "value": 3.3,
+      "cape_yield": 4.28,
+      "real_yield": 0.98
+    },
+    {
+      "date": "2013-09-01",
+      "value": 3.33,
+      "cape_yield": 4.27,
+      "real_yield": 0.94
+    },
+    {
+      "date": "2013-10-01",
+      "value": 3.3,
+      "cape_yield": 4.2,
+      "real_yield": 0.9
+    },
+    {
+      "date": "2013-11-01",
+      "value": 3.06,
+      "cape_yield": 4.06,
+      "real_yield": 1.0
+    },
+    {
+      "date": "2013-12-01",
+      "value": 2.91,
+      "cape_yield": 4.02,
+      "real_yield": 1.11
+    },
+    {
+      "date": "2014-01-01",
+      "value": 3.01,
+      "cape_yield": 4.02,
+      "real_yield": 1.01
+    },
+    {
+      "date": "2014-02-01",
+      "value": 3.13,
+      "cape_yield": 4.07,
+      "real_yield": 0.94
+    },
+    {
+      "date": "2014-03-01",
+      "value": 3.04,
+      "cape_yield": 4.01,
+      "real_yield": 0.97
+    },
+    {
+      "date": "2014-04-01",
+      "value": 3.19,
+      "cape_yield": 4.03,
+      "real_yield": 0.84
+    },
+    {
+      "date": "2014-05-01",
+      "value": 3.32,
+      "cape_yield": 4.01,
+      "real_yield": 0.69
+    },
+    {
+      "date": "2014-06-01",
+      "value": 3.14,
+      "cape_yield": 3.91,
+      "real_yield": 0.77
+    },
+    {
+      "date": "2014-07-01",
+      "value": 3.21,
+      "cape_yield": 3.87,
+      "real_yield": 0.66
+    },
+    {
+      "date": "2014-08-01",
+      "value": 3.36,
+      "cape_yield": 3.9,
+      "real_yield": 0.54
+    },
+    {
+      "date": "2014-09-01",
+      "value": 3.24,
+      "cape_yield": 3.86,
+      "real_yield": 0.62
+    },
+    {
+      "date": "2014-10-01",
+      "value": 3.54,
+      "cape_yield": 3.97,
+      "real_yield": 0.43
+    },
+    {
+      "date": "2014-11-01",
+      "value": 3.25,
+      "cape_yield": 3.76,
+      "real_yield": 0.51
+    },
+    {
+      "date": "2014-12-01",
+      "value": 3.37,
+      "cape_yield": 3.73,
+      "real_yield": 0.36
+    },
+    {
+      "date": "2015-01-01",
+      "value": 3.59,
+      "cape_yield": 3.78,
+      "real_yield": 0.19
+    },
+    {
+      "date": "2015-02-01",
+      "value": 3.25,
+      "cape_yield": 3.7,
+      "real_yield": 0.45
+    },
+    {
+      "date": "2015-03-01",
+      "value": 3.4,
+      "cape_yield": 3.74,
+      "real_yield": 0.34
+    },
+    {
+      "date": "2015-04-01",
+      "value": 3.5,
+      "cape_yield": 3.73,
+      "real_yield": 0.23
+    },
+    {
+      "date": "2015-05-01",
+      "value": 3.32,
+      "cape_yield": 3.73,
+      "real_yield": 0.41
+    },
+    {
+      "date": "2015-06-01",
+      "value": 3.23,
+      "cape_yield": 3.77,
+      "real_yield": 0.54
+    },
+    {
+      "date": "2015-07-01",
+      "value": 3.35,
+      "cape_yield": 3.79,
+      "real_yield": 0.44
+    },
+    {
+      "date": "2015-08-01",
+      "value": 3.54,
+      "cape_yield": 3.89,
+      "real_yield": 0.35
+    },
+    {
+      "date": "2015-09-01",
+      "value": 3.75,
+      "cape_yield": 4.08,
+      "real_yield": 0.33
+    },
+    {
+      "date": "2015-10-01",
+      "value": 3.59,
+      "cape_yield": 3.92,
+      "real_yield": 0.33
+    },
+    {
+      "date": "2015-11-01",
+      "value": 3.35,
+      "cape_yield": 3.81,
+      "real_yield": 0.46
+    },
+    {
+      "date": "2015-12-01",
+      "value": 3.42,
+      "cape_yield": 3.85,
+      "real_yield": 0.43
+    },
+    {
+      "date": "2016-01-01",
+      "value": 3.89,
+      "cape_yield": 4.13,
+      "real_yield": 0.24
+    },
+    {
+      "date": "2016-02-01",
+      "value": 4.1,
+      "cape_yield": 4.17,
+      "real_yield": 0.07
+    },
+    {
+      "date": "2016-03-01",
+      "value": 3.7,
+      "cape_yield": 3.94,
+      "real_yield": 0.24
+    },
+    {
+      "date": "2016-04-01",
+      "value": 3.77,
+      "cape_yield": 3.86,
+      "real_yield": 0.09
+    },
+    {
+      "date": "2016-05-01",
+      "value": 3.83,
+      "cape_yield": 3.89,
+      "real_yield": 0.06
+    },
+    {
+      "date": "2016-06-01",
+      "value": 3.95,
+      "cape_yield": 3.87,
+      "real_yield": -0.08
+    },
+    {
+      "date": "2016-07-01",
+      "value": 3.88,
+      "cape_yield": 3.75,
+      "real_yield": -0.13
+    },
+    {
+      "date": "2016-08-01",
+      "value": 3.8,
+      "cape_yield": 3.71,
+      "real_yield": -0.09
+    },
+    {
+      "date": "2016-09-01",
+      "value": 3.84,
+      "cape_yield": 3.74,
+      "real_yield": -0.1
+    },
+    {
+      "date": "2016-10-01",
+      "value": 3.71,
+      "cape_yield": 3.77,
+      "real_yield": 0.06
+    },
+    {
+      "date": "2016-11-01",
+      "value": 3.34,
+      "cape_yield": 3.72,
+      "real_yield": 0.38
+    },
+    {
+      "date": "2016-12-01",
+      "value": 3.05,
+      "cape_yield": 3.59,
+      "real_yield": 0.54
+    },
+    {
+      "date": "2017-01-01",
+      "value": 3.05,
+      "cape_yield": 3.56,
+      "real_yield": 0.51
+    },
+    {
+      "date": "2017-02-01",
+      "value": 2.99,
+      "cape_yield": 3.49,
+      "real_yield": 0.5
+    },
+    {
+      "date": "2017-03-01",
+      "value": 2.85,
+      "cape_yield": 3.44,
+      "real_yield": 0.59
+    },
+    {
+      "date": "2017-04-01",
+      "value": 3.02,
+      "cape_yield": 3.46,
+      "real_yield": 0.44
+    },
+    {
+      "date": "2017-05-01",
+      "value": 2.95,
+      "cape_yield": 3.41,
+      "real_yield": 0.46
+    },
+    {
+      "date": "2017-06-01",
+      "value": 2.9,
+      "cape_yield": 3.36,
+      "real_yield": 0.46
+    },
+    {
+      "date": "2017-07-01",
+      "value": 2.86,
+      "cape_yield": 3.33,
+      "real_yield": 0.47
+    },
+    {
+      "date": "2017-08-01",
+      "value": 2.95,
+      "cape_yield": 3.34,
+      "real_yield": 0.39
+    },
+    {
+      "date": "2017-09-01",
+      "value": 2.95,
+      "cape_yield": 3.31,
+      "real_yield": 0.36
+    },
+    {
+      "date": "2017-10-01",
+      "value": 2.76,
+      "cape_yield": 3.23,
+      "real_yield": 0.47
+    },
+    {
+      "date": "2017-11-01",
+      "value": 2.76,
+      "cape_yield": 3.19,
+      "real_yield": 0.43
+    },
+    {
+      "date": "2017-12-01",
+      "value": 2.73,
+      "cape_yield": 3.12,
+      "real_yield": 0.39
+    },
+    {
+      "date": "2018-01-01",
+      "value": 2.38,
+      "cape_yield": 3.0,
+      "real_yield": 0.62
+    },
+    {
+      "date": "2018-02-01",
+      "value": 2.33,
+      "cape_yield": 3.12,
+      "real_yield": 0.79
+    },
+    {
+      "date": "2018-03-01",
+      "value": 2.27,
+      "cape_yield": 3.14,
+      "real_yield": 0.87
+    },
+    {
+      "date": "2018-04-01",
+      "value": 2.34,
+      "cape_yield": 3.23,
+      "real_yield": 0.89
+    },
+    {
+      "date": "2018-05-01",
+      "value": 2.31,
+      "cape_yield": 3.2,
+      "real_yield": 0.89
+    },
+    {
+      "date": "2018-06-01",
+      "value": 2.3,
+      "cape_yield": 3.16,
+      "real_yield": 0.86
+    },
+    {
+      "date": "2018-07-01",
+      "value": 2.35,
+      "cape_yield": 3.14,
+      "real_yield": 0.79
+    },
+    {
+      "date": "2018-08-01",
+      "value": 2.34,
+      "cape_yield": 3.09,
+      "real_yield": 0.75
+    },
+    {
+      "date": "2018-09-01",
+      "value": 2.21,
+      "cape_yield": 3.07,
+      "real_yield": 0.86
+    },
+    {
+      "date": "2018-10-01",
+      "value": 2.24,
+      "cape_yield": 3.22,
+      "real_yield": 0.98
+    },
+    {
+      "date": "2018-11-01",
+      "value": 2.34,
+      "cape_yield": 3.31,
+      "real_yield": 0.97
+    },
+    {
+      "date": "2018-12-01",
+      "value": 2.79,
+      "cape_yield": 3.53,
+      "real_yield": 0.74
+    },
+    {
+      "date": "2019-01-01",
+      "value": 2.77,
+      "cape_yield": 3.52,
+      "real_yield": 0.75
+    },
+    {
+      "date": "2019-02-01",
+      "value": 2.68,
+      "cape_yield": 3.39,
+      "real_yield": 0.71
+    },
+    {
+      "date": "2019-03-01",
+      "value": 2.5,
+      "cape_yield": 3.38,
+      "real_yield": 0.88
+    },
+    {
+      "date": "2019-04-01",
+      "value": 2.54,
+      "cape_yield": 3.32,
+      "real_yield": 0.78
+    },
+    {
+      "date": "2019-05-01",
+      "value": 2.82,
+      "cape_yield": 3.42,
+      "real_yield": 0.6
+    },
+    {
+      "date": "2019-06-01",
+      "value": 2.99,
+      "cape_yield": 3.42,
+      "real_yield": 0.43
+    },
+    {
+      "date": "2019-07-01",
+      "value": 2.95,
+      "cape_yield": 3.33,
+      "real_yield": 0.38
+    },
+    {
+      "date": "2019-08-01",
+      "value": 3.51,
+      "cape_yield": 3.48,
+      "real_yield": -0.03
+    },
+    {
+      "date": "2019-09-01",
+      "value": 3.28,
+      "cape_yield": 3.42,
+      "real_yield": 0.14
+    },
+    {
+      "date": "2019-10-01",
+      "value": 3.4,
+      "cape_yield": 3.47,
+      "real_yield": 0.07
+    },
+    {
+      "date": "2019-11-01",
+      "value": 3.22,
+      "cape_yield": 3.35,
+      "real_yield": 0.13
+    },
+    {
+      "date": "2019-12-01",
+      "value": 3.15,
+      "cape_yield": 3.3,
+      "real_yield": 0.15
+    },
+    {
+      "date": "2020-01-01",
+      "value": 3.2,
+      "cape_yield": 3.23,
+      "real_yield": 0.03
+    },
+    {
+      "date": "2020-02-01",
+      "value": 3.37,
+      "cape_yield": 3.25,
+      "real_yield": -0.12
+    },
+    {
+      "date": "2020-03-01",
+      "value": 4.43,
+      "cape_yield": 4.03,
+      "real_yield": -0.4
+    },
+    {
+      "date": "2020-04-01",
+      "value": 4.36,
+      "cape_yield": 3.86,
+      "real_yield": -0.5
+    },
+    {
+      "date": "2020-05-01",
+      "value": 4.15,
+      "cape_yield": 3.66,
+      "real_yield": -0.49
+    },
+    {
+      "date": "2020-06-01",
+      "value": 3.97,
+      "cape_yield": 3.47,
+      "real_yield": -0.5
+    },
+    {
+      "date": "2020-07-01",
+      "value": 4.11,
+      "cape_yield": 3.38,
+      "real_yield": -0.73
+    },
+    {
+      "date": "2020-08-01",
+      "value": 3.9,
+      "cape_yield": 3.21,
+      "real_yield": -0.69
+    },
+    {
+      "date": "2020-09-01",
+      "value": 3.91,
+      "cape_yield": 3.24,
+      "real_yield": -0.67
+    },
+    {
+      "date": "2020-10-01",
+      "value": 3.75,
+      "cape_yield": 3.2,
+      "real_yield": -0.55
+    },
+    {
+      "date": "2020-11-01",
+      "value": 3.59,
+      "cape_yield": 3.08,
+      "real_yield": -0.51
+    },
+    {
+      "date": "2020-12-01",
+      "value": 3.45,
+      "cape_yield": 2.96,
+      "real_yield": -0.49
+    },
+    {
+      "date": "2021-01-01",
+      "value": 3.2,
+      "cape_yield": 2.9,
+      "real_yield": -0.3
+    },
+    {
+      "date": "2021-02-01",
+      "value": 3.02,
+      "cape_yield": 2.85,
+      "real_yield": -0.17
+    },
+    {
+      "date": "2021-03-01",
+      "value": 2.74,
+      "cape_yield": 2.85,
+      "real_yield": 0.11
+    },
+    {
+      "date": "2021-04-01",
+      "value": 2.66,
+      "cape_yield": 2.72,
+      "real_yield": 0.06
+    },
+    {
+      "date": "2021-05-01",
+      "value": 2.7,
+      "cape_yield": 2.74,
+      "real_yield": 0.04
+    },
+    {
+      "date": "2021-06-01",
+      "value": 2.8,
+      "cape_yield": 2.72,
+      "real_yield": -0.08
+    },
+    {
+      "date": "2021-07-01",
+      "value": 2.97,
+      "cape_yield": 2.67,
+      "real_yield": -0.3
+    },
+    {
+      "date": "2021-08-01",
+      "value": 2.93,
+      "cape_yield": 2.63,
+      "real_yield": -0.3
+    },
+    {
+      "date": "2021-09-01",
+      "value": 2.93,
+      "cape_yield": 2.66,
+      "real_yield": -0.27
+    },
+    {
+      "date": "2021-10-01",
+      "value": 2.71,
+      "cape_yield": 2.68,
+      "real_yield": -0.03
+    },
+    {
+      "date": "2021-11-01",
+      "value": 2.79,
+      "cape_yield": 2.59,
+      "real_yield": -0.2
+    },
+    {
+      "date": "2021-12-01",
+      "value": 2.9,
+      "cape_yield": 2.61,
+      "real_yield": -0.29
+    },
+    {
+      "date": "2022-01-01",
+      "value": 2.75,
+      "cape_yield": 2.71,
+      "real_yield": -0.04
+    },
+    {
+      "date": "2022-02-01",
+      "value": 2.82,
+      "cape_yield": 2.83,
+      "real_yield": 0.01
+    },
+    {
+      "date": "2022-03-01",
+      "value": 2.74,
+      "cape_yield": 2.92,
+      "real_yield": 0.18
+    },
+    {
+      "date": "2022-04-01",
+      "value": 2.41,
+      "cape_yield": 2.95,
+      "real_yield": 0.54
+    },
+    {
+      "date": "2022-05-01",
+      "value": 2.73,
+      "cape_yield": 3.26,
+      "real_yield": 0.53
+    },
+    {
+      "date": "2022-06-01",
+      "value": 2.7,
+      "cape_yield": 3.44,
+      "real_yield": 0.74
+    },
+    {
+      "date": "2022-07-01",
+      "value": 2.77,
+      "cape_yield": 3.45,
+      "real_yield": 0.68
+    },
+    {
+      "date": "2022-08-01",
+      "value": 2.46,
+      "cape_yield": 3.26,
+      "real_yield": 0.8
+    },
+    {
+      "date": "2022-09-01",
+      "value": 2.39,
+      "cape_yield": 3.54,
+      "real_yield": 1.15
+    },
+    {
+      "date": "2022-10-01",
+      "value": 2.08,
+      "cape_yield": 3.69,
+      "real_yield": 1.61
+    },
+    {
+      "date": "2022-11-01",
+      "value": 2.08,
+      "cape_yield": 3.52,
+      "real_yield": 1.44
+    },
+    {
+      "date": "2022-12-01",
+      "value": 2.13,
+      "cape_yield": 3.53,
+      "real_yield": 1.4
+    },
+    {
+      "date": "2023-01-01",
+      "value": 2.29,
+      "cape_yield": 3.53,
+      "real_yield": 1.24
+    },
+    {
+      "date": "2023-02-01",
+      "value": 1.82,
+      "cape_yield": 3.46,
+      "real_yield": 1.64
+    },
+    {
+      "date": "2023-03-01",
+      "value": 2.18,
+      "cape_yield": 3.58,
+      "real_yield": 1.4
+    },
+    {
+      "date": "2023-04-01",
+      "value": 2.12,
+      "cape_yield": 3.48,
+      "real_yield": 1.36
+    },
+    {
+      "date": "2023-05-01",
+      "value": 2.07,
+      "cape_yield": 3.48,
+      "real_yield": 1.41
+    },
+    {
+      "date": "2023-06-01",
+      "value": 1.34,
+      "cape_yield": 3.34,
+      "real_yield": 2.0
+    },
+    {
+      "date": "2023-07-01",
+      "value": 1.4,
+      "cape_yield": 3.24,
+      "real_yield": 1.84
+    },
+    {
+      "date": "2023-08-01",
+      "value": 1.27,
+      "cape_yield": 3.3,
+      "real_yield": 2.03
+    },
+    {
+      "date": "2023-09-01",
+      "value": 1.2,
+      "cape_yield": 3.36,
+      "real_yield": 2.16
+    },
+    {
+      "date": "2023-10-01",
+      "value": 1.04,
+      "cape_yield": 3.48,
+      "real_yield": 2.44
+    },
+    {
+      "date": "2023-11-01",
+      "value": 1.21,
+      "cape_yield": 3.33,
+      "real_yield": 2.12
+    },
+    {
+      "date": "2023-12-01",
+      "value": 1.44,
+      "cape_yield": 3.18,
+      "real_yield": 1.74
+    },
+    {
+      "date": "2024-01-01",
+      "value": 1.22,
+      "cape_yield": 3.12,
+      "real_yield": 1.9
+    },
+    {
+      "date": "2024-02-01",
+      "value": 0.97,
+      "cape_yield": 3.03,
+      "real_yield": 2.06
+    },
+    {
+      "date": "2024-03-01",
+      "value": 0.97,
+      "cape_yield": 2.96,
+      "real_yield": 1.99
+    },
+    {
+      "date": "2024-04-01",
+      "value": 0.82,
+      "cape_yield": 3.02,
+      "real_yield": 2.2
+    },
+    {
+      "date": "2024-05-01",
+      "value": 0.93,
+      "cape_yield": 2.96,
+      "real_yield": 2.03
+    },
+    {
+      "date": "2024-06-01",
+      "value": 0.93,
+      "cape_yield": 2.87,
+      "real_yield": 1.94
+    },
+    {
+      "date": "2024-07-01",
+      "value": 0.94,
+      "cape_yield": 2.82,
+      "real_yield": 1.88
+    },
+    {
+      "date": "2024-08-01",
+      "value": 1.15,
+      "cape_yield": 2.86,
+      "real_yield": 1.71
+    },
+    {
+      "date": "2024-09-01",
+      "value": 1.2,
+      "cape_yield": 2.8,
+      "real_yield": 1.6
+    },
+    {
+      "date": "2024-10-01",
+      "value": 0.75,
+      "cape_yield": 2.73,
+      "real_yield": 1.98
+    },
+    {
+      "date": "2024-11-01",
+      "value": 0.65,
+      "cape_yield": 2.68,
+      "real_yield": 2.03
+    },
+    {
+      "date": "2024-12-01",
+      "value": 0.58,
+      "cape_yield": 2.65,
+      "real_yield": 2.07
+    },
+    {
+      "date": "2025-01-01",
+      "value": 0.5,
+      "cape_yield": 2.69,
+      "real_yield": 2.19
+    },
+    {
+      "date": "2025-02-01",
+      "value": 0.71,
+      "cape_yield": 2.69,
+      "real_yield": 1.98
+    },
+    {
+      "date": "2025-03-01",
+      "value": 0.9,
+      "cape_yield": 2.88,
+      "real_yield": 1.98
+    },
+    {
+      "date": "2025-04-01",
+      "value": 1.14,
+      "cape_yield": 3.07,
+      "real_yield": 1.93
+    },
+    {
+      "date": "2025-05-01",
+      "value": 0.74,
+      "cape_yield": 2.85,
+      "real_yield": 2.11
+    },
+    {
+      "date": "2025-06-01",
+      "value": 0.74,
+      "cape_yield": 2.77,
+      "real_yield": 2.03
+    },
+    {
+      "date": "2025-07-01",
+      "value": 0.62,
+      "cape_yield": 2.67,
+      "real_yield": 2.05
+    },
+    {
+      "date": "2025-08-01",
+      "value": 0.66,
+      "cape_yield": 2.64,
+      "real_yield": 1.98
+    },
+    {
+      "date": "2025-09-01",
+      "value": 0.77,
+      "cape_yield": 2.59,
+      "real_yield": 1.82
+    },
+    {
+      "date": "2025-10-01",
+      "value": 0.79,
+      "cape_yield": 2.55,
+      "real_yield": 1.76
+    },
+    {
+      "date": "2025-11-01",
+      "value": 0.77,
+      "cape_yield": 2.55,
+      "real_yield": 1.78
+    },
+    {
+      "date": "2025-12-01",
+      "value": 0.74,
+      "cape_yield": 2.53,
+      "real_yield": 1.79
+    },
+    {
+      "date": "2026-01-01",
+      "value": 0.64,
+      "cape_yield": 2.52,
+      "real_yield": 1.88
+    },
+    {
+      "date": "2026-02-01",
+      "value": 0.8,
+      "cape_yield": 2.56,
+      "real_yield": 1.76
+    },
+    {
+      "date": "2026-03-01",
+      "value": 0.64,
+      "cape_yield": 2.7,
+      "real_yield": 2.06
+    },
+    {
+      "date": "2026-04-01",
+      "value": 0.72,
+      "cape_yield": 2.62,
+      "real_yield": 1.9
+    },
+    {
+      "date": "2026-05-01",
+      "value": 0.5,
+      "cape_yield": 2.49,
+      "real_yield": 1.99
+    },
+    {
+      "date": "2026-06-01",
+      "value": 0.49,
+      "cape_yield": 2.49,
+      "real_yield": 2.0
+    },
+    {
+      "date": "2026-07-01",
+      "value": 0.34,
+      "cape_yield": 2.5,
+      "real_yield": 2.16
+    },
+    {
+      "date": "2026-08-01",
+      "value": 0.25,
+      "cape_yield": 2.43,
+      "real_yield": 2.18
+    }
+  ]
+}
