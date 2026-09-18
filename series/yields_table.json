@@ -1,0 +1,89 @@
+{
+  "id": "yields_table",
+  "title": "What Can I Earn? Yields by Instrument and Maturity",
+  "short_title": "Yields Grid",
+  "kind": "curve",
+  "units": "Percent",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 and Treasury yield series are not revised after publication.",
+  "source_line": "FRED DGS, DFII, HQMCB, DFF, SOFR",
+  "sources": [
+    {"slug": "fred", "dataset": "dgs", "url": "https://fred.stlouisfed.org/series/DGS10"},
+    {"slug": "fred", "dataset": "dfii", "url": "https://fred.stlouisfed.org/series/DFII10"},
+    {"slug": "fred", "dataset": "hqmcb", "url": "https://fred.stlouisfed.org/series/HQMCB10YR"},
+    {"slug": "fred", "dataset": "fedfunds", "url": "https://fred.stlouisfed.org/series/DFF"},
+    {"slug": "fred", "dataset": "sofr", "url": "https://fred.stlouisfed.org/series/SOFR"}
+  ],
+  "inputs": [
+    {
+      "id": "fedfunds",
+      "label": "Effective federal funds rate, daily (DFF)",
+      "source": "fred",
+      "dataset": "fedfunds",
+      "series_id": "DFF",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "sofr",
+      "label": "Secured Overnight Financing Rate, daily (SOFR)",
+      "source": "fred",
+      "dataset": "sofr",
+      "series_id": "SOFR",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "treasury",
+      "label": "Treasury constant-maturity yields, 3-month to 30-year (DGS3MO–DGS30)",
+      "source": "fred",
+      "dataset": "dgs",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "tips",
+      "label": "TIPS constant-maturity real yields, 5-year to 30-year (DFII5–DFII30)",
+      "source": "fred",
+      "dataset": "dfii",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "hqm",
+      "label": "Treasury HQM corporate bond spot rates, 6-month to 30-year (HQMCB6MT–HQMCB30YR)",
+      "source": "fred",
+      "dataset": "hqmcb",
+      "cadence": "monthly",
+      "publication_lag_business_days": 4
+    }
+  ],
+  "methodology": [
+    "One number per cell: the latest published value of one FRED series, with instrument type down the side and maturity across the top. Each row carries its own as-of date, because the rows update on different schedules — Treasury, TIPS and the two overnight rates every business day, the corporate row once a month.",
+    "These are index and constant-maturity averages, not offers. A retail brokerage's yield grid shows the best price it has in inventory for each product and maturity; every cell here is a market-wide benchmark, so expect a brokerage's numbers to differ, usually by a few tenths of a point.",
+    "US Treasury cells are constant-maturity yields read off the Treasury's par curve, not the yield of one particular bond. TIPS cells are the real yield the same way — what an investor locks in above inflation. The corporate row is the Treasury's High Quality Market spot-rate curve, a blend of AAA, AA and A bonds fitted at each maturity, published for the month as a whole.",
+    "A blank cell means no series exists for that instrument and maturity. Nothing is interpolated to fill the grid."
+  ],
+  "notes": [
+    "The corporate row is one blended high-quality curve, not separate AAA, AA and A rows. The by-rating rows in the model grid would have come from ICE BofA effective-yield indexes on FRED, and those were left out on 2026-09-18: ICE's terms forbid republishing without written approval (the same restriction that took chart 8 off ICE), and FRED now carries only three years of them. Moody's Aaa and Baa yields are on FRED under permissive terms but only for long maturities, so they cannot fill a maturity grid.",
+    "Rows in the model grid that this table does not have, and why: new-issue CDs (the FDIC's national deposit rates are the only free feed, its terms page states no reuse permission, and its history is a manual download); Treasury STRIPS, agency/GSE and municipal bonds (no free feed exists).",
+    "There is no 9-month column because Treasury publishes no 9-month constant-maturity yield. The grid starts at 3 months to match the model grid; the 1-month yield (DGS1MO) exists and is on the yield curve page.",
+    "The corporate row's monthly value describes the whole month, so it can trail today's market by weeks. Its as-of date is the first of the month it describes.",
+    "The overnight column holds the effective federal funds rate and SOFR only; no other row has an overnight value.",
+    "Values are percent, not a decimal fraction."
+  ],
+  "presentation": {
+    "sections": ["rates"],
+    "order": 13,
+    "size": "full",
+    "summary": "Latest yield for each instrument type and maturity, with an as-of date per row, from FRED.",
+    "chart": {
+      "type": "yields_table",
+      "y": {"suffix": "%", "format": ".2f"}
+    },
+    "stats": false,
+    "table": false
+  }
+}

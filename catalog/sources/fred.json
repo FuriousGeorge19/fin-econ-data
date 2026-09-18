@@ -273,7 +273,7 @@
       "publication_lag_business_days": 1,
       "status": "active",
       "roadmap": [
-        "item 11"
+        "item 11 (overnight column, S11d)"
       ],
       "read_from": [
         "https://fred.stlouisfed.org/series/SOFR"
@@ -439,8 +439,14 @@
       "name": "Treasury High Quality Market corporate bond spot-rate curve, monthly",
       "gives": "Spot rates for high-quality (AAA, AA, A) corporate bonds at each year of maturity from 1 to 30 years (projected to 100), from the U.S. Treasury's HQM yield curve",
       "ids": [
+        "HQMCB6MT",
         "HQMCB1YR",
+        "HQMCB2YR",
+        "HQMCB3YR",
+        "HQMCB5YR",
+        "HQMCB7YR",
         "HQMCB10YR",
+        "HQMCB20YR",
         "HQMCB30YR"
       ],
       "topics": [
@@ -456,7 +462,7 @@
       "publication_lag_business_days": 4,
       "status": "active",
       "roadmap": [
-        "item 11 (corporate rows of the yields table)"
+        "item 11 (corporate row of the yields table, S11d)"
       ],
       "read_from": [
         "https://fred.stlouisfed.org/series/HQMCB10YR",
@@ -464,8 +470,8 @@
       ],
       "notes": [
         "FRED labels HQMCB10YR 'Public Domain: Citation Requested' (source: U.S. Department of the Treasury).",
-        "One series per year of maturity, HQMCB1YR through HQMCB30YR; only HQMCB1YR and HQMCB10YR were checked.",
-        "Lag observed: the August 2026 values were published 2026-09-04."
+        "Lag observed: the August 2026 values were published 2026-09-04.",
+        "One series per year of maturity, HQMCB1YR through HQMCB30YR, plus HQMCB6MT for six months. Nine confirmed on FRED 2026-09-18 (6MT, 1, 2, 3, 5, 7, 10, 20, 30 years), each with an August 2026 value; there is no HQMCB0.5YR and no three-month series was found."
       ]
     },
     {

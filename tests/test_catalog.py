@@ -83,7 +83,7 @@ def test_used_by_covers_every_series():
     assert covered == set(SERIES_IDS)
     # tenor_history is a view of yield_curve but still declares fred/dgs as its
     # source, so it belongs here: "used by" tracks descriptors, not data files.
-    assert uses[("fred", "dgs")] == ["dgs10", "spreads", "tenor_history", "yield_curve"]
+    assert uses[("fred", "dgs")] == ["dgs10", "spreads", "tenor_history", "yield_curve", "yields_table"]
     assert "sp500_pe" in uses[("spglobal", "sp500-index")]
     assert "usrec" in uses[("nber", "chronology")]
 

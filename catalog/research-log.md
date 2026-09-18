@@ -23,6 +23,14 @@ re-verified against their pages.
 
 ---
 
+## 2026-09-18 — By-rating corporate rows for the yields grid (item 11)
+topics: credit, rates
+- **Question**: can S11d's "corporate by rating" rows (AAA, AA, A, BBB across maturities) be built from free, republishable data?
+- **Searched / read**: the catalogue's `ice-bofa` and `fred` entries; FRED `HQMCB*` series probed directly for existence and latest value (6MT, 1, 2, 3, 5, 7, 10, 20, 30 years all present, August 2026); `HQMCB0.5YR` returns HTTP 400.
+- **Found**: ICE BofA effective yields (`BAMLC0A*`) are the only by-rating feed and are `restricted` plus a three-year window, so they cannot be published. Moody's `DAAA`/`DBAA` are permissive but long-maturity only. The Treasury HQM curve is public domain and gives every maturity, but as one AAA–A blend rather than separate ratings.
+- **Outcome**: adopted (HQM blend as one corporate row); by-rating rows dropped, decided by the session owner on the chart 8 precedent. CDs (FDIC terms `unknown`, manual download), STRIPS, agency and municipal rows remain gaps.
+- **Landed in**: catalog/sources/fred.json (dataset hqmcb ids) · series/yields_table.json notes · Session Plan S11d
+
 ## 2026-09-17 — Chart 8 rescoped off ICE BofA onto Moody's Baa−Aaa
 topics: credit, rates
 - **Question**: roadmap chart 8 was scoped as ICE BofA IG and HY option-adjusted

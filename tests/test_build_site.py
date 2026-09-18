@@ -137,6 +137,22 @@ def test_section_pages_list_charts_in_order(sandbox):
     assert [b["id"] for b in page["blocks"]] == ["beta", "alpha"]  # order 5 before 10
 
 
+def test_presentation_size_full_overrides_the_grid_default(sandbox):
+    """A chart too wide for half width declares presentation.size 'full' and gets
+    it in a section grid, where every other chart is 'half'."""
+    import json
+    path = os.path.join(sandbox["series_dir"], "beta.json")
+    with open(path) as f:
+        d = json.load(f)
+    d["presentation"]["size"] = "full"
+    with open(path, "w") as f:
+        json.dump(d, f)
+    _build(sandbox)
+    page = _page_json(os.path.join(sandbox["output_dir"], "economy"))
+    sizes = {b["id"]: b["size"] for b in page["blocks"]}
+    assert sizes == {"beta": "full", "alpha": "half"}
+
+
 def test_chart_in_two_sections(sandbox):
     _build(sandbox)
     economy = _page_json(os.path.join(sandbox["output_dir"], "economy"))

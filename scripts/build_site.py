@@ -241,6 +241,11 @@ def section_composites(section_id, manifests):
 
 
 def chart_block(descriptor, *, size, preset=None):
+    # A chart too wide to read at half width (the yields grid has 13 columns)
+    # declares `presentation.size: "full"`, which wins over whatever a section
+    # grid or curated manifest asked for.
+    if descriptor["presentation"].get("size") == "full":
+        size = "full"
     block = {
         "id": descriptor["id"],
         "title": descriptor["title"],

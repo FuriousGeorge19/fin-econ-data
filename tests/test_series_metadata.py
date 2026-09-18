@@ -26,7 +26,7 @@ DATA_OWNING_IDS = [i for i in SERIES_IDS if not series_meta.is_view(i)]
 # "data" makes a descriptor a VIEW: it draws the named series' data file
 # instead of owning one (series_meta.is_view). See series/tenor_history.json.
 ALLOWED_PRESENTATION_KEYS = {
-    "sections", "publish", "order", "summary", "chart", "stats", "table", "data",
+    "sections", "publish", "order", "summary", "chart", "stats", "table", "data", "size",
 }
 REQUIRED_PRESENTATION_KEYS = {"sections", "order", "summary", "chart"}
 ALLOWED_CHART_KEYS = {

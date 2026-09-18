@@ -443,3 +443,47 @@ tr:hover {
     .stats { gap: 1rem; }
     .card--full .chart { height: 300px; }
 }
+
+/* yields_table: an HTML grid in the chart slot rather than a Plotly canvas. */
+.card .chart.chart--html {
+    height: auto;
+    overflow-x: auto;
+}
+
+.yields-grid th.num,
+.yields-grid td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.yields-grid tbody th {
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.yields-blank {
+    color: var(--text-muted);
+}
+
+.yields-asof {
+    color: var(--text-muted);
+    white-space: nowrap;
+    font-size: 0.85rem;
+}
+
+.yields-late {
+    font-weight: 600;
+}
+
+.yields-grid th,
+.yields-grid td {
+    padding: 0.5rem 0.6rem;
+}
+
+.yields-grid {
+    font-size: 0.85rem;
+}

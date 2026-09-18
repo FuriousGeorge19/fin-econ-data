@@ -1,0 +1,386 @@
+{
+  "meta": {
+    "id": "yields_table",
+    "title": "What Can I Earn? Yields by Instrument and Maturity",
+    "short_title": "Yields Grid",
+    "kind": "curve",
+    "units": "Percent",
+    "cadence": "daily",
+    "publication_lag_business_days": 1,
+    "revisions": "none",
+    "revision_note": "FRED's H.15 and Treasury yield series are not revised after publication.",
+    "source_line": "FRED DGS, DFII, HQMCB, DFF, SOFR",
+    "sources": [
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "dgs",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Treasury constant-maturity yields, daily (H.15)",
+        "url": "https://fred.stlouisfed.org/series/DGS10",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "dfii",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "TIPS constant-maturity real yields, daily (H.15)",
+        "url": "https://fred.stlouisfed.org/series/DFII10",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "hqmcb",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Treasury High Quality Market corporate bond spot-rate curve, monthly",
+        "url": "https://fred.stlouisfed.org/series/HQMCB10YR",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "fedfunds",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Effective federal funds rate, monthly and daily",
+        "url": "https://fred.stlouisfed.org/series/DFF",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "sofr",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Secured Overnight Financing Rate, daily",
+        "url": "https://fred.stlouisfed.org/series/SOFR",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "fedfunds",
+        "label": "Effective federal funds rate, daily (DFF)",
+        "source": "fred",
+        "dataset": "fedfunds",
+        "series_id": "DFF",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "sofr",
+        "label": "Secured Overnight Financing Rate, daily (SOFR)",
+        "source": "fred",
+        "dataset": "sofr",
+        "series_id": "SOFR",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "treasury",
+        "label": "Treasury constant-maturity yields, 3-month to 30-year (DGS3MO\u2013DGS30)",
+        "source": "fred",
+        "dataset": "dgs",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "tips",
+        "label": "TIPS constant-maturity real yields, 5-year to 30-year (DFII5\u2013DFII30)",
+        "source": "fred",
+        "dataset": "dfii",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "hqm",
+        "label": "Treasury HQM corporate bond spot rates, 6-month to 30-year (HQMCB6MT\u2013HQMCB30YR)",
+        "source": "fred",
+        "dataset": "hqmcb",
+        "cadence": "monthly",
+        "publication_lag_business_days": 4
+      }
+    ],
+    "methodology": [
+      "One number per cell: the latest published value of one FRED series, with instrument type down the side and maturity across the top. Each row carries its own as-of date, because the rows update on different schedules \u2014 Treasury, TIPS and the two overnight rates every business day, the corporate row once a month.",
+      "These are index and constant-maturity averages, not offers. A retail brokerage's yield grid shows the best price it has in inventory for each product and maturity; every cell here is a market-wide benchmark, so expect a brokerage's numbers to differ, usually by a few tenths of a point.",
+      "US Treasury cells are constant-maturity yields read off the Treasury's par curve, not the yield of one particular bond. TIPS cells are the real yield the same way \u2014 what an investor locks in above inflation. The corporate row is the Treasury's High Quality Market spot-rate curve, a blend of AAA, AA and A bonds fitted at each maturity, published for the month as a whole.",
+      "A blank cell means no series exists for that instrument and maturity. Nothing is interpolated to fill the grid."
+    ],
+    "notes": [
+      "The corporate row is one blended high-quality curve, not separate AAA, AA and A rows. The by-rating rows in the model grid would have come from ICE BofA effective-yield indexes on FRED, and those were left out on 2026-09-18: ICE's terms forbid republishing without written approval (the same restriction that took chart 8 off ICE), and FRED now carries only three years of them. Moody's Aaa and Baa yields are on FRED under permissive terms but only for long maturities, so they cannot fill a maturity grid.",
+      "Rows in the model grid that this table does not have, and why: new-issue CDs (the FDIC's national deposit rates are the only free feed, its terms page states no reuse permission, and its history is a manual download); Treasury STRIPS, agency/GSE and municipal bonds (no free feed exists).",
+      "There is no 9-month column because Treasury publishes no 9-month constant-maturity yield. The grid starts at 3 months to match the model grid; the 1-month yield (DGS1MO) exists and is on the yield curve page.",
+      "The corporate row's monthly value describes the whole month, so it can trail today's market by weeks. Its as-of date is the first of the month it describes.",
+      "The overnight column holds the effective federal funds rate and SOFR only; no other row has an overnight value.",
+      "Values are percent, not a decimal fraction."
+    ]
+  },
+  "as_of": {
+    "fetched_at": "2026-09-18T16:49:45Z",
+    "last_observation": "2026-09-17",
+    "period_label": "17 Sep 2026",
+    "inputs": {
+      "fedfunds": {
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18"
+      },
+      "sofr": {
+        "last_observation": "2026-09-17",
+        "period_label": "17 Sep 2026",
+        "due_by": "2026-09-21"
+      },
+      "treasury": {
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18"
+      },
+      "tips": {
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18"
+      },
+      "hqm": {
+        "last_observation": "2026-08-01",
+        "period_label": "Aug 2026",
+        "due_by": "2026-10-06"
+      }
+    },
+    "due_by": "2026-09-18"
+  },
+  "columns": [
+    {
+      "id": "ON",
+      "label": "Overnight",
+      "months": 0
+    },
+    {
+      "id": "3M",
+      "label": "3 month",
+      "months": 3
+    },
+    {
+      "id": "6M",
+      "label": "6 month",
+      "months": 6
+    },
+    {
+      "id": "1Y",
+      "label": "1 year",
+      "months": 12
+    },
+    {
+      "id": "2Y",
+      "label": "2 year",
+      "months": 24
+    },
+    {
+      "id": "3Y",
+      "label": "3 year",
+      "months": 36
+    },
+    {
+      "id": "5Y",
+      "label": "5 year",
+      "months": 60
+    },
+    {
+      "id": "7Y",
+      "label": "7 year",
+      "months": 84
+    },
+    {
+      "id": "10Y",
+      "label": "10 year",
+      "months": 120
+    },
+    {
+      "id": "20Y",
+      "label": "20 year",
+      "months": 240
+    },
+    {
+      "id": "30Y",
+      "label": "30 year",
+      "months": 360
+    }
+  ],
+  "rows": [
+    {
+      "id": "fedfunds",
+      "input": "fedfunds",
+      "label": "Effective federal funds rate",
+      "as_of": "2026-09-16",
+      "cells": {
+        "ON": {
+          "value": 3.63,
+          "date": "2026-09-16",
+          "series_id": "DFF"
+        }
+      }
+    },
+    {
+      "id": "sofr",
+      "input": "sofr",
+      "label": "SOFR (overnight repo)",
+      "as_of": "2026-09-17",
+      "cells": {
+        "ON": {
+          "value": 3.85,
+          "date": "2026-09-17",
+          "series_id": "SOFR"
+        }
+      }
+    },
+    {
+      "id": "treasury",
+      "input": "treasury",
+      "label": "US Treasury",
+      "as_of": "2026-09-16",
+      "cells": {
+        "3M": {
+          "value": 4.14,
+          "date": "2026-09-16",
+          "series_id": "DGS3MO"
+        },
+        "6M": {
+          "value": 4.22,
+          "date": "2026-09-16",
+          "series_id": "DGS6MO"
+        },
+        "1Y": {
+          "value": 4.45,
+          "date": "2026-09-16",
+          "series_id": "DGS1"
+        },
+        "2Y": {
+          "value": 4.74,
+          "date": "2026-09-16",
+          "series_id": "DGS2"
+        },
+        "3Y": {
+          "value": 4.82,
+          "date": "2026-09-16",
+          "series_id": "DGS3"
+        },
+        "5Y": {
+          "value": 4.86,
+          "date": "2026-09-16",
+          "series_id": "DGS5"
+        },
+        "7Y": {
+          "value": 4.94,
+          "date": "2026-09-16",
+          "series_id": "DGS7"
+        },
+        "10Y": {
+          "value": 5.01,
+          "date": "2026-09-16",
+          "series_id": "DGS10"
+        },
+        "20Y": {
+          "value": 5.39,
+          "date": "2026-09-16",
+          "series_id": "DGS20"
+        },
+        "30Y": {
+          "value": 5.35,
+          "date": "2026-09-16",
+          "series_id": "DGS30"
+        }
+      }
+    },
+    {
+      "id": "tips",
+      "input": "tips",
+      "label": "TIPS real yield",
+      "as_of": "2026-09-16",
+      "cells": {
+        "5Y": {
+          "value": 2.51,
+          "date": "2026-09-16",
+          "series_id": "DFII5"
+        },
+        "7Y": {
+          "value": 2.59,
+          "date": "2026-09-16",
+          "series_id": "DFII7"
+        },
+        "10Y": {
+          "value": 2.68,
+          "date": "2026-09-16",
+          "series_id": "DFII10"
+        },
+        "20Y": {
+          "value": 2.93,
+          "date": "2026-09-16",
+          "series_id": "DFII20"
+        },
+        "30Y": {
+          "value": 3.09,
+          "date": "2026-09-16",
+          "series_id": "DFII30"
+        }
+      }
+    },
+    {
+      "id": "corporate_hqm",
+      "input": "hqm",
+      "label": "Corporate, high quality (AAA\u2013A blend)",
+      "as_of": "2026-08-01",
+      "cells": {
+        "6M": {
+          "value": 4.13,
+          "date": "2026-08-01",
+          "series_id": "HQMCB6MT"
+        },
+        "1Y": {
+          "value": 4.31,
+          "date": "2026-08-01",
+          "series_id": "HQMCB1YR"
+        },
+        "2Y": {
+          "value": 4.59,
+          "date": "2026-08-01",
+          "series_id": "HQMCB2YR"
+        },
+        "3Y": {
+          "value": 4.75,
+          "date": "2026-08-01",
+          "series_id": "HQMCB3YR"
+        },
+        "5Y": {
+          "value": 4.97,
+          "date": "2026-08-01",
+          "series_id": "HQMCB5YR"
+        },
+        "7Y": {
+          "value": 5.21,
+          "date": "2026-08-01",
+          "series_id": "HQMCB7YR"
+        },
+        "10Y": {
+          "value": 5.58,
+          "date": "2026-08-01",
+          "series_id": "HQMCB10YR"
+        },
+        "20Y": {
+          "value": 6.21,
+          "date": "2026-08-01",
+          "series_id": "HQMCB20YR"
+        },
+        "30Y": {
+          "value": 6.65,
+          "date": "2026-08-01",
+          "series_id": "HQMCB30YR"
+        }
+      }
+    }
+  ]
+}
