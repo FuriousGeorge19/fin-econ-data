@@ -13,15 +13,17 @@
     "sources": [
       {
         "slug": "shiller",
+        "short_name": "Shiller/Yale",
         "dataset": "ie-data",
         "name": "Robert J. Shiller (Yale) \u2014 U.S. Stock Markets 1871\u2013Present and CAPE Ratio",
         "dataset_name": "U.S. stock markets 1871\u2013present and CAPE, monthly",
         "url": "http://www.econ.yale.edu/~shiller/data.htm",
-        "licence": "Free download; no terms of use or republication statement found on the Yale data page or shillerdata.com",
+        "licence": "Free download; no published terms on the Yale data page or shillerdata.com. Asked by email, Shiller's index advisor answered on 2026-09-17 that Shiller does not license the CAPE ratio, does not own its S&P components, and that S&P's wishes govern \u2014 so the S&P-derived columns (price, dividends, earnings, CAPE) follow S&P Dow Jones Indices' terms",
         "terms_status": "unknown"
       },
       {
         "slug": "spglobal",
+        "short_name": "S&P Global",
         "dataset": "sp500-index",
         "name": "S&P Global (S&P Dow Jones Indices)",
         "dataset_name": "S&P 500 index level, daily",
@@ -63,7 +65,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-16T22:44:11Z",
+    "fetched_at": "2026-09-17T22:43:35Z",
     "last_observation": "2026-08-01",
     "period_label": "Aug 2026",
     "first_observation": "1871-01-01",

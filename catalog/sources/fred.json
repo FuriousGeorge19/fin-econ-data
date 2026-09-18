@@ -184,7 +184,7 @@
         "https://fred.stlouisfed.org/series/DFII5"
       ],
       "notes": [
-        "DFII5 and DFII10 start 2003-01-02 (checked); DFII7, DFII20 and DFII30 start dates not checked."
+        "All five tenor start dates checked against FRED 2026-09-17 (S11b): DFII5, DFII7 and DFII10 all start 2003-01-02 (DFII7 is not late, contrary to the earlier 'not checked' caveat); DFII20 starts 2004-07-27; DFII30 starts 2010-02-22, reflecting Treasury's 2001-2003 suspension of the 30-year TIPS. No interior gap in any of the five."
       ]
     },
     {
@@ -296,7 +296,7 @@
         "start": "1947-01",
         "end": "ongoing"
       },
-      "publication_lag_business_days": "unknown",
+      "publication_lag_business_days": 9,
       "status": "active",
       "roadmap": [
         "chart 5"
@@ -305,8 +305,9 @@
         "https://fred.stlouisfed.org/series/CPIAUCSL"
       ],
       "notes": [
-        "The FRED page does not state the release schedule; BLS publishes CPI around the middle of the following month (the August 2026 value was on FRED by 2026-09-11). Confirm against the BLS release calendar before setting a descriptor lag.",
-        "Seasonally adjusted; CPIAUCNS is the not-seasonally-adjusted counterpart."
+        "Confirmed 2026-09-17 (S11b): the lag is 8-9 business days after month-end. Four consecutive CPI release dates read off FRED's release calendar (release_id 10) — 2026-06-10, 2026-07-14, 2026-08-12, 2026-09-11 — convert to 8, 9, 8, 8 business days from each month's period-end. The catalogued value is the observed maximum (9) rather than the mode (8), so a slow month does not raise a false overdue badge; series/real_short_rate.json uses 9 for its CPI input on the same reasoning. Supersedes the earlier 'unknown'.",
+        "Seasonally adjusted; CPIAUCNS is the not-seasonally-adjusted counterpart.",
+        "CPIAUCSL has NO October 2025 observation: FRED goes 2025-09-01 (324.245) straight to 2025-11-01 (325.063). This is the CPI release BLS cancelled during the 2025 government shutdown — a permanent hole, not a lag. Confirmed directly against FRED 2026-09-17 (S11b). Any series derived from CPIAUCSL will skip that month; series/real_short_rate.json does."
       ]
     },
     {
@@ -490,6 +491,7 @@
       "publication_lag_business_days": 1,
       "status": "active",
       "roadmap": [
+        "chart 8",
         "item 11"
       ],
       "terms": {
@@ -509,7 +511,8 @@
         "All four series' badge (checked at the top of each series page, not the Notes section) reads 'Copyrighted: Citation Required', source 'Moody's'; FRED's legal page permits display with attribution for that label, so this dataset carries a verified terms override like NFCI and T10YIE, following the S8 precedent.",
         "DAAA (Aaa, daily) starts 1983-01-03; DBAA (Baa, daily) starts 1986-01-02; AAA (Aaa, monthly) and BAA (Baa, monthly) both start 1919-01 — checked via the FRED API /fred/series endpoint on 2026-09-15.",
         "Each series' own FRED 'notes' field (distinct from the usage-rights badge) carries Moody's own restrictive copyright boilerplate ('MAY NOT BE COPIED OR OTHERWISE REPRODUCED ... WITHOUT MOODY'S PRIOR WRITTEN CONSENT'), the same tension the S8 session already recorded for NFCI/T10YIE: FRED's own citation-required label is what governs display through FRED, per FRED's legal page.",
-        "Series cover only 20-year-and-above maturities per FRED's series notes; DAAA/DBAA are daily, AAA/BAA are monthly averages of the same underlying Moody's index."
+        "Series cover only 20-year-and-above maturities per FRED's series notes; DAAA/DBAA are daily, AAA/BAA are monthly averages of the same underlying Moody's index.",
+        "Checked 2026-09-17 (S11b): across all 1292 monthly observations from 1919-01 to 2026-08, BAA minus AAA is never zero or negative; the minimum is +0.32 in January 1966 and the maximum +5.64 in May 1932. An empirical fact, not a structural guarantee — series/credit_spread_baa_aaa.json is built on this pair and says so."
       ]
     },
     {

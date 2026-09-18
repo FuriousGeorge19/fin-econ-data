@@ -3,10 +3,37 @@
   "title": "Home",
   "layout": "grid",
   "blocks": [
-    { "chart": "dgs10", "size": "half" },
-    { "chart": "gs10_long", "size": "half" },
-    { "chart": "yield_curve", "size": "half" },
-    { "chart": "spreads", "size": "half" },
-    { "chart": "sp500_pe", "size": "half" }
+    {
+      "chart": "dgs10",
+      "size": "half"
+    },
+    {
+      "chart": "gs10_long",
+      "size": "half"
+    },
+    {
+      "chart": "yield_curve",
+      "size": "half"
+    },
+    {
+      "chart": "spreads",
+      "size": "half"
+    },
+    {
+      "chart": "fedfunds",
+      "size": "half"
+    },
+    {
+      "chart": "real_short_rate",
+      "size": "half"
+    },
+    {
+      "chart": "credit_spread_baa_aaa",
+      "size": "half"
+    },
+    {
+      "chart": "sp500_pe",
+      "size": "half"
+    }
   ]
 }

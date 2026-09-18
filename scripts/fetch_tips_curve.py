@@ -1,4 +1,12 @@
-"""Fetch all Treasury yield curve tenors (daily DGS series) from FRED."""
+"""Fetch the TIPS real yield curve snapshot (daily DFII series) from FRED.
+
+Mirrors scripts/fetch_yield_curve.py's shape exactly (same top-level keys:
+meta, as_of, tenors, tenor_months, observations) but for the five TIPS
+constant-maturity tenors, which do not all start on the same date. A date's
+observation carries only the tenors that actually reported that day — no
+null, no forward-fill — so a tenor's late start or (if one ever appears) an
+interior gap stays visible on the chart rather than being interpolated over.
+"""
 
 import os
 import sys
@@ -7,21 +15,16 @@ from datetime import datetime, timezone
 import series_meta
 from fred_utils import fetch_series, get_api_key
 
-OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "yield_curve.json")
+OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "tips_curve.json")
 
-# All standard tenors on the Treasury yield curve
+# TIPS constant-maturity tenors this chart covers (5yr, 7yr, 10yr, 20yr, 30yr —
+# FRED does not publish 1yr/2yr/3yr TIPS constant-maturity series).
 TENORS = [
-    {"id": "DGS1MO", "label": "1mo",  "months": 1},
-    {"id": "DGS3MO", "label": "3mo",  "months": 3},
-    {"id": "DGS6MO", "label": "6mo",  "months": 6},
-    {"id": "DGS1",   "label": "1yr",  "months": 12},
-    {"id": "DGS2",   "label": "2yr",  "months": 24},
-    {"id": "DGS3",   "label": "3yr",  "months": 36},
-    {"id": "DGS5",   "label": "5yr",  "months": 60},
-    {"id": "DGS7",   "label": "7yr",  "months": 84},
-    {"id": "DGS10",  "label": "10yr", "months": 120},
-    {"id": "DGS20",  "label": "20yr", "months": 240},
-    {"id": "DGS30",  "label": "30yr", "months": 360},
+    {"id": "DFII5",  "label": "5yr",  "months": 60},
+    {"id": "DFII7",  "label": "7yr",  "months": 84},
+    {"id": "DFII10", "label": "10yr", "months": 120},
+    {"id": "DFII20", "label": "20yr", "months": 240},
+    {"id": "DFII30", "label": "30yr", "months": 360},
 ]
 
 
@@ -42,17 +45,14 @@ def main():
         print("ERROR: FRED_API_KEY environment variable not set", file=sys.stderr)
         sys.exit(1)
 
-    # Fetch all tenor series
     tenor_data = {}
     for tenor in TENORS:
         print(f"  Fetching {tenor['id']}...", end=" ", flush=True)
         tenor_data[tenor["label"]] = fetch_tenor(tenor["id"])
         print(f"{len(tenor_data[tenor['label']])} observations")
 
-    # Collect all unique dates across all tenors, sorted
     all_dates = sorted(set().union(*tenor_data.values()))
 
-    # Build observations: one entry per date with available tenors
     observations = {}
     for date in all_dates:
         yields = {}
@@ -60,10 +60,10 @@ def main():
             label = tenor["label"]
             if date in tenor_data[label]:
                 yields[label] = tenor_data[label][date]
-        if yields:  # skip dates with no data at all
+        if yields:
             observations[date] = yields
 
-    descriptor = series_meta.load("yield_curve")
+    descriptor = series_meta.load("tips_curve")
     fetched_at = datetime.now(timezone.utc)
     series = {
         tenor["label"]: {
@@ -95,6 +95,11 @@ def main():
 
     print(f"\nWrote {len(observations)} dates to {OUTPUT_PATH}")
     print(f"Date range: {all_dates[0]} to {all_dates[-1]}")
+    for tenor in TENORS:
+        label = tenor["label"]
+        if tenor_data[label]:
+            print(f"  {label}: {min(tenor_data[label])} to {max(tenor_data[label])}, "
+                  f"{len(tenor_data[label])} observations")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,67 @@
+{
+  "id": "fedfunds",
+  "title": "Effective Federal Funds Rate",
+  "short_title": "Fed Funds Rate",
+  "kind": "timeseries",
+  "units": "Percent",
+  "cadence": "monthly",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 monthly average is not revised after publication.",
+  "source_line": "FRED FEDFUNDS",
+  "sources": [
+    {
+      "slug": "fred",
+      "dataset": "fedfunds",
+      "url": "https://fred.stlouisfed.org/series/FEDFUNDS"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "fedfunds",
+      "label": "Effective Federal Funds Rate, monthly average",
+      "source": "fred",
+      "dataset": "fedfunds",
+      "series_id": "FEDFUNDS",
+      "cadence": "monthly",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "The effective federal funds rate is the volume-weighted median of overnight federal funds transactions, published by the Federal Reserve Bank of New York and reported here as the Board of Governors' monthly average, FRED series FEDFUNDS.",
+    "Monthly average since FRED's series starts (1954-07); no daily series is upsampled to fill it."
+  ],
+  "notes": [
+    "Values are percent (5.33 means 5.33%), not a decimal fraction.",
+    "FRED dates a monthly observation to the first of the month it covers (e.g. 2026-08-01 is the August 2026 average)."
+  ],
+  "presentation": {
+    "sections": [
+      "economy",
+      "rates"
+    ],
+    "order": 30,
+    "summary": "Monthly effective federal funds rate back to 1954, from FRED.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "suffix": "%",
+        "format": ".2f"
+      },
+      "presets": [
+        "1Y",
+        "5Y",
+        "10Y",
+        "25Y",
+        "All"
+      ],
+      "recessions": true,
+      "zeroline": false
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 24
+    }
+  }
+}

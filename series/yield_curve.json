@@ -28,11 +28,13 @@
   ],
   "methodology": [
     "Daily par yields for all eleven standard Treasury constant-maturity tenors (1mo, 3mo, 6mo, 1yr, 2yr, 3yr, 5yr, 7yr, 10yr, 20yr, 30yr), each its own FRED H.15 series (DGS1MO–DGS30), joined on date.",
-    "The snapshot chart plots one date's yields across tenors on a categorical, evenly spaced axis (Bloomberg convention), not the calendar-spaced date axis used by the other charts."
+    "The snapshot chart plots one date's yields across tenors on a categorical, evenly spaced axis (Bloomberg convention), not the calendar-spaced date axis used by the other charts.",
+    "The full published history is fetched, not a trailing window: DGS1, DGS3, DGS5, DGS10 and DGS20 begin 1962-01-02, and the remaining tenors phase in as Treasury began issuing them — DGS30 in 1977-02, DGS7 in 1969-07, DGS2 in 1976-06, DGS3MO/DGS6MO in 1981-09, and DGS1MO in 2001-07. A date carries only the tenors that actually reported, so an early-1960s snapshot is a five-point curve and the full eleven-point curve exists only from 2001-07."
   ],
   "notes": [
     "The 20-year tenor (DGS20) has a gap from 2002-02-18 to 2006-02-08 while the Treasury suspended issuance of 20-year bonds; the chart leaves this gap visible rather than interpolating across it.",
-    "Values are percent, not a decimal fraction."
+    "Values are percent, not a decimal fraction.",
+    "Fetched with no row limit as of 2026-09-17. Before that the fetcher capped the request at 6300 rows sorted newest-first, which silently truncated the history to roughly 2002 — the apparent start date was an artifact of the cap, not a choice, and would have begun dropping observations off the left edge as the series grew."
   ],
   "presentation": {
     "sections": [

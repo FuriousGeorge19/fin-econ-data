@@ -37,14 +37,25 @@
       "id": "oas",
       "name": "Option-adjusted spreads, US Corporate and High Yield, daily",
       "gives": "Daily option-adjusted spread (OAS) of the ICE BofA US Corporate Index (investment grade) and the ICE BofA US High Yield Index over a spot Treasury curve, market-value weighted across each index's constituent bonds",
-      "ids": ["BAMLC0A0CM", "BAMLH0A0HYM2"],
-      "topics": ["credit", "rates"],
+      "ids": [
+        "BAMLC0A0CM",
+        "BAMLH0A0HYM2"
+      ],
+      "topics": [
+        "credit",
+        "rates"
+      ],
       "units": "percent",
       "cadence": "daily",
-      "coverage": {"start": "2023-09-18", "end": "ongoing"},
+      "coverage": {
+        "start": "2023-09-18",
+        "end": "ongoing"
+      },
       "publication_lag_business_days": 1,
       "status": "active",
-      "roadmap": ["chart 8"],
+      "roadmap": [
+        "chart 8"
+      ],
       "read_from": [
         "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A0CM&api_key=<key>&file_type=json",
         "https://api.stlouisfed.org/fred/series?series_id=BAMLH0A0HYM2&api_key=<key>&file_type=json",
@@ -68,13 +79,21 @@
         "BAMLH0A1HYBBEY",
         "BAMLH0A2HYBEY"
       ],
-      "topics": ["credit", "rates"],
+      "topics": [
+        "credit",
+        "rates"
+      ],
       "units": "percent",
       "cadence": "daily",
-      "coverage": {"start": "2023-09-18", "end": "ongoing"},
+      "coverage": {
+        "start": "2023-09-18",
+        "end": "ongoing"
+      },
       "publication_lag_business_days": 1,
       "status": "active",
-      "roadmap": ["item 11"],
+      "roadmap": [
+        "item 11"
+      ],
       "read_from": [
         "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A1CAAAEY&api_key=<key>&file_type=json",
         "https://api.stlouisfed.org/fred/series?series_id=BAMLC0A2CAAEY&api_key=<key>&file_type=json",
@@ -97,6 +116,7 @@
   },
   "notes": [
     "All datasets here are reached only via FRED (access.via = fred at the source level); ICE Data Indices has no free public access path of its own for this data.",
-    "The historical assumption in the pre-catalogue planning notes that FRED carried BAML* history back to 1996/1997 is now wrong for the series checked here: FRED's own notes say the window was cut to a rolling 3 years starting April 2026. Any chart built on chart 8 or item 11 should budget for ~3 years of history, not 25+, unless a longer series (a different FRED id, or a non-FRED ICE source) is found."
+    "The historical assumption in the pre-catalogue planning notes that FRED carried BAML* history back to 1996/1997 is now wrong for the series checked here: FRED's own notes say the window was cut to a rolling 3 years starting April 2026. Any chart built on chart 8 or item 11 should budget for ~3 years of history, not 25+, unless a longer series (a different FRED id, or a non-FRED ICE source) is found.",
+    "Chart 8 was rescoped off this source on 2026-09-17 (S11b) and is now built on FRED's Moody's AAA/BAA pair instead (catalog/sources/fred.json, dataset moodys-corporate, terms verified, monthly from 1919-01) — see series/credit_spread_baa_aaa.json. Two reasons, either sufficient: the rolling three-year FRED window leaves no recession in the chart, and these restricted terms would have forced presentation.publish false. Item 11's by-rating yield rows (S11d) still point at effective-yields-by-rating here and still need their own decision."
   ]
 }

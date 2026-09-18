@@ -23,6 +23,74 @@ re-verified against their pages.
 
 ---
 
+## 2026-09-17 — Chart 8 rescoped off ICE BofA onto Moody's Baa−Aaa
+topics: credit, rates
+- **Question**: roadmap chart 8 was scoped as ICE BofA IG and HY option-adjusted
+  spreads (FRED `BAMLC0A0CM`, `BAMLH0A0HYM2`) back to 1996-97. S9 found FRED had cut
+  those series to a rolling three-year window. Is there a credit-spread chart that
+  publishes and shows more than one cycle?
+- **Searched / read**: `catalog/sources/ice-bofa.json` (S9's entry: `terms.status`
+  `restricted`, quote "you are not authorized or permitted to publish, distribute or
+  otherwise furnish Top Level Data to any third-party without prior written approval
+  of ICE Data"; every `BAML*` series starts 2023-09-18, FRED's own note "Starting in
+  April 2026, this series will only include 3 years of observations");
+  `catalog/sources/fred.json` dataset `moodys-corporate` (S9: `AAA`/`BAA` monthly from
+  1919-01, terms `verified` — FRED "Copyrighted: Citation Required", displayable with
+  attribution); fresh FRED pulls of `AAA` and `BAA` to confirm coverage and values.
+- **Found**: the ICE version fails twice over. Its three-year window contains no
+  recession, which defeats the chart's purpose, and its terms are the same shape as the
+  S&P refusal that unpublished the P/E — it could only ever have been
+  `presentation.publish: false`. Moody's `BAA` − `AAA` gives 1292 monthly observations
+  from 1919-01, peaking at +5.64 in May 1932 and +3.38 in December 2008, and publishes
+  cleanly. The cost is that it is a quality spread between two seasoned-bond indices of
+  twenty-years-and-above maturity, not an option-adjusted spread over a Treasury curve,
+  and not the IG/HY pair the roadmap named.
+- **Outcome**: adopted — build the Moody's spread, do not build the ICE version.
+  Closes the open item S9 raised for S11b ("either find a non-FRED ICE source, accept a
+  three-year chart, or drop the rating rows") with a fourth answer it did not list.
+  Item 11's by-rating yield rows (S11d) still run on `BAML*` and still need their own call.
+- **Landed in**: `series/credit_spread_baa_aaa.json` (the rescope is recorded in its
+  `notes`, so a future reader does not re-litigate it) · `catalog/sources/fred.json`
+  (dataset `moodys-corporate`, roadmap + the never-non-positive check) · Session Plan S11b
+
+## 2026-09-17 — CPIAUCSL has no October 2025 observation
+topics: inflation, macro
+- **Question**: chart 5 (ex-post real short rate) needs CPIAUCSL year-over-year matched
+  to TB3MS month by month. Is the series continuous, and what is its real publication lag?
+- **Searched / read**: FRED `/fred/series/observations?series_id=CPIAUCSL` and
+  `series_id=TB3MS`; FRED's release calendar `/fred/release/dates?release_id=10` (CPI).
+- **Found**: CPIAUCSL jumps 2025-09-01 (324.245) straight to 2025-11-01 (325.063) —
+  there is no October 2025 value, while TB3MS has a normal 3.82 for that month. This is
+  the CPI release BLS cancelled during the 2025 government shutdown: a permanent hole,
+  not a lag. Separately, four consecutive release dates (2026-06-10, 2026-07-14,
+  2026-08-12, 2026-09-11) convert to 8, 9, 8, 8 business days after month-end, replacing
+  the catalogue's `"unknown"`.
+- **Outcome**: adopted. `scripts/fetch_real_short_rate.py` emits only months where both
+  legs report, so October 2025 is correctly absent rather than interpolated. The
+  descriptor's CPI input carries lag 9 (the observed maximum, not the mode) so a slow
+  month does not raise a false overdue badge.
+- **Open**: the payload carries no null at the gap and `timeseries.js` sets no
+  `connectgaps`, so Plotly draws a straight segment across that one month — visually
+  indistinguishable from real data, against the "make data gaps visible" convention.
+  Fixing it means establishing a null-observation convention no fetcher currently uses.
+- **Landed in**: `catalog/sources/fred.json` (dataset `cpi`) · `series/real_short_rate.json`
+
+## 2026-09-17 — TIPS tenor start dates, all five confirmed
+topics: rates, inflation
+- **Question**: chart 10 (TIPS real yield curve) needs each of `DFII5`/`DFII7`/`DFII10`/
+  `DFII20`/`DFII30` to start where the catalogue says. S9 recorded only DFII5 and DFII10
+  as checked, with "DFII7, DFII20 and DFII30 start dates not checked".
+- **Searched / read**: FRED `/fred/series` and `/fred/series/observations` for all five ids.
+- **Found**: DFII5, DFII7 and DFII10 all start 2003-01-02 — DFII7 is **not** late,
+  contrary to the caveat. DFII20 starts 2004-07-27. DFII30 starts 2010-02-22, reflecting
+  Treasury's 2001-2003 suspension of the 30-year TIPS. No interior gap in any of the five.
+- **Outcome**: adopted. `scripts/fetch_tips_curve.py` writes only the tenors that
+  actually reported on each date, so the short end of the history carries three tenors
+  and the full five only from 2010-02.
+- **Landed in**: `catalog/sources/fred.json` (dataset `dfii`) · `series/tips_curve.json`
+
+---
+
 ## 2026-09-17 — Where Shiller's pre-1953 long-rate column comes from
 topics: rates
 - **Question**: chart 4 (S11a) stitches FRED's GS10 (1953-04+) to the "Rate GS10"

@@ -13,9 +13,13 @@
     "sources": [
       {
         "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "dgs",
         "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Treasury constant-maturity yields, daily (H.15)",
         "url": "https://fred.stlouisfed.org/series/DGS10",
-        "licence": "Public domain (U.S. government data)"
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
       }
     ],
     "inputs": [
@@ -23,6 +27,7 @@
         "id": "constituents",
         "label": "10-year, 2-year and 3-month Treasury constant-maturity yields (DGS10, DGS2, DGS3MO)",
         "source": "fred",
+        "dataset": "dgs",
         "cadence": "daily",
         "publication_lag_business_days": 1
       }
@@ -37,24 +42,24 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-13T17:45:38Z",
-    "last_observation": "2026-09-10",
-    "period_label": "10 Sep 2026",
-    "due_by": "2026-09-14",
+    "fetched_at": "2026-09-17T22:43:36Z",
+    "last_observation": "2026-09-16",
+    "period_label": "16 Sep 2026",
+    "due_by": "2026-09-18",
     "series": {
       "10y2y": {
-        "last_observation": "2026-09-10",
-        "period_label": "10 Sep 2026",
-        "due_by": "2026-09-14",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
         "first_observation": "1976-06-01",
-        "observation_count": 12566
+        "observation_count": 12570
       },
       "10y3m": {
-        "last_observation": "2026-09-10",
-        "period_label": "10 Sep 2026",
-        "due_by": "2026-09-14",
+        "last_observation": "2026-09-16",
+        "period_label": "16 Sep 2026",
+        "due_by": "2026-09-18",
         "first_observation": "1981-09-01",
-        "observation_count": 11256
+        "observation_count": 11260
       }
     }
   },
@@ -50325,6 +50330,22 @@
         {
           "date": "2026-09-10",
           "value": 0.39
+        },
+        {
+          "date": "2026-09-11",
+          "value": 0.33
+        },
+        {
+          "date": "2026-09-14",
+          "value": 0.32
+        },
+        {
+          "date": "2026-09-15",
+          "value": 0.33
+        },
+        {
+          "date": "2026-09-16",
+          "value": 0.27
         }
       ]
     },
@@ -95354,6 +95375,22 @@
         {
           "date": "2026-09-10",
           "value": 0.95
+        },
+        {
+          "date": "2026-09-11",
+          "value": 0.89
+        },
+        {
+          "date": "2026-09-14",
+          "value": 0.86
+        },
+        {
+          "date": "2026-09-15",
+          "value": 0.89
+        },
+        {
+          "date": "2026-09-16",
+          "value": 0.87
         }
       ]
     }

@@ -1,0 +1,88 @@
+{
+  "id": "real_short_rate",
+  "title": "Ex-Post Real Short Rate",
+  "short_title": "Real Short Rate",
+  "kind": "timeseries",
+  "fetcher": "fetch_real_short_rate.py",
+  "units": "Percentage points",
+  "cadence": "monthly",
+  "publication_lag_business_days": 9,
+  "revisions": "occasional",
+  "revision_note": "CPIAUCSL (the seasonally-adjusted CPI leg) is occasionally revised after publication, most often around its annual seasonal-factor update; TB3MS is not revised.",
+  "source_line": "FRED TB3MS, CPIAUCSL",
+  "sources": [
+    {
+      "slug": "fred",
+      "dataset": "tb",
+      "url": "https://fred.stlouisfed.org/series/TB3MS"
+    },
+    {
+      "slug": "fred",
+      "dataset": "cpi",
+      "url": "https://fred.stlouisfed.org/series/CPIAUCSL"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "tb3ms",
+      "label": "3-month Treasury bill secondary-market rate (FRED TB3MS)",
+      "source": "fred",
+      "dataset": "tb",
+      "series_id": "TB3MS",
+      "cadence": "monthly",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "cpi",
+      "label": "CPI-U, all items, seasonally adjusted (FRED CPIAUCSL)",
+      "source": "fred",
+      "dataset": "cpi",
+      "series_id": "CPIAUCSL",
+      "cadence": "monthly",
+      "publication_lag_business_days": 9
+    }
+  ],
+  "methodology": [
+    "This is an EX-POST real rate: it uses realized inflation over the trailing 12 months, not a survey or market measure of expected inflation. It is the actual real return a saver holding 3-month T-bills earned over the prior year - visible only after the fact, not in real time.",
+    "real_short_rate[M] = TB3MS[M] - 100 * (CPIAUCSL[M] / CPIAUCSL[M-12] - 1). TB3MS is the 3-month Treasury bill secondary-market rate for month M (FRED, monthly, 1934-01+). The subtracted term is the year-over-year percent change in CPIAUCSL (CPI-U, all items, seasonally adjusted, FRED, monthly, 1947-01+) for the same month M.",
+    "Computed at fetch time in Python from the two FRED legs, the same pattern as scripts/fetch_spreads.py - there is no precomputed 'real short rate' series on FRED.",
+    "A month is emitted only when both legs are computable for it - TB3MS[M] exists, and both CPIAUCSL[M] and CPIAUCSL[M-12] exist so the YoY change is defined. No forward-fill, no interpolation across a gap.",
+    "The YoY CPI leg needs twelve months of CPI history behind it, so the series can only start 1948-01 (twelve months after CPI's own 1947-01 start), well after TB3MS's own 1934-01 start."
+  ],
+  "notes": [
+    "Values are percentage points (a reading of -3.00 means the real rate was -3.00% that year), not a decimal fraction.",
+    "Three episodes stand out: deeply negative real rates through 1948, when postwar inflation ran far ahead of a still-pegged T-bill yield (-9.27pp in January 1948); the negative real rates of the mid-to-late 1970s, when T-bill yields lagged accelerating inflation (-5.71pp in February 1975); and the swing to strongly positive real rates in the early 1980s under the Volcker Fed's disinflation (+6.88pp in August 1983). The series cannot reach the wartime 1940s at all: CPIAUCSL starts 1947-01 and the year-over-year leg needs twelve months behind it, so 1948-01 is the first month that exists. Note that 1949 is strongly positive, not negative — consumer prices fell that year.",
+    "October 2025 is missing from this series, and that is correct: BLS cancelled the CPI release for that month during the 2025 government shutdown, so CPIAUCSL goes straight from 2025-09 to 2025-11 and no real rate can be computed for October. The month is omitted rather than interpolated; the chart line connects across the one-month break.",
+    "TB3MS is not seasonally adjusted; CPIAUCSL is. Neither leg is smoothed or averaged beyond FRED's own published monthly figures."
+  ],
+  "presentation": {
+    "sections": [
+      "economy"
+    ],
+    "order": 32,
+    "summary": "The 3-month Treasury bill rate minus the trailing year-over-year change in CPI - the realized (ex-post) real return a saver earned holding short-term Treasuries, back to 1948.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "suffix": "%",
+        "format": "+.2f"
+      },
+      "presets": [
+        "5Y",
+        "10Y",
+        "25Y",
+        "All"
+      ],
+      "recessions": true,
+      "zeroline": true
+    },
+    "stats": true,
+    "table": {
+      "kind": "changes",
+      "windows": [
+        "1Y",
+        "5Y"
+      ]
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "tips_curve",
+  "title": "TIPS Real Yield Curve",
+  "short_title": "Real Yield Curve",
+  "kind": "curve",
+  "units": "Percent",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 constant-maturity series are not revised after publication.",
+  "source_line": "FRED DFII5–DFII30",
+  "sources": [
+    {
+      "slug": "fred",
+      "dataset": "dfii",
+      "url": "https://fred.stlouisfed.org/series/DFII10"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "tenors",
+      "label": "TIPS constant-maturity real yields, five tenors (5yr, 7yr, 10yr, 20yr, 30yr)",
+      "source": "fred",
+      "dataset": "dfii",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "Daily real yields for the five standard TIPS constant-maturity tenors (5yr, 7yr, 10yr, 20yr, 30yr), each its own FRED H.15 series (DFII5, DFII7, DFII10, DFII20, DFII30), joined on date. FRED does not publish a TIPS constant-maturity series shorter than 5 years.",
+    "These are market-observed real yields on Treasury Inflation-Protected Securities: the yield an investor actually locks in by buying and holding a TIPS to maturity, directly traded and quoted, with no model and no assumed inflation rate. This differs from an ex-post real rate computed by subtracting realized (already-occurred) CPI inflation from a nominal Treasury yield after the fact — that construction depends on which inflation measure and which period you choose; the TIPS market's own real yield does not.",
+    "The snapshot chart plots one date's yields across tenors on a categorical, evenly spaced axis (Bloomberg convention), matching the nominal yield curve chart's presentation."
+  ],
+  "notes": [
+    "The five tenors do not all start on the same date, and none is forced to: DFII5 and DFII10 start 2003-01-02; DFII7 also starts 2003-01-02 (checked at fetch time — not late, contrary to the pre-fetch assumption that only DFII5/DFII10 were confirmed); DFII20 starts 2004-07-27; DFII30 starts 2010-02-22, reflecting the Treasury's 2001-2003 suspension of 30-year TIPS issuance and later reintroduction. A date's observation carries only the tenors that had actually reported that day; a tenor with no data yet is simply absent from that date's keys, never a null or a carried-forward value. No interior gap longer than a normal weekend/holiday was found in any of the five series' full history as of 2026-09-17.",
+    "Values are percent, not a decimal fraction.",
+    "A negative real yield means investors are accepting a guaranteed loss of purchasing power to hold the Treasury to maturity — locking in a return below inflation. This happened across most of the curve in 2020-2021."
+  ],
+  "presentation": {
+    "sections": ["rates"],
+    "order": 12,
+    "summary": "Daily TIPS real yield curve across tenors, from FRED.",
+    "chart": {
+      "type": "curve",
+      "y": {
+        "suffix": "%"
+      },
+      "overlays": ["1w", "1m", "1y", "5y"],
+      "custom_date": true
+    },
+    "stats": false,
+    "table": true
+  }
+}

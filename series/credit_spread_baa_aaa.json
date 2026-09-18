@@ -1,0 +1,69 @@
+{
+  "id": "credit_spread_baa_aaa",
+  "title": "Moody's Baa − Aaa Corporate Credit Spread",
+  "short_title": "Baa−Aaa Credit Spread",
+  "kind": "timeseries",
+  "fetcher": "fetch_credit_spread_baa_aaa.py",
+  "units": "Percentage points",
+  "cadence": "monthly",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 monthly average of Moody's seasoned corporate bond yields is not revised after publication.",
+  "source_line": "FRED AAA, BAA (Moody's)",
+  "sources": [
+    {
+      "slug": "fred",
+      "dataset": "moodys-corporate",
+      "url": "https://fred.stlouisfed.org/series/BAA"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "constituents",
+      "label": "Moody's seasoned Aaa- and Baa-rated corporate bond yields, monthly averages (FRED AAA, BAA)",
+      "source": "fred",
+      "dataset": "moodys-corporate",
+      "cadence": "monthly",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "Baa − Aaa = FRED BAA − FRED AAA, computed per month in Python from Moody's own seasoned corporate bond yield indices (both covering maturities of twenty years and above), monthly averages, both starting 1919-01. A month is emitted only where both legs report — no forward-fill or interpolation.",
+    "This is a quality spread between two Moody's seasoned-bond yield indices, not an option-adjusted spread over a Treasury curve. Differencing two long-maturity corporate yields cancels out the term premium common to both, leaving (approximately) the credit-quality compensation the market demands for Baa-rated risk over Aaa-rated risk."
+  ],
+  "notes": [
+    "Values are percentage points (1.25 means the Baa yield sits 1.25 points above the Aaa yield), not a decimal fraction.",
+    "AAA and BAA (monthly) both start 1919-01; do not confuse with FRED's DAAA/DBAA (daily), which start 1983 and 1986 respectively and would trade a century of clean monthly history for a cadence change — not used here.",
+    "Decided 2026-09-17: this chart was originally scoped on ICE BofA option-adjusted spreads (FRED BAMLC0A0CM investment-grade, BAMLH0A0HYM2 high-yield) and was rescoped onto the Moody's pair for two reasons. FRED now carries only a rolling three-year window of the ICE BofA series (all start 2023-09-18), which contains no recession and so defeats the point of showing risk appetite across cycles; and ICE Data Indices' terms are restricted, which would force this chart unpublished. The Moody's Baa/Aaa pair reaches back to 1919 instead, at the cost of being a narrower quality-only spread than the investment-grade/high-yield pair originally intended.",
+    "The spread has historically stayed positive (Baa, the lower credit quality, yields more than Aaa) but is not defined to be so by construction; a future observation crossing zero would be a real, reportable event, not a data error."
+  ],
+  "presentation": {
+    "sections": [
+      "markets",
+      "economy"
+    ],
+    "order": 36,
+    "summary": "Monthly Moody's Baa-minus-Aaa corporate bond yield spread, from FRED, back to 1919, with NBER recessions shaded.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "suffix": "%",
+        "format": ".2f"
+      },
+      "presets": [
+        "5Y",
+        "10Y",
+        "25Y",
+        "50Y",
+        "All"
+      ],
+      "recessions": true,
+      "zeroline": false
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 24
+    }
+  }
+}
