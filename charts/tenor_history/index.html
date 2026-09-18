@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treasury Yields by Tenor (1962–Present) — Joe Mirza — Economic &amp; Financial Data</title>
+<link rel="stylesheet" href="/css/site.css">
+
+<script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+</head>
+<body>
+<nav class="nav-primary"><a href="/">Joe Mirza — Economic &amp; Financial Data</a><a href="/economy/">Economy</a><a href="/markets/">Markets</a><a href="/rates/">Rates &amp; Yields</a></nav>
+<nav class="nav-section"><a href="/charts/dgs10/">10Y Treasury</a><a href="/charts/gs10_long/">10Y Yield, 1871+</a><a href="/charts/yield_curve/">Yield Curve</a><a href="/charts/tips_curve/">Real Yield Curve</a><a href="/charts/tenor_history/" aria-current="page" class="current">Yields by Tenor</a><a href="/charts/fedfunds/">Fed Funds Rate</a></nav>
+<main>
+<div class="card" data-block="tenor_history"></div>
+</main>
+<footer class="site-footer">
+<p>This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.</p>
+</footer>
+<script type="application/json" id="page">{"page": {"slug": "tenor_history", "title": "Treasury Yields by Tenor (1962\u2013Present)", "layout": "single"}, "blocks": [{"id": "tenor_history", "title": "Treasury Yields by Tenor (1962\u2013Present)", "short_title": "Yields by Tenor", "summary": "Treasury constant-maturity yields by tenor since 1962, selectable, with NBER recessions shaded.", "href": "/charts/tenor_history/", "presentation": {"data": "yield_curve", "sections": ["rates"], "order": 14, "summary": "Treasury constant-maturity yields by tenor since 1962, selectable, with NBER recessions shaded.", "chart": {"type": "tenors", "y": {"suffix": "%", "format": ".2f"}, "tenors": ["1mo", "3mo", "6mo", "1yr", "2yr", "3yr", "5yr", "7yr", "10yr", "20yr", "30yr"], "default_tenors": ["3mo", "2yr", "10yr", "30yr"], "stat_tenors": ["3mo", "2yr", "10yr", "30yr"], "presets": ["1Y", "5Y", "10Y", "25Y", "All"], "recessions": true, "zeroline": false}, "stats": true, "table": {"kind": "recent", "rows": 30}}, "size": "full", "data": "yield_curve", "meta_overrides": {"title": "Treasury Yields by Tenor (1962\u2013Present)", "methodology": ["One line per selected Treasury constant-maturity tenor, plotted against a calendar date axis. The same eleven FRED H.15 series the yield-curve snapshot uses, read from the same data file and transposed: the snapshot slices one date across every tenor, this chart slices one tenor across every date.", "A tenor is drawn only on the dates it actually reported. Treasury introduced them at different times \u2014 1-year, 3-year, 5-year, 10-year and 20-year run from 1962-01-02, the 7-year from 1969-07, the 2-year from 1976-06, the 30-year from 1977-02, the 3-month and 6-month from 1981-09, and the 1-month only from 2001-07 \u2014 and the 20-year then disappears from 1987-01 to 1993-09, while Treasury was not issuing it. Every one of those gaps is left visible rather than interpolated across. All start dates and the gap were checked against a fresh FRED pull on 2026-09-17."], "notes": ["Values are percent (4.25 means 4.25%), not a decimal fraction.", "This page draws `data/yield_curve.json` rather than a data file of its own (`presentation.data`). The payload is roughly 16,000 dates across eleven tenors, so a second copy under this id would double a multi-megabyte download for identical numbers. Its freshness, sources and About-tab provenance are therefore the yield curve's, which is correct \u2014 it is the same data.", "Selecting tenors changes only what is drawn. The Table and the CSV export always carry all eleven, since they are read after the fact and have no access to the live selection."]}}]}</script>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
