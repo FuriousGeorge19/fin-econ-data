@@ -351,6 +351,20 @@ tr:hover {
     border-color: var(--text-muted);
 }
 
+/* A card whose data or chart module failed to load disables its exports rather
+   than leaving a live button that silently does nothing (card.js
+   markCardFailed). The cursor and opacity are the whole signal — no new colour
+   token, and :hover is suppressed so it does not look actionable. */
+.export-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.export-btn:disabled:hover {
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+
 .about-section {
     margin-bottom: 1.25rem;
 }
@@ -394,6 +408,15 @@ tr:hover {
 }
 
 .loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}
+
+/* Distinct from .loading: .loading means "not yet", .load-error means "not
+   coming". Same muted colour deliberately — a failed card should read as
+   unavailable, not as an alarm, since the rest of the page is fine. */
+.load-error {
     text-align: center;
     padding: 3rem;
     color: var(--text-muted);

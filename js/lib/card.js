@@ -126,6 +126,32 @@ function renderTable(container, result) {
     slot.innerHTML = `${note}<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
 }
 
+// Leave a card in a coherent failed state. Without this, an early return from
+// mount() leaves the Table and About panels stuck on their "Loading data…"
+// placeholder forever, and the export buttons enabled but never wired — a
+// visitor clicking Export CSV gets silence, which reads as a broken button
+// rather than as missing data. `aboutHTML` is omitted when the real About has
+// already rendered (the chart-module failure path, where meta/as_of exist).
+function markCardFailed(container, { chartHTML, aboutHTML, reason }) {
+    const chartEl = container.querySelector('.chart');
+    if (chartEl) chartEl.innerHTML = chartHTML;
+
+    const tableSlot = container.querySelector('.table-slot');
+    if (tableSlot) {
+        tableSlot.innerHTML = `<p class="load-error">No table: ${escapeHtml(reason)}.</p>`;
+    }
+
+    if (aboutHTML) {
+        const aboutEl = container.querySelector('.about');
+        if (aboutEl) aboutEl.innerHTML = aboutHTML;
+    }
+
+    container.querySelectorAll('.export-btn').forEach(btn => {
+        btn.disabled = true;
+        btn.title = `Nothing to export: ${reason}.`;
+    });
+}
+
 function wireExport(container, ctx, type) {
     const filenameBase = `${ctx.id}_${ctx.as_of.last_observation}`;
     container.querySelector('[data-export="csv"]').addEventListener('click', () => {
@@ -175,8 +201,23 @@ export async function mount(block, today) {
         data = seriesData;
         recessions = usrecData ? usrecData.recessions : null;
     } catch (err) {
-        container.querySelector('.chart').innerHTML =
-            `<p class="loading">Failed to load data. ${escapeHtml(err.message)}</p>`;
+        // No meta/as_of exist yet, so the real About tab can't render. Say what
+        // is known — which file, which status — rather than leaving the
+        // placeholder, and name the id so the URL is reconstructable.
+        markCardFailed(container, {
+            reason: "this chart's data could not be loaded",
+            chartHTML: `<p class="load-error">Failed to load data. ${escapeHtml(err.message)}</p>`,
+            aboutHTML: `
+                <div class="about-section">
+                    <h3>Data unavailable</h3>
+                    <p><code>/data/${escapeHtml(block.id)}.json</code> could not be loaded
+                       (${escapeHtml(err.message)}), so this chart's sources, methodology and
+                       freshness — all of which are stored inside that file — can't be shown.</p>
+                    <p>Every other chart on this page is unaffected. If this persists, the
+                       series is missing from the deploy rather than merely out of date; an
+                       out-of-date series still draws, with an "Overdue" badge.</p>
+                </div>`,
+        });
         return;
     }
 
@@ -190,8 +231,12 @@ export async function mount(block, today) {
     try {
         type = await import(`/js/charts/${chart.type}.js`);
     } catch (err) {
-        container.querySelector('.chart').innerHTML =
-            `<p class="loading">Failed to load chart module. ${escapeHtml(err.message)}</p>`;
+        // The data loaded, so renderAbout above already wrote the real About
+        // tab — leave it. Only the chart, table and exports are dead.
+        markCardFailed(container, {
+            reason: `the ${chart.type} chart module could not be loaded`,
+            chartHTML: `<p class="load-error">Failed to load chart module. ${escapeHtml(err.message)}</p>`,
+        });
         return;
     }
 
