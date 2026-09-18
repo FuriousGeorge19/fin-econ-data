@@ -35,9 +35,12 @@ ARCHITECTURE.md describe the build, not the roadmap or its rationale.
     time, monthly 1948-01+) — `real_short_rate` (S11b; roadmap chart 5)
   - 10-Year Breakeven Inflation Rate (FRED T10YIE, daily 2003+) — `breakeven_10y`
     (S11b; roadmap chart 6)
-  - Moody's Baa−Aaa Corporate Credit Spread (computed at fetch time from FRED's
-    `BAA`/`AAA` monthly seasoned-bond yields, 1919-01+) — `credit_spread_baa_aaa`
-    (S11b; roadmap chart 8, **deliberately rescoped off ICE BofA** — see Licence Notes)
+  - Corporate Credit Spread Across Investment Grade (Moody's Baa − Aaa; computed at
+    fetch time from FRED's `BAA`/`AAA` monthly seasoned-bond yields, 1919-01+) —
+    `credit_spread_baa_aaa` (S11b; roadmap chart 8, **deliberately rescoped off ICE
+    BofA** — see Licence Notes). Titled for what it measures rather than its inputs:
+    Aaa is the top of Moody's scale and Baa the bottom of investment grade, so the
+    spread covers the whole IG spectrum — and no high yield at all
   - TIPS Real Yield Curve Snapshot (DFII5/7/10/20/30, daily) — `tips_curve` (S11b;
     roadmap chart 10). Second mount of the `curve` chart type, no JS change needed
 - **Plus four charts built locally but never deployed**, all sourced from one Shiller/
