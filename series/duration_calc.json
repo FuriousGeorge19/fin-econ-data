@@ -1,0 +1,47 @@
+{
+  "id": "duration_calc",
+  "title": "Bond Duration Calculator: What a Yield Move Costs",
+  "short_title": "Duration Calculator",
+  "kind": "curve",
+  "units": "Percent",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 constant-maturity series are not revised after publication.",
+  "source_line": "FRED DGS5 (default yield only)",
+  "sources": [
+    {"slug": "fred", "dataset": "dgs", "url": "https://fred.stlouisfed.org/series/DGS5"}
+  ],
+  "inputs": [
+    {
+      "id": "treasury",
+      "label": "Treasury constant-maturity yields, 3mo–30yr (DGS*), used only to pre-fill the yield",
+      "source": "fred",
+      "dataset": "dgs",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "Price change ≈ −duration × change in yield. A bond fund with a duration of 4.9 years loses about 4.9% of its price when its yield rises one percentage point (100 basis points) and gains about the same when it falls. The calculator applies that formula to whatever duration and yield move you enter.",
+    "The yield you enter is used for the income line: one year of yield earned, added to the price change, gives the approximate one-year total return if the yield move happens at once and nothing else changes. The break-even rise is the yield change at which the price loss equals one year of income (yield ÷ duration).",
+    "The grid underneath applies the same formula to a fixed set of durations and yield moves. It needs no input."
+  ],
+  "notes": [
+    "This is a linear approximation. It ignores convexity, which makes the true price change slightly better than the formula for large moves in either direction (a 200 bp rise costs a little less than twice the 100 bp loss, a 200 bp fall gains a little more).",
+    "Duration is a property of a specific bond or fund, not of a maturity. A fund's published effective duration is the right input; the calculator does not derive one from the yield curve.",
+    "This page draws `data/yields_table.json` rather than a data file of its own (`presentation.data`), and uses it for one number: the latest 5-year Treasury yield, which pre-fills the yield field. Its freshness and provenance are the yields grid's."
+  ],
+  "presentation": {
+    "data": "yields_table",
+    "sections": ["rates"],
+    "order": 16,
+    "summary": "Enter a bond or fund's duration and a yield move to see the approximate price effect.",
+    "chart": {
+      "type": "duration_calc",
+      "y": {"suffix": "%", "format": ".2f"}
+    },
+    "stats": false,
+    "table": false
+  }
+}

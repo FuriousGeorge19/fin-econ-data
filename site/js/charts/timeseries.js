@@ -147,6 +147,41 @@ export function render(el, ctx) {
     return { destroy() { Plotly.purge(el); } };
 }
 
+function ordinal(n) {
+    const tens = n % 100;
+    const suffix = (tens >= 11 && tens <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
+    return `${n}${suffix}`;
+}
+
+// "Where today sits in history" (roadmap item 18): the latest value's
+// percentile over the whole file (ties count half), and how long ago the
+// series last matched or beat it — "Highest since" when it sits in the upper
+// half of its history, "Lowest since" otherwise.
+function historyTiles(obs, format, suffix) {
+    const vals = obs.filter(o => Number.isFinite(o.value));
+    if (vals.length < 2) return [];
+    const latest = vals[vals.length - 1];
+    let below = 0, equal = 0;
+    for (const o of vals) {
+        if (o.value < latest.value) below++;
+        else if (o.value === latest.value) equal++;
+    }
+    const pct = Math.round(100 * (below + equal / 2) / vals.length);
+    const upper = pct >= 50;
+    let since = null;
+    for (let i = vals.length - 2; i >= 0; i--) {
+        if (upper ? vals[i].value >= latest.value : vals[i].value <= latest.value) { since = vals[i]; break; }
+    }
+    const word = upper ? 'Highest' : 'Lowest';
+    const first = formatDateLong(vals[0].date);
+    return [
+        { label: 'Percentile of History', value: ordinal(pct), date: `of ${vals.length.toLocaleString('en-US')} obs since ${first}` },
+        since
+            ? { label: `${word} Since`, value: formatDateLong(since.date), date: `then ${formatValue(since.value, format)}${suffix}` }
+            : { label: `${word} Since`, value: 'Record', date: `${word.toLowerCase()} of all obs since ${first}` },
+    ];
+}
+
 export function stats(ctx) {
     const traces = deriveTraces(ctx);
     const obs = traces[0].observations;
@@ -178,7 +213,7 @@ export function stats(ctx) {
         result.push({ label: '1-Year Change', value: '—' });
     }
 
-    return result;
+    return result.concat(historyTiles(obs, format, suffix));
 }
 
 function tableRecent(ctx, traces, opts) {
