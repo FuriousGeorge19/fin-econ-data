@@ -132,6 +132,42 @@ def validate(*, site, descriptors, manifests, js_dir):
                     f"{os.path.relpath(module_path, REPO_ROOT)}"
                 )
 
+        # `presentation.data` makes this descriptor a VIEW: a page that draws
+        # an existing series' data file instead of owning one. Chart 9
+        # (tenor_history) reads yield_curve.json rather than shipping a second
+        # multi-megabyte copy of the same eleven DGS series. The target must
+        # exist, must own its own data (no view-of-a-view, which would make the
+        # fetch chain unresolvable at build time), and must not be unpublished
+        # while this one is published, or the deploy would ship a page whose
+        # data file it deliberately withheld.
+        data_id = presentation.get("data")
+        if data_id is not None:
+            target = descriptors.get(data_id)
+            if target is None:
+                raise BuildError(
+                    f"series/{series_id}.json: presentation.data {data_id!r} "
+                    f"has no series/{data_id}.json"
+                )
+            if data_id == series_id:
+                raise BuildError(
+                    f"series/{series_id}.json: presentation.data names itself"
+                )
+            target_presentation = target.get("presentation") or {}
+            if target_presentation.get("data") is not None:
+                raise BuildError(
+                    f"series/{series_id}.json: presentation.data {data_id!r} is "
+                    f"itself a view (its own presentation.data is set); point at "
+                    f"the series that owns the data"
+                )
+            this_published = presentation.get("publish") is not False
+            target_published = target_presentation.get("publish") is not False
+            if this_published and not target_published:
+                raise BuildError(
+                    f"series/{series_id}.json: publishes but its presentation.data "
+                    f"{data_id!r} is unpublished, so the deployed page would have "
+                    f"no data file to fetch"
+                )
+
         for preset in chart.get("presets", []):
             if not PRESET_RE.match(preset):
                 raise BuildError(
@@ -214,6 +250,20 @@ def chart_block(descriptor, *, size, preset=None):
         "presentation": descriptor["presentation"],
         "size": size,
     }
+    # A view block tells card.js which data file to fetch; card.js falls back
+    # to the block's own id when absent, so every existing chart is unchanged.
+    data_id = descriptor["presentation"].get("data")
+    if data_id:
+        block["data"] = data_id
+        # The About tab renders from the fetched file's `meta`, which for a view
+        # belongs to the series it draws. Sources, licence and freshness SHOULD
+        # come from there — it is the same data — but methodology and notes are
+        # this page's own, and without this they would never render at all.
+        block["meta_overrides"] = {
+            "title": descriptor["title"],
+            "methodology": descriptor["methodology"],
+            "notes": descriptor["notes"],
+        }
     if preset:
         block["preset"] = preset
     return block

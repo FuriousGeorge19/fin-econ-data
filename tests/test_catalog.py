@@ -23,6 +23,9 @@ import series_meta
 SLUGS = catalog.slugs()
 CATALOG = catalog.load_all()
 SERIES_IDS = series_meta.ids()
+# Views (presentation.data) draw another series' data file and have none of
+# their own; tests that read a committed data/<id>.json use this list.
+DATA_OWNING_IDS = [i for i in SERIES_IDS if not series_meta.is_view(i)]
 SEEDS = {"fred", "shiller", "spglobal", "nber"}
 
 
@@ -78,7 +81,9 @@ def test_used_by_covers_every_series():
     uses = catalog.used_by()
     covered = set(itertools.chain.from_iterable(uses.values()))
     assert covered == set(SERIES_IDS)
-    assert uses[("fred", "dgs")] == ["dgs10", "spreads", "yield_curve"]
+    # tenor_history is a view of yield_curve but still declares fred/dgs as its
+    # source, so it belongs here: "used by" tracks descriptors, not data files.
+    assert uses[("fred", "dgs")] == ["dgs10", "spreads", "tenor_history", "yield_curve"]
     assert "sp500_pe" in uses[("spglobal", "sp500-index")]
     assert "usrec" in uses[("nber", "chronology")]
 
@@ -149,7 +154,7 @@ def test_meta_from_descriptor_names_descriptor_on_bad_ref():
         series_meta.meta_from_descriptor(d)
 
 
-@pytest.mark.parametrize("series_id", SERIES_IDS)
+@pytest.mark.parametrize("series_id", DATA_OWNING_IDS)
 def test_committed_data_file_sources_exist_in_catalogue(series_id, load_data):
     # Holds for both the pre-catalogue shape (inline name/licence) and the
     # resolved shape, so fixtures need not be regenerated for this change.
@@ -282,7 +287,7 @@ def test_report_lists_sources_used_by_and_via_index(capsys):
     out = capsys.readouterr().out
     hosts = next(line for line in out.splitlines() if line.startswith("fred hosts: "))
     assert "spglobal/sp500-index" in hosts.split(": ", 1)[1].split(", ")
-    assert "used by: dgs10, spreads, yield_curve" in out
+    assert "used by: dgs10, spreads, tenor_history, yield_curve" in out
     assert "blocks lacking read_from:" in out
 
 

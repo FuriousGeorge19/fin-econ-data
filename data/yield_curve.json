@@ -34,17 +34,17 @@
     ],
     "methodology": [
       "Daily par yields for all eleven standard Treasury constant-maturity tenors (1mo, 3mo, 6mo, 1yr, 2yr, 3yr, 5yr, 7yr, 10yr, 20yr, 30yr), each its own FRED H.15 series (DGS1MO\u2013DGS30), joined on date.",
-      "The snapshot chart plots one date's yields across tenors on a categorical, evenly spaced axis (Bloomberg convention), not the calendar-spaced date axis used by the other charts.",
       "The full published history is fetched, not a trailing window: DGS1, DGS3, DGS5, DGS10 and DGS20 begin 1962-01-02, and the remaining tenors phase in as Treasury began issuing them \u2014 DGS30 in 1977-02, DGS7 in 1969-07, DGS2 in 1976-06, DGS3MO/DGS6MO in 1981-09, and DGS1MO in 2001-07. A date carries only the tenors that actually reported, so an early-1960s snapshot is a five-point curve and the full eleven-point curve exists only from 2001-07."
     ],
     "notes": [
-      "The 20-year tenor (DGS20) has a gap from 2002-02-18 to 2006-02-08 while the Treasury suspended issuance of 20-year bonds; the chart leaves this gap visible rather than interpolating across it.",
+      "This page draws the curve as a snapshot: one date's yields across every tenor, on a categorical, evenly spaced axis (Bloomberg convention) rather than a calendar-spaced one. The same data plotted the other way \u2014 one tenor across every date \u2014 is \u201cTreasury Yields by Tenor\u201d, which reads this same file.",
+      "The 20-year tenor (DGS20) has a gap from 1987-01 to 1993-09 \u2014 its last value before it is 1986-12-31 and its next is 1993-10-01 \u2014 while Treasury was not issuing 20-year bonds. The chart leaves the gap visible rather than interpolating across it. **Corrected 2026-09-17**: this note previously gave the gap as 2002-02-18 to 2006-02-08, which is neither the right tenor nor the right dates \u2014 those are the 30-year bond's suspension. The error was invisible while a 6300-row fetch cap held this series' history back to roughly 2002, since the real gap falls entirely outside that window; widening the fetch to FRED's full 1962 history exposed it. Checked against a fresh FRED pull: DGS30 reports continuously across 2002-2006 and has no gap at all, and DGS20 reports continuously across it too.",
       "Values are percent, not a decimal fraction.",
       "Fetched with no row limit as of 2026-09-17. Before that the fetcher capped the request at 6300 rows sorted newest-first, which silently truncated the history to roughly 2002 \u2014 the apparent start date was an artifact of the cap, not a choice, and would have begun dropping observations off the left edge as the series grew."
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-18T00:48:21Z",
+    "fetched_at": "2026-09-18T06:48:18Z",
     "last_observation": "2026-09-16",
     "period_label": "16 Sep 2026",
     "first_observation": "1962-01-02",

@@ -48,6 +48,10 @@ def run_one(series_id, descriptor):
 def main():
     status = {}
     for series_id in series_meta.ids():
+        # Views (presentation.data) draw an existing series' data file and own
+        # no fetcher; running fetch_<id>.py for one would fail every night.
+        if series_meta.is_view(series_id):
+            continue
         descriptor = series_meta.load(series_id)
         status[series_id] = run_one(series_id, descriptor)
 

@@ -58,6 +58,7 @@ def sandbox(tmp_path):
     (js_dir / "charts").mkdir(parents=True)
     (js_dir / "charts" / "timeseries.js").write_text("export function render(el, ctx) {}\n")
     (js_dir / "charts" / "curve.js").write_text("export function render(el, ctx) {}\n")
+    (js_dir / "charts" / "tenors.js").write_text("export function render(el, ctx) {}\n")
 
     _write_json(str(pages_dir / "site.json"), {
         "name": "Test Site",
@@ -69,7 +70,8 @@ def sandbox(tmp_path):
     })
 
     def add_series(series_id, *, sections, order, chart_type="timeseries",
-                   presets=None, payload=None, publish=None):
+                   presets=None, payload=None, publish=None, data=None,
+                   write_data=True):
         presentation = {
                 "sections": sections,
                 "order": order,
@@ -80,18 +82,25 @@ def sandbox(tmp_path):
         }
         if publish is not None:
             presentation["publish"] = publish
+        # `data` makes it a view of another series (series_meta.is_view).
+        if data is not None:
+            presentation["data"] = data
         _write_json(str(series_dir / f"{series_id}.json"), {
             "id": series_id,
             "title": f"{series_id} title",
             "short_title": series_id,
             "kind": chart_type,
+            "methodology": [f"{series_id} methodology"],
+            "notes": [f"{series_id} note"],
             "presentation": presentation,
         })
-        _write_json(
-            str(data_dir / f"{series_id}.json"),
-            payload or {"meta": {"id": series_id}, "as_of": {},
-                        "observations": [{"date": "2026-01-01", "value": 1}]},
-        )
+        # A view owns no data file — that is the point of one.
+        if write_data and data is None:
+            _write_json(
+                str(data_dir / f"{series_id}.json"),
+                payload or {"meta": {"id": series_id}, "as_of": {},
+                            "observations": [{"date": "2026-01-01", "value": 1}]},
+            )
 
     add_series("alpha", sections=["economy"], order=10)
     add_series("beta", sections=["economy", "rates"], order=5)
@@ -102,11 +111,12 @@ def sandbox(tmp_path):
     return dict(
         series_dir=str(series_dir), pages_dir=str(pages_dir),
         data_dir=str(data_dir), output_dir=str(output_dir), js_dir=str(js_dir),
+        add_series=add_series,
     )
 
 
 def _build(sandbox, **overrides):
-    kwargs = dict(sandbox)
+    kwargs = {k: v for k, v in sandbox.items() if k != "add_series"}
     kwargs.update(overrides)
     return build_site.build(**kwargs)
 
@@ -317,6 +327,15 @@ def test_every_presentation_chart_type_module_and_fetcher_exist():
         module_path = os.path.join(build_site.JS_DIR, "charts", f"{chart_type}.js")
         assert os.path.isfile(module_path), f"{series_id}: missing {module_path}"
 
+        # A view (presentation.data) owns no fetcher — it draws the data file
+        # of the series it names, which has its own fetcher checked here.
+        if series_meta.is_view(descriptor):
+            assert "fetcher" not in descriptor, (
+                f"{series_id} is a view (presentation.data) but declares a fetcher; "
+                "a view has no data of its own to fetch"
+            )
+            continue
+
         fetcher = descriptor.get("fetcher", f"fetch_{series_id}.py")
         fetcher_path = os.path.join(SCRIPTS_DIR, fetcher)
         assert os.path.isfile(fetcher_path), f"{series_id}: missing {fetcher_path}"
@@ -478,3 +497,67 @@ def test_real_repo_omits_the_sp500_pe_chart(tmp_path):
     local = {os.path.relpath(p, str(tmp_path / "local")) for p in written_local}
     assert os.path.join("charts", "sp500_pe", "index.html") in local
     assert os.path.join("data", "sp500_pe.json") in local
+
+
+# ── Views: presentation.data (S11c, chart 9) ────────────────────────────────
+
+
+def test_view_block_carries_the_data_pointer_and_its_own_prose(sandbox):
+    """A view's page must tell card.js which file to fetch, and must override
+    the methodology/notes — otherwise the About tab would describe the series
+    it borrows data from instead of itself."""
+    sandbox["add_series"]("view", sections=["rates"], order=2,
+                          chart_type="tenors", data="alpha")
+    _build(sandbox)
+    page = _page_json(os.path.join(sandbox["output_dir"], "charts", "view"))
+    block = page["blocks"][0]
+    assert block["id"] == "view"
+    assert block["data"] == "alpha"
+    assert block["meta_overrides"]["methodology"] == ["view methodology"]
+    assert block["meta_overrides"]["notes"] == ["view note"]
+
+
+def test_non_view_block_has_no_data_pointer(sandbox):
+    """Every existing chart must be untouched by the view mechanism."""
+    _build(sandbox)
+    page = _page_json(os.path.join(sandbox["output_dir"], "charts", "alpha"))
+    block = page["blocks"][0]
+    assert "data" not in block
+    assert "meta_overrides" not in block
+
+
+def test_view_naming_a_missing_series_fails(sandbox):
+    sandbox["add_series"]("view", sections=["rates"], order=2, data="nope")
+    with pytest.raises(build_site.BuildError, match="presentation.data 'nope'"):
+        _build(sandbox)
+
+
+def test_view_naming_itself_fails(sandbox):
+    sandbox["add_series"]("view", sections=["rates"], order=2, data="view")
+    with pytest.raises(build_site.BuildError, match="names itself"):
+        _build(sandbox)
+
+
+def test_view_of_a_view_fails(sandbox):
+    """A chain would make the fetch target unresolvable at build time."""
+    sandbox["add_series"]("mid", sections=["rates"], order=2, data="alpha")
+    sandbox["add_series"]("view", sections=["rates"], order=3, data="mid")
+    with pytest.raises(build_site.BuildError, match="is itself a view"):
+        _build(sandbox)
+
+
+def test_published_view_of_an_unpublished_series_fails(sandbox):
+    """The deploy withholds an unpublished series' data file, so a published
+    page pointing at it would ship a card that can only 404."""
+    sandbox["add_series"]("view", sections=["rates"], order=2, data="delta")
+    with pytest.raises(build_site.BuildError, match="is unpublished"):
+        _build(sandbox)
+
+
+def test_unpublished_view_of_an_unpublished_series_is_allowed(sandbox):
+    """Both withheld together is coherent — it builds locally and ships neither."""
+    sandbox["add_series"]("view", sections=["rates"], order=2,
+                          data="delta", publish=False)
+    written = _build(sandbox, include_unpublished=True)
+    paths = {os.path.relpath(p, sandbox["output_dir"]) for p in written}
+    assert os.path.join("charts", "view", "index.html") in paths

@@ -33,6 +33,41 @@ def load(series_id):
         return json.load(f)
 
 
+def is_view(series_id_or_descriptor):
+    """True when this descriptor draws another series' data file.
+
+    A VIEW sets `presentation.data` to the id of the series that owns the data
+    (`tenor_history` → `yield_curve`): it has a page, a title and its own
+    presentation, but no fetcher, no `data/<id>.json` and no freshness of its
+    own. Introduced in S11c so chart 9 could plot the eleven DGS tenors as time
+    series without shipping a second multi-megabyte copy of the identical
+    numbers the yield-curve snapshot already downloads.
+
+    Every place that assumes "one descriptor, one data file" asks this first:
+    `fetch_all.py` (nothing to fetch), `staleness.py` (freshness belongs to the
+    source), and the tests parametrized over `ids()`.
+    """
+    descriptor = (
+        series_id_or_descriptor
+        if isinstance(series_id_or_descriptor, dict)
+        else load(series_id_or_descriptor)
+    )
+    presentation = descriptor.get("presentation") or {}
+    return presentation.get("data") is not None
+
+
+def data_id(series_id_or_descriptor):
+    """The id of the data file this descriptor's page actually fetches — its
+    own, or the series it is a view of."""
+    descriptor = (
+        series_id_or_descriptor
+        if isinstance(series_id_or_descriptor, dict)
+        else load(series_id_or_descriptor)
+    )
+    presentation = descriptor.get("presentation") or {}
+    return presentation.get("data") or descriptor["id"]
+
+
 def meta_from_descriptor(descriptor):
     """The descriptor as embedded into a data file's `meta`: a copy minus
     `presentation` (chart configuration) and `fetcher` (build-time config

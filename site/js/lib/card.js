@@ -166,7 +166,10 @@ function buildCtx({ block, data, recessions, today, controlsEl }) {
     return {
         id: block.id,
         data,
-        meta: data.meta,
+        // A view block overrides the prose that is its own (title, methodology,
+        // notes) while keeping the source series' sources, licence and cadence,
+        // which genuinely describe the shared data. See build_site.chart_block.
+        meta: block.meta_overrides ? { ...data.meta, ...block.meta_overrides } : data.meta,
         as_of: data.as_of,
         presentation: block.presentation,
         today,
@@ -195,7 +198,10 @@ export async function mount(block, today) {
     let recessions = null;
     try {
         const [seriesData, usrecData] = await Promise.all([
-            loadSeries(block.id),
+            // A view block (presentation.data) draws another series' data file
+            // rather than owning one — chart 9 reads yield_curve.json. Absent,
+            // this is the block's own id, which is every other chart.
+            loadSeries(block.data || block.id),
             chart.recessions ? loadSeries('usrec').catch(() => null) : Promise.resolve(null),
         ]);
         data = seriesData;
@@ -210,7 +216,7 @@ export async function mount(block, today) {
             aboutHTML: `
                 <div class="about-section">
                     <h3>Data unavailable</h3>
-                    <p><code>/data/${escapeHtml(block.id)}.json</code> could not be loaded
+                    <p><code>/data/${escapeHtml(block.data || block.id)}.json</code> could not be loaded
                        (${escapeHtml(err.message)}), so this chart's sources, methodology and
                        freshness — all of which are stored inside that file — can't be shown.</p>
                     <p>Every other chart on this page is unaffected. If this persists, the

@@ -1,0 +1,92 @@
+{
+  "id": "tenor_history",
+  "title": "Treasury Yields by Tenor (1962–Present)",
+  "short_title": "Yields by Tenor",
+  "kind": "timeseries",
+  "units": "Percent",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 constant-maturity series are not revised after publication.",
+  "source_line": "FRED DGS1MO–DGS30",
+  "sources": [
+    {
+      "slug": "fred",
+      "dataset": "dgs",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "tenors",
+      "label": "Treasury constant-maturity yields, all eleven tenors (DGS1MO–DGS30)",
+      "source": "fred",
+      "dataset": "dgs",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "One line per selected Treasury constant-maturity tenor, plotted against a calendar date axis. The same eleven FRED H.15 series the yield-curve snapshot uses, read from the same data file and transposed: the snapshot slices one date across every tenor, this chart slices one tenor across every date.",
+    "A tenor is drawn only on the dates it actually reported. Treasury introduced them at different times — 1-year, 3-year, 5-year, 10-year and 20-year run from 1962-01-02, the 7-year from 1969-07, the 2-year from 1976-06, the 30-year from 1977-02, the 3-month and 6-month from 1981-09, and the 1-month only from 2001-07 — and the 20-year then disappears from 1987-01 to 1993-09, while Treasury was not issuing it. Every one of those gaps is left visible rather than interpolated across. All start dates and the gap were checked against a fresh FRED pull on 2026-09-17."
+  ],
+  "notes": [
+    "Values are percent (4.25 means 4.25%), not a decimal fraction.",
+    "This page draws `data/yield_curve.json` rather than a data file of its own (`presentation.data`). The payload is roughly 16,000 dates across eleven tenors, so a second copy under this id would double a multi-megabyte download for identical numbers. Its freshness, sources and About-tab provenance are therefore the yield curve's, which is correct — it is the same data.",
+    "Selecting tenors changes only what is drawn. The Table and the CSV export always carry all eleven, since they are read after the fact and have no access to the live selection."
+  ],
+  "presentation": {
+    "data": "yield_curve",
+    "sections": [
+      "rates"
+    ],
+    "order": 14,
+    "summary": "Treasury constant-maturity yields by tenor since 1962, selectable, with NBER recessions shaded.",
+    "chart": {
+      "type": "tenors",
+      "y": {
+        "suffix": "%",
+        "format": ".2f"
+      },
+      "tenors": [
+        "1mo",
+        "3mo",
+        "6mo",
+        "1yr",
+        "2yr",
+        "3yr",
+        "5yr",
+        "7yr",
+        "10yr",
+        "20yr",
+        "30yr"
+      ],
+      "default_tenors": [
+        "3mo",
+        "2yr",
+        "10yr",
+        "30yr"
+      ],
+      "stat_tenors": [
+        "3mo",
+        "2yr",
+        "10yr",
+        "30yr"
+      ],
+      "presets": [
+        "1Y",
+        "5Y",
+        "10Y",
+        "25Y",
+        "All"
+      ],
+      "recessions": true,
+      "zeroline": false
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 30
+    }
+  }
+}

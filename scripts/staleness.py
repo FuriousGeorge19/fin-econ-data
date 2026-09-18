@@ -259,7 +259,14 @@ def check(source="local", *, today=None):
 
     if today is None:
         today = today_eastern()
-    return [check_series(series_id, source, today=today) for series_id in series_ids()]
+    from series_meta import is_view
+
+    # A view (presentation.data) has no data file of its own; its freshness is
+    # whatever the series it draws reports, which is checked under that id.
+    return [
+        check_series(series_id, source, today=today)
+        for series_id in series_ids() if not is_view(series_id)
+    ]
 
 
 if __name__ == "__main__":

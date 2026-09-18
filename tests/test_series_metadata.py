@@ -17,13 +17,23 @@ import series_meta
 from staleness import add_business_days, compute_due_by
 
 SERIES_IDS = series_meta.ids()
+# Views (presentation.data) have no data/<id>.json of their own, so tests that
+# check a committed data file against its descriptor parametrize over these.
+DATA_OWNING_IDS = [i for i in SERIES_IDS if not series_meta.is_view(i)]
 
 # ── `presentation` schema (chart-components capability, design.md decision 4) ─
 
-ALLOWED_PRESENTATION_KEYS = {"sections", "publish", "order", "summary", "chart", "stats", "table"}
+# "data" makes a descriptor a VIEW: it draws the named series' data file
+# instead of owning one (series_meta.is_view). See series/tenor_history.json.
+ALLOWED_PRESENTATION_KEYS = {
+    "sections", "publish", "order", "summary", "chart", "stats", "table", "data",
+}
 REQUIRED_PRESENTATION_KEYS = {"sections", "order", "summary", "chart"}
 ALLOWED_CHART_KEYS = {
     "type", "y", "presets", "recessions", "zeroline", "overlays", "custom_date", "traces",
+    # `tenors` chart type (chart 9): which tenors the selector offers, which
+    # start selected, and which appear in the stat row.
+    "tenors", "default_tenors", "stat_tenors",
 }
 ALLOWED_TABLE_KEYS = {"kind", "rows", "windows"}
 VALID_TABLE_KIND = {"recent", "changes"}
@@ -125,7 +135,7 @@ def test_input_sources_exist(series_id):
 
 # ── meta/as_of header contract, checked against committed data files ───────
 
-@pytest.mark.parametrize("series_id", SERIES_IDS)
+@pytest.mark.parametrize("series_id", DATA_OWNING_IDS)
 def test_meta_pipeline_owned_keys_match_descriptor(series_id, load_data):
     descriptor = series_meta.load(series_id)
     meta = load_data(series_id)["meta"]
@@ -146,7 +156,7 @@ def test_meta_pipeline_owned_keys_match_descriptor(series_id, load_data):
             )
 
 
-@pytest.mark.parametrize("series_id", SERIES_IDS)
+@pytest.mark.parametrize("series_id", DATA_OWNING_IDS)
 def test_as_of_due_by_recomputes(series_id, load_data):
     descriptor = series_meta.load(series_id)
     as_of = load_data(series_id)["as_of"]
