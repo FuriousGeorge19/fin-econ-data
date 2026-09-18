@@ -27,8 +27,8 @@ It is kept only as a cross-check, logged at fetch time.
 sp500_cape, sp500_dividend_yield and sp500_earnings_yield read straight off
 Shiller's own CAPE/D/E columns with no forward-fill of any kind: a month
 appears once Shiller publishes it, and not before. All three, like sp500_pe,
-are unpublished (presentation.publish: false) - see CLAUDE.md's Licence
-Notes on Shiller's `unknown` terms.
+are unpublished (presentation.publish: false) - see catalog/CLAUDE.md
+on Shiller's `unknown` terms.
 
 Update cadence: this script runs daily via GitHub Actions. shillerdata.com's
 `ie_data.xls` download link carries a `?ver=` cache-busting tag that changes,

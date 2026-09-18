@@ -6,7 +6,7 @@ It has no fetcher and no `data/tenor_history.json`, so these tests assert the
 view wiring and the facts its user-facing prose claims — read from
 `data/yield_curve.json`, which is what the page actually fetches.
 
-The gap facts here exist because the descriptor and CLAUDE.md both carried a
+The gap facts here exist because the descriptor and the project docs (now series/CLAUDE.md) both carried a
 wrong one until 2026-09-17 (see test_the_only_long_gap_is_the_20_year_one).
 """
 
@@ -83,7 +83,7 @@ def test_tenor_start_dates_match_the_methodology(tenor, expected, source):
 def test_the_only_long_gap_is_the_20_year_one(source):
     """Regression guard on a claim that was wrong for months.
 
-    Both series/yield_curve.json and CLAUDE.md's chart conventions recorded a
+    Both series/yield_curve.json and the chart conventions (now series/CLAUDE.md) recorded a
     "2002-2006 tenor gap" in DGS20. That is the 30-YEAR bond's suspension
     period attached to the 20-YEAR tenor, and neither series actually has a gap
     there. It survived because a 6300-row fetch cap held this series' history
@@ -104,7 +104,7 @@ def test_the_only_long_gap_is_the_20_year_one(source):
             gaps[tenor] = found
 
     assert gaps == {"20yr": [list(DGS20_GAP)]} or gaps == {"20yr": [DGS20_GAP]}, (
-        f"interior gaps changed: {gaps}. The descriptor and CLAUDE.md both describe "
+        f"interior gaps changed: {gaps}. The descriptor and series/CLAUDE.md both describe "
         "exactly one long gap (DGS20, 1987-01 to 1993-09); update them together."
     )
 

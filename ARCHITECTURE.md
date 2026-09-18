@@ -8,7 +8,7 @@ handful of charts toward the full vision described in
 
 ## Current Architecture
 
-**See `CLAUDE.md`'s Architecture section for the up-to-date description** — this
+**See `CLAUDE.md`'s Data flow and Map, and `HOW-IT-WORKS.md`, for the up-to-date description** — this
 document tracks the *evolution*, not the current state, and the diagram that used to
 live here (a single `site/index.html`, one tab per series) was retired by the
 `s5-chart-components` rebuild (S6a→S7c, 2026-09-13–14; see the Decision Log). In
@@ -23,20 +23,35 @@ The notes below describe when and why each remaining piece will need to evolve.
 
 ---
 
+## Tech choices, and what each was chosen over
+
+- **Plotly.js**, not matplotlib: interactive in the browser, dropdowns and tabs native.
+- **A static site**, not Streamlit: full control of the UI, free hosting, a custom domain, no server to maintain.
+- **GitHub Actions**, not a cron server: free, reliable, no infrastructure.
+- **Vanilla JS as native ES modules**, no framework, no bundler: a chart type is one module, per-series config is JSON.
+- **No database**: JSON files suffice at this scale; SQLite or similar is easy to add later if it stops sufficing (§9).
+
 ## Planned Charts (from fixed-income-charts-conversation.md)
 
 | # | Chart | Key Data | Status |
 |---|-------|----------|--------|
 | 1 | Yield curve snapshot with overlays | DGS series (11 tenors) | **Done** |
 | 2 | 10y-2y and 10y-3m spreads + recession shading | GS10, GS2, TB3MS, USREC | **Done** |
-| 3 | Fed Funds rate, long history | FEDFUNDS, USREC | Planned |
-| 4 | 10-year nominal yield, ultra-long (1871+) | GS10 + Shiller long bond | Planned |
-| 5 | Ex-post real short rate (3mo − CPI) | TB3MS, CPIAUCSL, USREC | Planned |
-| 6 | Breakeven inflation (10yr) | T10YIE | Planned |
-| 7 | Equity risk premium | S&P earnings yield, DFII10, USREC | Planned |
-| 8 | Credit spreads (IG + HY OAS) | BAMLC0A0CM, BAMLH0A0HYM2, USREC | Planned |
-| 9 | Multi-tenor time series (selectable) | DGS series (already fetched) | Planned |
-| 10 | TIPS real yield curve snapshot | DFII5/7/10/20/30 | Planned |
+| 3 | Fed Funds rate, long history | FEDFUNDS, USREC | **Done** 2026-09-17 (`fedfunds`) |
+| 4 | 10-year nominal yield, ultra-long (1871+) | GS10 + Shiller long bond | **Done** 2026-09-17 (`gs10_long`) |
+| 5 | Ex-post real short rate (3mo − CPI) | TB3MS, CPIAUCSL, USREC | **Done** 2026-09-17 (`real_short_rate`) |
+| 6 | Breakeven inflation (10yr) | T10YIE | **Done** 2026-09-17 (`breakeven_10y`) |
+| 7 | Equity risk premium | CAPE yield, GS10 − EXPINF10YR, USREC | **Done** 2026-09-17 (`equity_risk_premium`, unpublished — S&P terms) |
+| 8 | Credit spread across investment grade | Moody's BAA − AAA (rescoped off ICE BofA: restricted terms, three-year window), USREC | **Done** 2026-09-17 (`credit_spread_baa_aaa`) |
+| 9 | Multi-tenor time series (selectable) | DGS series (a view over `yield_curve`) | **Done** 2026-09-17 (`tenor_history`) |
+| 10 | TIPS real yield curve snapshot | DFII5/7/10/20/30 | **Done** 2026-09-17 (`tips_curve`) |
+| 11 | "What can I earn" yields grid | DFF, SOFR, DGS*, DFII*, HQMCB* | **Done** 2026-09-18 (`yields_table`) |
+
+The roadmap is complete as of S11d; what comes next (items 12–19, the "is the bond hedge
+working?" set, then new domains) is in the Obsidian Session Plan. Beyond it, the user's
+standing wish list: Kenneth French factors (Dartmouth), SEC EDGAR, more FRED series
+(unemployment, CPI), more chart types and derived metrics. Sources are catalogued under
+`catalog/sources/` before any of these is built.
 
 ---
 

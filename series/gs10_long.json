@@ -50,7 +50,7 @@
     "Values are percent (4.25 means 4.25%), not a decimal fraction.",
     "Every observation carries `source` (\"shiller\" or \"fred\") and `frequency` (\"monthly\") — the per-observation metadata pattern this chart establishes for future stitched series. site/js/charts/timeseries.js shows the source in each point's tooltip.",
     "The Shiller input's `publication_lag_business_days` is nominal and `required` is false: 1871-01–1953-03 is a fixed historical range that never advances, so it never gates the dataset's overall `due_by` — only the FRED leg does.",
-    "Decided 2026-09-17 (user): this column has no S&P component, so it publishes even though the rest of Shiller's workbook (price, dividends, earnings, CAPE) stays local-only pending S&P's terms. See CLAUDE.md's Licence Notes and catalog/sources/shiller.json."
+    "Decided 2026-09-17 (user): this column has no S&P component, so it publishes even though the rest of Shiller's workbook (price, dividends, earnings, CAPE) stays local-only pending S&P's terms. See catalog/CLAUDE.md and catalog/sources/shiller.json."
   ],
   "presentation": {
     "sections": [

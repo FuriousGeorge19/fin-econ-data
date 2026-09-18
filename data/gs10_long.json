@@ -1,7 +1,7 @@
 {
   "meta": {
     "id": "gs10_long",
-    "title": "10-Year Treasury Yield, Long History (1871\u2013Present)",
+    "title": "10-Year Treasury Yield, Long History (1871–Present)",
     "short_title": "10Y Yield, 1871+",
     "kind": "timeseries",
     "units": "Percent",
@@ -9,16 +9,16 @@
     "publication_lag_business_days": 1,
     "revisions": "none",
     "revision_note": "FRED's H.15 monthly average (the 1953-04+ leg) is not revised after publication. The pre-1953 leg is a one-time historical compilation from Shiller/Yale's own long-term interest rate column; the site re-downloads his workbook on every fetch, so a correction there would appear on the next run, but none is expected.",
-    "source_line": "Shiller/Yale \u00b7 FRED GS10",
+    "source_line": "Shiller/Yale · FRED GS10",
     "sources": [
       {
         "slug": "shiller",
         "short_name": "Shiller/Yale",
         "dataset": "ie-data",
-        "name": "Robert J. Shiller (Yale) \u2014 U.S. Stock Markets 1871\u2013Present and CAPE Ratio",
-        "dataset_name": "U.S. stock markets 1871\u2013present and CAPE, monthly",
+        "name": "Robert J. Shiller (Yale) — U.S. Stock Markets 1871–Present and CAPE Ratio",
+        "dataset_name": "U.S. stock markets 1871–present and CAPE, monthly",
         "url": "http://www.econ.yale.edu/~shiller/data.htm",
-        "licence": "Free download; no published terms on the Yale data page or shillerdata.com. Asked by email, Shiller's index advisor answered on 2026-09-17 that Shiller does not license the CAPE ratio, does not own its S&P components, and that S&P's wishes govern \u2014 so the S&P-derived columns (price, dividends, earnings, CAPE) follow S&P Dow Jones Indices' terms",
+        "licence": "Free download; no published terms on the Yale data page or shillerdata.com. Asked by email, Shiller's index advisor answered on 2026-09-17 that Shiller does not license the CAPE ratio, does not own its S&P components, and that S&P's wishes govern — so the S&P-derived columns (price, dividends, earnings, CAPE) follow S&P Dow Jones Indices' terms",
         "terms_status": "unknown"
       },
       {
@@ -35,7 +35,7 @@
     "inputs": [
       {
         "id": "shiller",
-        "label": "Pre-1953 long-term interest rate (Shiller/Yale's \"Rate GS10\" column, 1871\u20131953)",
+        "label": "Pre-1953 long-term interest rate (Shiller/Yale's \"Rate GS10\" column, 1871–1953)",
         "source": "shiller",
         "dataset": "ie-data",
         "cadence": "monthly",
@@ -44,7 +44,7 @@
       },
       {
         "id": "fred",
-        "label": "10-Year Treasury Constant Maturity Rate, monthly average (FRED GS10, 1953\u2013present)",
+        "label": "10-Year Treasury Constant Maturity Rate, monthly average (FRED GS10, 1953–present)",
         "source": "fred",
         "dataset": "gs",
         "series_id": "GS10",
@@ -53,15 +53,15 @@
       }
     ],
     "methodology": [
-      "1871-01 through 1953-03: Shiller/Yale's own long-term interest rate column (\"Rate GS10\" in ie_data.xls), read from the maintained shillerdata.com copy. Shiller's own documentation of how this column is built pre-1953 could not be located on his data pages or in the workbook itself (see catalog/sources/shiller.json); it is widely cited in finance literature as Sidney Homer's \"A History of Interest Rates\" spliced with the Treasury 10-year series from 1953 \u2014 consistent with, though not confirmed by, the exact value agreement at the seam (both legs read 2.83 for 1953-03/1953-04).",
-      "1953-04 onward: FRED's GS10, the monthly average of the daily H.15 constant-maturity 10-year yield \u2014 FRED's earliest published month for this series.",
+      "1871-01 through 1953-03: Shiller/Yale's own long-term interest rate column (\"Rate GS10\" in ie_data.xls), read from the maintained shillerdata.com copy. Shiller's own documentation of how this column is built pre-1953 could not be located on his data pages or in the workbook itself (see catalog/sources/shiller.json); it is widely cited in finance literature as Sidney Homer's \"A History of Interest Rates\" spliced with the Treasury 10-year series from 1953 — consistent with, though not confirmed by, the exact value agreement at the seam (both legs read 2.83 for 1953-03/1953-04).",
+      "1953-04 onward: FRED's GS10, the monthly average of the daily H.15 constant-maturity 10-year yield — FRED's earliest published month for this series.",
       "The two legs are compared at the seam on every fetch (fetch_gs10_long.py's check_seam) and a divergence beyond 0.10 percentage points is logged, not enforced, since Shiller could restate his historical column independently of FRED."
     ],
     "notes": [
       "Values are percent (4.25 means 4.25%), not a decimal fraction.",
-      "Every observation carries `source` (\"shiller\" or \"fred\") and `frequency` (\"monthly\") \u2014 the per-observation metadata pattern this chart establishes for future stitched series. site/js/charts/timeseries.js shows the source in each point's tooltip.",
-      "The Shiller input's `publication_lag_business_days` is nominal and `required` is false: 1871-01\u20131953-03 is a fixed historical range that never advances, so it never gates the dataset's overall `due_by` \u2014 only the FRED leg does.",
-      "Decided 2026-09-17 (user): this column has no S&P component, so it publishes even though the rest of Shiller's workbook (price, dividends, earnings, CAPE) stays local-only pending S&P's terms. See CLAUDE.md's Licence Notes and catalog/sources/shiller.json."
+      "Every observation carries `source` (\"shiller\" or \"fred\") and `frequency` (\"monthly\") — the per-observation metadata pattern this chart establishes for future stitched series. site/js/charts/timeseries.js shows the source in each point's tooltip.",
+      "The Shiller input's `publication_lag_business_days` is nominal and `required` is false: 1871-01–1953-03 is a fixed historical range that never advances, so it never gates the dataset's overall `due_by` — only the FRED leg does.",
+      "Decided 2026-09-17 (user): this column has no S&P component, so it publishes even though the rest of Shiller's workbook (price, dividends, earnings, CAPE) stays local-only pending S&P's terms. See catalog/CLAUDE.md and catalog/sources/shiller.json."
     ]
   },
   "as_of": {

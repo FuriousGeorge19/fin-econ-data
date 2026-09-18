@@ -112,6 +112,6 @@
     "by": "Claude (S9 workflow agent umich-surveys): FRED API /fred/series for MICH and UMCSENT (observation_start, frequency, notes); FRED series pages https://fred.stlouisfed.org/series/MICH and https://fred.stlouisfed.org/series/UMCSENT (copyright tag); data.sca.isr.umich.edu (site description and access); data.sca.isr.umich.edu/agreement.php (usage agreement quote); sca.isr.umich.edu checked and found not to resolve (no DNS record), so it is not cited"
   },
   "notes": [
-    "This repo's CLAUDE.md (Licence Notes, written 2026-09-14) lists 'University of Michigan MICH' among FRED's third-party 'Pre-approval required' series needing the owner's permission beyond personal use. This session re-checked both MICH and UMCSENT's FRED series pages directly and found the copyright tag on each is 'Copyrighted: Citation Required', not 'Pre-Approval Required' — flagged here rather than silently overridden; the CLAUDE.md line may need correcting."
+    "This repo's CLAUDE.md as of 2026-09-14 (now CHANGELOG.md's frozen Licence Notes) lists 'University of Michigan MICH' among FRED's third-party 'Pre-approval required' series needing the owner's permission beyond personal use. This session re-checked both MICH and UMCSENT's FRED series pages directly and found the copyright tag on each is 'Copyrighted: Citation Required', not 'Pre-Approval Required' — flagged here rather than silently overridden; the CLAUDE.md line may need correcting."
   ]
 }

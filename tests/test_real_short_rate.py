@@ -90,7 +90,7 @@ def test_compute_real_short_rate_only_where_both_legs_exist():
 
 # ── Known historical episodes (no network) ──────────────────────────────────
 # The chart's stated reason for existing: these three episodes must actually
-# show up as the loud outliers CLAUDE.md's notes describe.
+# show up as the loud outliers the descriptor's notes describe.
 
 def test_late_1940s_financial_repression_is_deeply_negative(real_short_rate):
     by_date = {o["date"]: o["value"] for o in real_short_rate["observations"]}

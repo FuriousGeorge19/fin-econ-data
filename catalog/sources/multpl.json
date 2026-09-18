@@ -74,6 +74,6 @@
     "by": "Claude (S9 workflow agent eps-replacement): read multpl.com homepage, /s-p-500-pe-ratio/table/by-month, /s-p-500-earnings/table/by-month, /s-p-500-earnings for cadence/coverage/source description and searched the site and the web for a terms/disclaimer page"
   },
   "notes": [
-    "Surveyed as a candidate replacement for the discontinued S&P Global EPS workbook (see fin-econ-data/CLAUDE.md 'S&P 500 P/E — Quarterly Earnings Update' section). Not adopted: no CSV/API (HTML-scrape only), no terms statement to establish reuse rights, and its earnings figures are inflation-adjusted rather than nominal as-reported EPS. Ranked against other candidates in the S9 research log (see catalog/research-log.md, 2026-09-15 entries)."
+    "Surveyed as a candidate replacement for the discontinued S&P Global EPS workbook (see fin-econ-data/CHANGELOG.md's frozen 'S&P 500 P/E — Earnings Data' section). Not adopted: no CSV/API (HTML-scrape only), no terms statement to establish reuse rights, and its earnings figures are inflation-adjusted rather than nominal as-reported EPS. Ranked against other candidates in the S9 research log (see catalog/research-log.md, 2026-09-15 entries)."
   ]
 }

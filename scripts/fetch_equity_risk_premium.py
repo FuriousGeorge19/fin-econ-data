@@ -26,7 +26,7 @@ Monthly. Starts 1982-01, the first month all three legs exist.
 is 1/CAPE, and CAPE is built from S&P's price and earnings columns in Shiller's
 workbook. S&P DJI declined free permission on 2026-09-15 with "not the P/E
 values" excluded even from the paid licence, and Shiller's side deferred to S&P
-on 2026-09-17. Settled, not pending — see CLAUDE.md's Licence Notes.
+on 2026-09-17. Settled, not pending — see catalog/CLAUDE.md.
 
 CAPE is re-read from Shiller's workbook here rather than from
 `data/sp500_cape.json`: `scripts/fetch_all.py` runs fetchers as independent

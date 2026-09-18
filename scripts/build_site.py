@@ -22,7 +22,7 @@ generator is asked for it (`--include-unpublished`, which `scripts/dev.sh`
 passes): no chart page, no entry on a section or curated page, no nav link
 and no copied data file. That is how a series whose source terms forbid
 republication stays viewable locally without being deployed — see
-`catalog/sources/spglobal.json` and CLAUDE.md's "Unpublished series".
+`catalog/sources/spglobal.json` and HOW-IT-WORKS.md's "Unpublished series".
 
 Rerun after editing a descriptor's `presentation`, adding a series, or
 editing a page manifest. `scripts/dev.sh` and the deploy workflow both call

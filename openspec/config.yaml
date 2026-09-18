@@ -2,12 +2,12 @@ schema: spec-driven
 
 context: |
   Static financial/economic data site deployed to GitHub Pages at joemirza.com.
-  Stack: Python stdlib + pandas (no requirements.txt yet), vanilla JS as native ES
+  Stack: Python stdlib (pandas/xlrd/openpyxl only for the Shiller fetcher; requirements-test.txt for the tests), vanilla JS as native ES
   modules, Plotly.js from the CDN, GitHub Actions for daily data refresh. No JavaScript
   toolchain (no npm, no bundler, no transpiler). No framework. No backend. A stdlib
   Python generator (scripts/build_site.py) stamps the site's pages from series/*.json
-  and pages/*.json — decided in S5 (2026-09-13); until the S7 cutover the old
-  single-file site/index.html is still what is deployed at /.
+  and pages/*.json — decided in S5 (2026-09-13), cut over 2026-09-14 (S7c); the old
+  single-file site/index.html is gone.
 
   Data flow per source: scripts/fetch_<name>.py → data/<name>.json → site/data/<name>.json
   → one card per series on generated pages (site/charts/<id>/, site/<section>/, /),

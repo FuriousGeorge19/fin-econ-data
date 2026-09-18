@@ -13,7 +13,7 @@
     "auth": "none",
     "notes": [
       "The index page and S&P DJI's pages return HTTP 403 to automated fetches (WebFetch, and curl with a browser user-agent, on 2026-09-14 and 2026-09-15); read them in a browser. Read in Claude in Chrome on 2026-09-15: the terms URL catalogued in S8 (https://www.spglobal.com/spdji/en/terms-of-use/) is a 404 page, so the 403 was hiding a dead link. S&P DJI's footer links to its Legal Disclaimer page (https://www.spglobal.com/spdji/en/disclaimers/, which carries the reproduction terms for index data) and to S&P Global's corporate Terms of Use (https://www.spglobal.com/en/terms-of-use, whose copying restriction is about credit ratings).",
-      "The workbook is committed as reference_resources/sp-500-eps-est.xlsx and turned into data/earnings_overrides.json by scripts/build_earnings_overrides.py (see CLAUDE.md, quarterly update).",
+      "The workbook is committed as reference_resources/sp-500-eps-est.xlsx and turned into data/earnings_overrides.json by scripts/build_earnings_overrides.py (see CHANGELOG.md's frozen 'S&P 500 P/E — Earnings Data' section, quarterly update).",
       "The index page's Additional Info section, expanded in a browser on 2026-09-15, lists four documents: At a Glance: SPIVA After-Tax Scorecard; S&P 500® The Gauge of the U.S. Large-Cap Market; S&P 500 GICS Scorecard; S&P 500 Stock Buybacks. No earnings workbook is listed. A search index still shows https://www.spglobal.com/spdji/en/documents/additional-material/sp-500-eps-est.xlsx, which returns 403 to curl; it was not downloaded, so whether that URL serves anything after the 31 Jan 2026 discontinuation is unconfirmed."
     ],
     "read_from": [

@@ -35,15 +35,15 @@ is a set of generated HTML pages plus JSON data files, served directly by GitHub
 free hosting service (GitHub Pages).
 
 A **GitHub Actions workflow** runs on a schedule (weekday evenings). It fetches fresh
-data for five datasets from three different sources, runs the correctness test suite,
+data for every dataset that has a descriptor under `series/`, runs the correctness test suite,
 **generates the site** from that data plus a set of hand-maintained descriptors, and
 deploys the result to GitHub Pages.
 
-Four of the five datasets are published. The fifth, the S&P 500 P/E, is fetched and
-built like the others but deliberately left out of the deploy: S&P Dow Jones Indices
-licenses public display of its index values and declined free permission on
-2026-09-15, so the chart exists only in a local build (see "Unpublished series"
-below).
+Most datasets are published. A few — the S&P 500 P/E and the other series built from
+the S&P columns of Shiller's workbook — are fetched and built like the others but
+deliberately left out of the deploy: S&P Dow Jones Indices licenses public display of
+its index values and declined free permission on 2026-09-15, so those charts exist only
+in a local build (see "Unpublished series" below).
 
 The key structural idea, carried over from the original build and sharpened by the
 rebuild: **data fetching** (Python, runs in GitHub's cloud) is separate from **how a
@@ -55,7 +55,7 @@ Three layers, each replaceable without touching the other two.
 
 ## The Data Pipeline
 
-### Five datasets, one shape
+### Every dataset, one shape
 
 | id | Source | Cadence | Fetcher |
 |---|---|---|---|
@@ -65,12 +65,16 @@ Three layers, each replaceable without touching the other two.
 | `spreads` | FRED (DGS10, DGS2, DGS3MO), computed | Daily | `scripts/fetch_spreads.py` |
 | `usrec` | FRED (USREC) | Monthly, collapsed to intervals | `scripts/fetch_usrec.py` |
 
+Those were the first five. Every descriptor under `series/` follows the same pattern —
+`ls series/` is the current list, and each fetcher's docstring says what it writes.
+
 `sp500_pe` is fetched on the same schedule as the rest, but never deployed — see
 "Unpublished series" under The Site Generator.
 
-Each fetcher is a standard Python script — four of the five use only the standard
+Each fetcher is a standard Python script — all but the Shiller fetcher use only the standard
 library; `fetch_sp500_pe.py` also needs `pandas`, `xlrd` and `openpyxl` to read
-Shiller's Excel file and the S&P Global earnings workbook. None of the scripts import
+Shiller's Excel workbook (the discontinued S&P Global EPS workbook is read only by the
+manual fallback `build_earnings_overrides.py`). None of the scripts import
 each other's business logic directly, but `fetch_spreads.py`, `fetch_yield_curve.py`
 and `fetch_treasury.py` all share `scripts/fred_utils.py` for the actual FRED API call
 (URL construction, the `FRED_API_KEY` env var, `"."`-as-missing filtering, retry).
@@ -98,7 +102,7 @@ it gets a page on the site. A descriptor holds:
 
 `scripts/series_meta.py` provides `ids()` (every descriptor id) and `load(id)` (the
 parsed descriptor) to every fetcher and to the test suite, so nothing hand-maintains a
-second copy of "which five datasets exist."
+second copy of "which datasets exist."
 
 ### What a fetcher writes: `data/<id>.json`
 
@@ -140,7 +144,7 @@ Every fetcher writes `meta` + `as_of` + a payload, computed by
   cadences and one is `status: discontinued`) has a per-input breakdown inside
   `as_of.inputs` instead of one flat `as_of`.
 
-### `scripts/fetch_all.py`: one runner, not five workflow steps
+### `scripts/fetch_all.py`: one runner, not one workflow step per series
 
 Rather than the workflow calling each fetcher as its own step, `scripts/fetch_all.py`
 loops over `series_meta.ids()`, runs each one's fetcher (its `fetcher` key, or
@@ -153,7 +157,8 @@ writes `data/fetch_status.json` (`{id: {ok, returncode, seconds}}`) and always e
 ### The source catalogue
 
 `catalog/sources/<slug>.json` is the inventory of where data comes from — one file per
-rights holder (`fred`, `shiller`, `spglobal`, `nber` so far). Each records how to reach
+rights holder (`ls catalog/sources/` for the current set; `python3 scripts/catalog.py
+report` prints what each provides and which series use it). Each records how to reach
 the source (`access`: method, URL, format, auth, quirks), under what terms (`terms`: a
 one-sentence summary for the About tab, a `status` of `verified` / `restricted` /
 `unverified` / `unknown`, the terms page and a verbatim quote), and what it offers
@@ -232,10 +237,18 @@ generator is caught before the deploy step, not after.
 - `order`: sort key within a section.
 - `summary`: one line shown under the chart's title.
 - `chart.type`: resolves to `site/js/charts/<type>.js`. Built-in: `timeseries`
-  (generic time-series traces) and `curve` (the yield-curve snapshot). A custom
-  module is named after the series id it serves (`sp500_pe`).
+  (generic time-series traces), `curve` (a tenor snapshot — the Treasury and TIPS
+  curves both use it), `tenors` (selectable tenors over time) and `yields_table` (an
+  HTML grid, not a Plotly chart). A custom module is named after the series id it
+  serves (`sp500_pe`).
 - `stats` / `table`: whether the card shows a stats row and/or a table, and (for
   `table`) which kind.
+- `publish: false`: built but not deployed (next section).
+- `data: "<id>"`: a **view** — a page drawn from another series' data file, with no
+  fetcher and no data file of its own (`tenor_history` plots `yield_curve`'s eleven
+  tenors as time series). The About tab shows the source's sources and freshness but
+  the view's own title, methodology and notes.
+- `size: "full"`: overrides the width a grid or manifest asked for (`yields_table`).
 
 A descriptor with no `presentation` key gets no page and no nav entry at all — this
 is how `usrec` stays a shared, page-less dataset.
@@ -251,15 +264,22 @@ series from all five. A curated manifest that still names the chart has that blo
 skipped rather than failing the build, so re-publishing is one flag away and
 `pages/home.json` needs no edit.
 
+Where an unpublished chart could live *for the user* is undecided. A password on the site
+would not do it by itself: the repo is public, `gh-pages` carries the data, and GitHub
+Pages cannot gate access below Enterprise Cloud — gating means a private repo deploying
+to a host that can (Cloudflare Access was the worked example).
+
 `build_site.py --include-unpublished` keeps it, and `scripts/dev.sh` passes that flag,
 so an unpublished chart is normal to work on locally.
 
-Today this applies to one series, `sp500_pe`: the price behind the ratio is FRED's
-monthly average of S&P 500 closes and the earnings come from S&P's own workbook, and
-S&P Dow Jones Indices answered a permission request on 2026-09-15 (case 01015670) by
-quoting US$8,000/year for a Web Display Agreement covering index levels "but not the
-P/E values". `tests/test_build_site.py` asserts the real repo builds without it, and
-builds with it when asked.
+This applies to `sp500_pe` and to every other series built from the S&P columns of
+Shiller's workbook (`sp500_cape`, `sp500_dividend_yield`, `sp500_earnings_yield`, and
+the equity risk premium, whose equity leg is 1/CAPE). S&P Dow Jones Indices answered a
+permission request on 2026-09-15 (case 01015670) by quoting US$8,000/year for a Web
+Display Agreement covering index levels "but not the P/E values", and Shiller's side
+said on 2026-09-17 that it licenses nothing and defers to S&P. `LICENCE_RESTRICTED` in
+`tests/test_build_site.py` names each one with its reason and asserts the real repo
+builds without them, and builds with them when asked.
 
 ### Every page is a thin shell
 
@@ -337,15 +357,22 @@ toggles).
 
 ### Chart types: `site/js/charts/`
 
-- **`timeseries.js`** — the generic type `dgs10` and `spreads` both use. Derives one
+- **`timeseries.js`** — the generic type most series use (`dgs10`, `spreads`,
+  `fedfunds`, `gs10_long`, …). Derives one
   trace per key from a `series`-shaped payload, or one trace from an
   `observations`-shaped payload, with no path adapter; supports recession shading,
-  a zero line, and two table kinds (`recent`, `changes`).
+  a zero line, and two table kinds (`recent`, `changes`). When an observation carries
+  a `source` (a stitched series like `gs10_long`), the hover names it.
 - **`curve.js`** — the yield-curve type. Categorical, evenly-spaced tenor axis
   (Bloomberg convention); overlay toggle buttons and a custom date picker as
-  *closure-scoped* per-mount state (never module-level, so a future second curve
-  mount on one page — e.g. nominal and TIPS — stays independent); redraws via
-  `Plotly.react` rather than a fresh plot on every toggle.
+  *closure-scoped* per-mount state (never module-level, which is what lets the
+  Treasury curve and the TIPS curve sit on `/rates/` together with independent
+  overlays); redraws via `Plotly.react` rather than a fresh plot on every toggle.
+- **`tenors.js`** — selectable Treasury tenors as time series (`tenor_history`, a view
+  over `yield_curve`'s data): one trace per tenor, a selector as closure state, the
+  last selected tenor cannot be switched off.
+- **`yields_table.js`** — the "what can I earn" grid: HTML, not Plotly, with a
+  per-row as-of stamp and a dagger on any cell lagging its row.
 - **`sp500_pe.js`** — the one chart with logic too bespoke for `timeseries`: a solid
   confirmed-earnings trace and a dashed estimated trace (prepended with the last
   confirmed point so the dash visually connects), a long-term-average stat, and
@@ -457,6 +484,8 @@ Pages:
 | A | *(root)* | 185.199.111.153 | Redundancy |
 | CNAME | www | FuriousGeorge19.github.io | `www.joemirza.com` support |
 
+The domain's MX and TXT records (email, SPF) were left untouched when these were added.
+
 GitHub matches the `Host` header of an incoming request against the `CNAME` file on
 `gh-pages` and serves that branch's content.
 
@@ -521,38 +550,33 @@ affect the others on the same page.
 ```
 fin-econ-data/
 ├── .github/workflows/update-data.yml   Daily fetch + build + deploy
-├── data/                                Raw fetcher output (test fixtures on main;
-│   ├── dgs10.json                       gh-pages is the deploy history — see above)
-│   ├── sp500_pe.json
-│   ├── yield_curve.json
-│   ├── spreads.json
-│   ├── usrec.json
-│   └── earnings_overrides.json          Manually maintained input, not a fetcher output
+├── CLAUDE.md                            Context for Claude Code sessions (short; loads every session)
+├── CHANGELOG.md                         Per-session record, newest first (not auto-loaded)
+├── ARCHITECTURE.md                      Evolution triggers, decision log, the original roadmap
+├── HOW-IT-WORKS.md                      This file
+├── data/                                Raw fetcher output, one <id>.json per data-owning
+│   └── earnings_overrides.json          descriptor (test fixtures on main; gh-pages is the
+│                                        deploy history — see above). The overrides file is a
+│                                        manually maintained input kept as a fallback, not output
 ├── series/                              One hand-maintained descriptor per dataset
-│   ├── dgs10.json                       (meta fields + an optional presentation block)
-│   ├── sp500_pe.json
-│   ├── yield_curve.json
-│   ├── spreads.json
-│   └── usrec.json                       No presentation — data-only, no page
+│   └── CLAUDE.md                        (meta fields + optional presentation block); rules
 ├── pages/
 │   ├── site.json                        Site name + the three sections
 │   └── home.json                        Curated manifest for /
 ├── catalog/                             The source inventory
 │   ├── README.md                        Rules + field table (what a research agent reads)
-│   ├── sources/                         One file per rights holder (30 as of S9:
-│   │   │                                 FRED, Treasury, Shiller, S&P, NBER, ICE BofA,
-│   │   │                                 Damodaran, French, FRB, FDIC, OFR, … plus
-│   │   └── …                             eleven role:reference chartbooks)
+│   ├── CLAUDE.md                        Rules + where the terms stand
+│   ├── sources/<slug>.json              One file per rights holder (`ls` for the current set)
 │   └── research-log.md                  Productive searches, newest first
 ├── scripts/
-│   ├── fetch_treasury.py, fetch_sp500_pe.py, fetch_yield_curve.py,
-│   │   fetch_spreads.py, fetch_usrec.py    One fetcher per dataset
+│   ├── fetch_<id>.py                    One fetcher per data source (docstring says what it writes)
 │   ├── fetch_all.py                     Runs every fetcher, non-fatal per series
 │   ├── build_site.py                    The site generator
 │   ├── catalog.py                       Catalogue validator / resolver / report
-│   ├── series_meta.py, staleness.py,
-│   │   build_earnings_overrides.py, fred_utils.py    Shared helpers
-│   └── dev.sh                           Local iteration loop
+│   ├── series_meta.py, staleness.py, fred_utils.py,
+│   │   build_earnings_overrides.py      Shared helpers (the last a manual fallback only)
+│   ├── dev.sh                           Local iteration loop
+│   └── CLAUDE.md                        Fetcher conventions
 ├── site/
 │   ├── css/
 │   │   ├── site.css                     Committed — nav, card grid, chrome
@@ -560,56 +584,59 @@ fin-econ-data/
 │   ├── js/
 │   │   ├── app.js                       Committed — page entry point
 │   │   ├── lib/                         Committed — shared runtime (card.js, etc.)
-│   │   └── charts/                      Committed — chart-type modules
+│   │   ├── charts/                      Committed — one module per chart type
+│   │   └── CLAUDE.md                    Runtime rules
 │   ├── data/                            GENERATED, gitignored
 │   └── **/index.html                    GENERATED, gitignored (every page)
-├── tests/                                Pytest correctness suite
-├── openspec/                             Design history (specs, changes, archive)
-├── .gitignore
-├── CLAUDE.md                             Context file for Claude Code sessions
-└── HOW-IT-WORKS.md                       This file
+├── tests/                               Pytest correctness suite (+ CLAUDE.md: what each file guards)
+├── reference_resources/                 Planning inputs; historical
+├── openspec/                            Capability specs (the rules' authority) + archived changes
+└── .gitignore
 ```
 
 ---
 
 ## How to Add a New Data Series
 
-The whole point of the rebuild was making this file-additive for the common case.
+The whole point of the rebuild was making this file-additive for the common case. The
+recipe itself is kept in `CLAUDE.md` ("Adding things") and the detail in `series/CLAUDE.md`,
+so it is stated once; in outline:
 
-### 1. Fits an existing chart type (`timeseries` or `curve`) — most series will
-
-1. **Write `series/<id>.json`**: the metadata fields (title, units, cadence, sources,
-   methodology, notes) plus a `presentation` block — `sections`, `order`, `summary`,
-   `chart` (`type` + options; see `timeseries.js`'s payload convention above), `stats`,
-   `table`.
-2. **Write `scripts/fetch_<id>.py`** (or reuse an existing script via a `"fetcher"`
-   key, as `dgs10` does).
+0. **Catalogue entry.** A public-domain FRED series needs a `datasets[]` entry in
+   `catalog/sources/fred.json`; a new rights holder needs its own file. Run
+   `python3 scripts/catalog.py check` until it prints nothing. A descriptor whose source
+   reference does not resolve fails at fetch time.
+1. **Write `series/<id>.json`**: the metadata fields plus a `presentation` block —
+   `sections`, `order`, `summary`, `chart` (`type` + options; see `timeseries.js`'s payload
+   convention above), `stats`, `table`, and if needed `publish`, `data` or `size`.
+2. **Write `scripts/fetch_<id>.py`** (or reuse an existing script via a `"fetcher"` key,
+   as `dgs10` does).
 3. **Write `tests/test_<id>.py`** and run the fetcher once locally to produce a
    `data/<id>.json` fixture.
-4. **Run `python3 scripts/build_site.py`.** The chart's page, its entries on every
-   section page it's assigned to, and the nav are all derived from the descriptor —
-   no workflow edit, no HTML file, no nav edit needed.
+4. **Run `python3 scripts/build_site.py`.** The chart's page, its entries on every section
+   page it's assigned to, and the nav are all derived from the descriptor — no workflow
+   edit, no HTML file, no nav edit needed.
 
-Curating the new series onto `/` (or a future composite page) is a separate,
-deliberate edit to `pages/*.json` — never automatic.
+Curating the new series onto `/` (or a future composite page) is a separate, deliberate
+edit to `pages/*.json` — never automatic.
 
-### 2. Needs a genuinely new chart type
+**A view** — a page over data another series already downloads — is a descriptor with
+`presentation.data: "<id>"` and no fetcher (`tenor_history` over `yield_curve`).
 
-Only necessary when the drawing logic can't be expressed as `timeseries`/`curve`
-config — write `site/js/charts/<type>.js` exporting `render(el, ctx)` and optional
-pure `stats`/`table`/`csv`. Read `timeseries.js` or `curve.js` first as a worked
-example, and follow the same rules every type must: no module-level mutable state, no
-`document.getElementById`, no colour literal, and never set Plotly `margin`/legend
-position/`rangeslider`/height directly (call `baseLayout()` from
-`site/js/lib/plotly-layout.js` instead). `tests/test_build_site.py` greps for
-violations of the last three.
+**A genuinely new chart type** is only necessary when the drawing logic can't be expressed
+as config for `timeseries`, `curve` or `tenors`: write `site/js/charts/<type>.js` exporting
+`render(el, ctx)` and optional pure `stats`/`table`/`csv`. Read `timeseries.js` or
+`curve.js` first as a worked example, and follow the rules in `site/js/CLAUDE.md` (no
+module-level mutable state, no `document.getElementById`, no colour literal, never set
+Plotly `margin`/legend position/`rangeslider`/height directly — call `baseLayout()` from
+`site/js/lib/plotly-layout.js`). `tests/test_build_site.py` greps for violations.
 
-### 3. Test locally
+### Test locally
 
 ```bash
 FRED_API_KEY=your_key python3 scripts/fetch_all.py   # or one fetcher at a time
 scripts/dev.sh                                        # regenerates + serves
-# open http://127.0.0.1:8888/ (use 127.0.0.1, not localhost — see Troubleshooting)
+# open http://127.0.0.1:8899/ (use 127.0.0.1, not localhost — see Troubleshooting)
 ```
 
 ---
@@ -655,6 +682,14 @@ A recurring gotcha on this machine, across several sessions: `http://localhost:P
 has repeatedly served a stale cached response even after restarting `scripts/dev.sh`
 and hard-reloading. Use `http://127.0.0.1:PORT/` instead — it has reliably shown the
 current file contents every time this has come up.
+
+Part of the symptom was diagnosed on 2026-09-17: port 8888, `dev.sh`'s former default, is
+permanently held by an unrelated long-running `node` server (confirmed with `lsof`), so
+`dev.sh` could never bind there and every request to `:8888` was answered by that other
+project. The default moved to 8899, and `dev.sh` now checks the port and names the process
+holding it instead of dying in an "Address already in use" traceback. Whether the
+`localhost`-vs-`127.0.0.1` distinction ever mattered on its own is unresolved — keep using
+`127.0.0.1`.
 
 ### DNS isn't resolving / site shows Porkbun's parking page
 
