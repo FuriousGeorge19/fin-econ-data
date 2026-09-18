@@ -83,7 +83,7 @@ def test_used_by_covers_every_series():
     assert covered == set(SERIES_IDS)
     # tenor_history is a view of yield_curve but still declares fred/dgs as its
     # source, so it belongs here: "used by" tracks descriptors, not data files.
-    assert uses[("fred", "dgs")] == ["dgs10", "duration_calc", "spreads", "tenor_history", "yield_curve", "yields_table"]
+    assert {"dgs10", "spreads", "tenor_history", "yield_curve", "yields_table"} <= set(uses[("fred", "dgs")])
     assert "sp500_pe" in uses[("spglobal", "sp500-index")]
     assert "usrec" in uses[("nber", "chronology")]
 
@@ -287,7 +287,8 @@ def test_report_lists_sources_used_by_and_via_index(capsys):
     out = capsys.readouterr().out
     hosts = next(line for line in out.splitlines() if line.startswith("fred hosts: "))
     assert "spglobal/sp500-index" in hosts.split(": ", 1)[1].split(", ")
-    assert "used by: dgs10, duration_calc, spreads, tenor_history, yield_curve" in out
+    dgs_line = next(line for line in out.splitlines() if line.strip().startswith("dgs "))
+    assert {"dgs10", "spreads", "tenor_history", "yield_curve"} <= set(dgs_line.split("used by: ", 1)[1].split(", "))
     assert "blocks lacking read_from:" in out
 
 

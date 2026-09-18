@@ -1,0 +1,272 @@
+{
+  "meta": {
+    "id": "rate_decomposition",
+    "title": "Why Did Treasury Yields Move? Real Yield vs Breakeven Inflation",
+    "short_title": "Real vs Breakeven",
+    "kind": "curve",
+    "units": "Basis points",
+    "cadence": "daily",
+    "publication_lag_business_days": 1,
+    "revisions": "none",
+    "revision_note": "FRED's H.15 nominal and TIPS constant-maturity yields are not revised after publication.",
+    "source_line": "FRED DGS5\u2013DGS30, DFII5\u2013DFII30",
+    "sources": [
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "dgs",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Treasury constant-maturity yields, daily (H.15)",
+        "url": "https://fred.stlouisfed.org/categories/115",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "dfii",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "TIPS constant-maturity real yields, daily (H.15)",
+        "url": "https://fred.stlouisfed.org/categories/82",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "nominal",
+        "label": "Treasury constant-maturity yields, 5yr\u201330yr (DGS5, DGS7, DGS10, DGS20, DGS30)",
+        "source": "fred",
+        "dataset": "dgs",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "real",
+        "label": "TIPS constant-maturity real yields, 5yr\u201330yr (DFII5, DFII7, DFII10, DFII20, DFII30)",
+        "source": "fred",
+        "dataset": "dfii",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      }
+    ],
+    "methodology": [
+      "A Treasury's yield is the sum of two parts: the real yield an inflation-protected bond (TIPS) of the same maturity pays, and breakeven inflation, the nominal yield minus that real yield. Any change in the nominal yield therefore splits exactly: change in nominal = change in real yield + change in breakeven inflation.",
+      "The split says what kind of move it was. A rise that is mostly breakeven is an inflation scare. A rise that is mostly real yield, with breakevens flat or falling, is a rise in the price of lending itself \u2014 growth expectations, or the extra yield investors demand for holding long bonds \u2014 not inflation.",
+      "Five maturities have both a nominal and a TIPS series: 5, 7, 10, 20 and 30 years. Changes are computed in whole basis points (1 bp = 0.01 percentage point) from yields rounded to the published two decimals, so each row adds up exactly. A date is used only if all ten series report on it, and the comparison date for each period is the nearest such date on or before the target."
+    ],
+    "notes": [
+      "Breakeven inflation is derived here (nominal minus real) rather than taken from FRED's own breakeven series (T5YIE, T10YIE), so the legs a reader sees always reconcile to the headline. FRED's 10-year breakeven can differ from this by a basis point or two because it is built from unrounded yields.",
+      "Breakeven inflation is not a pure inflation forecast: it also includes an inflation-risk premium and the relative liquidity of TIPS and nominal bonds. Read a change in it as a change in the market's inflation pricing, not as a change in expected inflation alone.",
+      "The 1-year, 2-year and 3-year maturities are absent because FRED publishes no TIPS constant-maturity series for them.",
+      "The period-comparison rule matches the yield curve page: the year-to-date reference is the last trading day of the prior year, and a week, month or year is counted back from the latest date."
+    ]
+  },
+  "as_of": {
+    "fetched_at": "2026-09-18T21:41:31Z",
+    "last_observation": "2026-09-17",
+    "period_label": "17 Sep 2026",
+    "inputs": {
+      "nominal": {
+        "last_observation": "2026-09-17",
+        "period_label": "17 Sep 2026",
+        "due_by": "2026-09-21"
+      },
+      "real": {
+        "last_observation": "2026-09-17",
+        "period_label": "17 Sep 2026",
+        "due_by": "2026-09-21"
+      }
+    },
+    "due_by": "2026-09-21"
+  },
+  "tenors": [
+    "5Y",
+    "7Y",
+    "10Y",
+    "20Y",
+    "30Y"
+  ],
+  "series_ids": {
+    "5Y": {
+      "nominal": "DGS5",
+      "real": "DFII5"
+    },
+    "7Y": {
+      "nominal": "DGS7",
+      "real": "DFII7"
+    },
+    "10Y": {
+      "nominal": "DGS10",
+      "real": "DFII10"
+    },
+    "20Y": {
+      "nominal": "DGS20",
+      "real": "DFII20"
+    },
+    "30Y": {
+      "nominal": "DGS30",
+      "real": "DFII30"
+    }
+  },
+  "latest": {
+    "date": "2026-09-17",
+    "levels": {
+      "5Y": {
+        "nominal": 4.78,
+        "real": 2.46,
+        "breakeven": 2.32
+      },
+      "7Y": {
+        "nominal": 4.86,
+        "real": 2.52,
+        "breakeven": 2.34
+      },
+      "10Y": {
+        "nominal": 4.94,
+        "real": 2.61,
+        "breakeven": 2.33
+      },
+      "20Y": {
+        "nominal": 5.32,
+        "real": 2.87,
+        "breakeven": 2.45
+      },
+      "30Y": {
+        "nominal": 5.29,
+        "real": 3.04,
+        "breakeven": 2.25
+      }
+    }
+  },
+  "periods": [
+    {
+      "id": "1w",
+      "label": "1 week",
+      "ref_date": "2026-09-10",
+      "changes": {
+        "5Y": {
+          "nominal_bp": 3,
+          "real_bp": 17,
+          "breakeven_bp": -14
+        },
+        "7Y": {
+          "nominal_bp": 2,
+          "real_bp": 11,
+          "breakeven_bp": -9
+        },
+        "10Y": {
+          "nominal_bp": -1,
+          "real_bp": 6,
+          "breakeven_bp": -7
+        },
+        "20Y": {
+          "nominal_bp": -7,
+          "real_bp": 0,
+          "breakeven_bp": -7
+        },
+        "30Y": {
+          "nominal_bp": -8,
+          "real_bp": -1,
+          "breakeven_bp": -7
+        }
+      }
+    },
+    {
+      "id": "1m",
+      "label": "1 month",
+      "ref_date": "2026-08-17",
+      "changes": {
+        "5Y": {
+          "nominal_bp": 40,
+          "real_bp": 33,
+          "breakeven_bp": 7
+        },
+        "7Y": {
+          "nominal_bp": 32,
+          "real_bp": 25,
+          "breakeven_bp": 7
+        },
+        "10Y": {
+          "nominal_bp": 22,
+          "real_bp": 17,
+          "breakeven_bp": 5
+        },
+        "20Y": {
+          "nominal_bp": 2,
+          "real_bp": 3,
+          "breakeven_bp": -1
+        },
+        "30Y": {
+          "nominal_bp": -2,
+          "real_bp": -2,
+          "breakeven_bp": 0
+        }
+      }
+    },
+    {
+      "id": "ytd",
+      "label": "Year to date",
+      "ref_date": "2025-12-31",
+      "changes": {
+        "5Y": {
+          "nominal_bp": 105,
+          "real_bp": 99,
+          "breakeven_bp": 6
+        },
+        "7Y": {
+          "nominal_bp": 92,
+          "real_bp": 83,
+          "breakeven_bp": 9
+        },
+        "10Y": {
+          "nominal_bp": 76,
+          "real_bp": 68,
+          "breakeven_bp": 8
+        },
+        "20Y": {
+          "nominal_bp": 53,
+          "real_bp": 48,
+          "breakeven_bp": 5
+        },
+        "30Y": {
+          "nominal_bp": 45,
+          "real_bp": 42,
+          "breakeven_bp": 3
+        }
+      }
+    },
+    {
+      "id": "1y",
+      "label": "1 year",
+      "ref_date": "2025-09-17",
+      "changes": {
+        "5Y": {
+          "nominal_bp": 116,
+          "real_bp": 127,
+          "breakeven_bp": -11
+        },
+        "7Y": {
+          "nominal_bp": 105,
+          "real_bp": 109,
+          "breakeven_bp": -4
+        },
+        "10Y": {
+          "nominal_bp": 88,
+          "real_bp": 93,
+          "breakeven_bp": -5
+        },
+        "20Y": {
+          "nominal_bp": 70,
+          "real_bp": 72,
+          "breakeven_bp": -2
+        },
+        "30Y": {
+          "nominal_bp": 63,
+          "real_bp": 64,
+          "breakeven_bp": -1
+        }
+      }
+    }
+  ]
+}

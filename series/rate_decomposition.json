@@ -1,0 +1,55 @@
+{
+  "id": "rate_decomposition",
+  "title": "Why Did Treasury Yields Move? Real Yield vs Breakeven Inflation",
+  "short_title": "Real vs Breakeven",
+  "kind": "curve",
+  "units": "Basis points",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's H.15 nominal and TIPS constant-maturity yields are not revised after publication.",
+  "source_line": "FRED DGS5–DGS30, DFII5–DFII30",
+  "sources": [
+    {"slug": "fred", "dataset": "dgs", "url": "https://fred.stlouisfed.org/categories/115"},
+    {"slug": "fred", "dataset": "dfii", "url": "https://fred.stlouisfed.org/categories/82"}
+  ],
+  "inputs": [
+    {
+      "id": "nominal",
+      "label": "Treasury constant-maturity yields, 5yr–30yr (DGS5, DGS7, DGS10, DGS20, DGS30)",
+      "source": "fred",
+      "dataset": "dgs",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "real",
+      "label": "TIPS constant-maturity real yields, 5yr–30yr (DFII5, DFII7, DFII10, DFII20, DFII30)",
+      "source": "fred",
+      "dataset": "dfii",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "A Treasury's yield is the sum of two parts: the real yield an inflation-protected bond (TIPS) of the same maturity pays, and breakeven inflation, the nominal yield minus that real yield. Any change in the nominal yield therefore splits exactly: change in nominal = change in real yield + change in breakeven inflation.",
+    "The split says what kind of move it was. A rise that is mostly breakeven is an inflation scare. A rise that is mostly real yield, with breakevens flat or falling, is a rise in the price of lending itself — growth expectations, or the extra yield investors demand for holding long bonds — not inflation.",
+    "Five maturities have both a nominal and a TIPS series: 5, 7, 10, 20 and 30 years. Changes are computed in whole basis points (1 bp = 0.01 percentage point) from yields rounded to the published two decimals, so each row adds up exactly. A date is used only if all ten series report on it, and the comparison date for each period is the nearest such date on or before the target."
+  ],
+  "notes": [
+    "Breakeven inflation is derived here (nominal minus real) rather than taken from FRED's own breakeven series (T5YIE, T10YIE), so the legs a reader sees always reconcile to the headline. FRED's 10-year breakeven can differ from this by a basis point or two because it is built from unrounded yields.",
+    "Breakeven inflation is not a pure inflation forecast: it also includes an inflation-risk premium and the relative liquidity of TIPS and nominal bonds. Read a change in it as a change in the market's inflation pricing, not as a change in expected inflation alone.",
+    "The 1-year, 2-year and 3-year maturities are absent because FRED publishes no TIPS constant-maturity series for them.",
+    "The period-comparison rule matches the yield curve page: the year-to-date reference is the last trading day of the prior year, and a week, month or year is counted back from the latest date."
+  ],
+  "presentation": {
+    "sections": ["rates"],
+    "order": 15,
+    "summary": "Splits each Treasury yield change into real yield and breakeven inflation, by maturity and period, from FRED.",
+    "chart": {
+      "type": "decomposition"
+    },
+    "stats": false,
+    "table": false
+  }
+}
