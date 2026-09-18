@@ -70,6 +70,15 @@ def test_drawdowns_marks_an_unrecovered_fall_ongoing_and_skips_shallow_ones():
     assert len(found) == 1 and found[0]["ongoing"] is True and found[0]["peak_date"] == "d3"
 
 
+def test_risk_off_stats_correlation_is_per_tenor_and_matches_the_10yr_field():
+    pairs = [{"date": f"d{i}", "ret_pct": r, "dy_bp": {"7yr": a, "10yr": b}}
+             for i, (r, a, b) in enumerate([(-2, -6, -5), (1, 3, 2), (-1, -3, -4), (2, 5, 1), (0.5, 0, 3)])]
+    row = sb.risk_off_stats(pairs, ["7yr", "10yr"])
+    assert set(row["correlation"]) == {"7yr", "10yr"}
+    assert row["correlation"]["10yr"] == row["correlation_10yr"]
+    assert row["correlation"]["7yr"] != row["correlation"]["10yr"]
+
+
 # ── Committed fixtures: the story the handoff told ──────────────────────────
 
 def _row(risk_off, year):

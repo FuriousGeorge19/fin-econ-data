@@ -99,11 +99,18 @@ def risk_off_stats(pairs, tenors):
     """Risk-off-day summary for a set of pairs: count, average S&P fall, per-tenor
     average yield change and share of days the yield fell, the estimated price
     move of an intermediate Treasury fund (-duration x change in the 7yr yield),
-    and the stock-bond correlation over all the pairs (10yr)."""
+    and the stock-bond correlation over all the pairs (per tenor; 10yr also kept
+    as correlation_10yr)."""
     days = [p for p in pairs if p["ret_pct"] <= RISK_OFF_THRESHOLD_PCT]
     row = {"sessions": len(pairs), "days": len(days)}
     corr = pearson([p["ret_pct"] for p in pairs], [p["dy_bp"]["10yr"] for p in pairs])
     row["correlation_10yr"] = None if corr is None else round(corr, 2)
+    # Per tenor, over ALL sessions in the period (not only bad days).
+    row["correlation"] = {
+        t: (None if c is None else round(c, 2))
+        for t in tenors
+        for c in [pearson([p["ret_pct"] for p in pairs], [p["dy_bp"][t] for p in pairs])]
+    }
     if not days:
         row.update({"avg_sp_fall_pct": None, "fund_move_pct": None, "by_tenor": {}})
         return row
