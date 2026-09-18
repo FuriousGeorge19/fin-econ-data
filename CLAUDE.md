@@ -143,6 +143,8 @@ sources must resolve `verified` (`python3 scripts/catalog.py report`).
 | A new series, source or chart type | nothing in docs — `ls` and `catalog.py report` are the inventory | any list |
 | A directory that acquires three or more rules of its own | its own `CLAUDE.md`, added to the Map | here |
 
+Run `/wrap-up` (`.claude/skills/wrap-up/SKILL.md`) before declaring a session done: it walks
+this table, writes the CHANGELOG entry and the Obsidian handoff, and runs the guards.
 `tests/test_docs.py` fails if this file passes 200 lines or regrows dated bullets. Checked
 2026-09-18: a subagent that reads a file under `series/` does receive `series/CLAUDE.md`;
 whether it starts with this root file depends on the agent type (a general-purpose agent had
