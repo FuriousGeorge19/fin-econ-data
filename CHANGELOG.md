@@ -16,14 +16,17 @@ the live truth is `series/*.json`, `catalog/sources/*.json`, the tests, and the 
 
 ## Sessions
 
-- **2026-09-18**: S11-docs: `CLAUDE.md` split. The 1,362-line root (748 of them this changelog)
-  became a ≤200-line root plus five nested files that load only when their directory is read
-  (`series/`, `scripts/`, `site/js/`, `catalog/`, `tests/`), this `CHANGELOG.md`, and
-  `tests/test_docs.py`, which fails if the root passes 200 lines or regrows dated bullets. Seven
-  comments in tests and scripts that cited CLAUDE.md sections were re-pointed (three more
-  cite the data-flow note, which stayed); the stale counts
-  in HOW-IT-WORKS.md and ARCHITECTURE.md's Planned Charts table were corrected. Root routing
-  table says where each kind of fact goes from now on. Details: the S11-docs handoff.
+- **2026-09-18**: S11-docs: `CLAUDE.md` split (`1246f23`). The 1,362-line root (748 of them
+  this changelog) became a ≤200-line root plus five nested files that load only when their
+  directory is read (`series/`, `scripts/`, `site/js/`, `catalog/`, `tests/`), this
+  `CHANGELOG.md`, and `tests/test_docs.py`, which fails if the root passes 200 lines or
+  regrows dated bullets. Seven comments in tests and scripts, one descriptor note and four
+  catalogue notes that cited vanished CLAUDE.md sections were re-pointed; the stale counts in
+  HOW-IT-WORKS.md and ARCHITECTURE.md's roadmap table were corrected. Layout decisions (user):
+  nested files only, changelog verbatim with ≤15-line entries from now on, the guard test,
+  in-scope stale fixes only. Verified by a nothing-lost audit, a fresh-session test and a
+  nested-loading probe. Then `/wrap-up` (`db864a1`, user): the end-of-session docs pass as a
+  repo skill, which the root now says to run. Details: the S11-docs handoff.
 
 - **2026-09-18**: S11d: item 11 built — the yields grid, `yields_table` (Opus/Sonnet by
   hand, commit `e2e0e13`, deployed and verified live). Rows: effective fed funds, SOFR,
