@@ -1,0 +1,66 @@
+{
+  "id": "drawdown_curve_shift",
+  "title": "What Yields Did During Stock Drawdowns",
+  "short_title": "Drawdown Curve Shift",
+  "kind": "curve",
+  "units": "Basis points",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's SP500 and H.15 yields are not revised after publication.",
+  "source_line": "FRED SP500, DGS*",
+  "sources": [
+    {
+      "slug": "spglobal",
+      "dataset": "sp500-index",
+      "url": "https://fred.stlouisfed.org/series/SP500"
+    },
+    {
+      "slug": "fred",
+      "dataset": "dgs",
+      "url": "https://fred.stlouisfed.org/categories/115"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sp500",
+      "label": "S&P 500 daily close (SP500)",
+      "source": "spglobal",
+      "dataset": "sp500-index",
+      "series_id": "SP500",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "treasury",
+      "label": "Treasury constant-maturity yields, 3mo–30yr (DGS*)",
+      "source": "fred",
+      "dataset": "dgs",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "Each window runs from an S&P 500 peak to the lowest close before it regained that peak (or to the latest close, if it has not). For the window you pick, the bars show how each Treasury yield changed between those two dates, in basis points. A bar below zero is a yield that fell, a bond price that rose: the hedge working. A bar above zero is a bond that lost money while stocks fell.",
+    "Only falls of at least 5% peak to trough are listed. A tenor with no reading on either date is left out of that window rather than estimated."
+  ],
+  "notes": [
+    "A window marked ongoing has not yet regained its peak, so its trough is the lowest close so far and may move.",
+    "Unpublished. FRED's SP500 is S&P Dow Jones Indices data, and S&P refused free permission to display index values on 2026-09-15 (catalog/sources/spglobal.json). This chart shows figures computed from those closes rather than the closes themselves, but the site's rule is that everything derived from S&P prices inherits the refusal, so it builds locally only (`scripts/dev.sh`).",
+    "FRED's SP500 covers only a rolling ten years, so no history before that exists here. The yields are FRED's H.15 constant-maturity series.",
+    "A day counts only if both the S&P and the Treasury yield report: the bond market is shut on some days stocks trade, so a return is measured between consecutive common dates."
+  ],
+  "presentation": {
+    "sections": [
+      "markets"
+    ],
+    "publish": false,
+    "order": 22,
+    "summary": "For each S&P 500 fall of 5% or more, the change in every Treasury yield between the stock peak and the trough.",
+    "chart": {
+      "type": "drawdown_shift"
+    },
+    "stats": false,
+    "table": false
+  }
+}

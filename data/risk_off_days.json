@@ -1,0 +1,408 @@
+{
+  "meta": {
+    "id": "risk_off_days",
+    "title": "Is the Bond Hedge Working? Bad Stock Days by Year",
+    "short_title": "Risk-Off Days",
+    "kind": "curve",
+    "units": "Percent",
+    "cadence": "daily",
+    "publication_lag_business_days": 1,
+    "revisions": "none",
+    "revision_note": "FRED's SP500 and H.15 yields are not revised after publication.",
+    "source_line": "FRED SP500, DGS*",
+    "sources": [
+      {
+        "slug": "spglobal",
+        "short_name": "S&P Global",
+        "dataset": "sp500-index",
+        "name": "S&P Global (S&P Dow Jones Indices)",
+        "dataset_name": "S&P 500 index level, daily",
+        "url": "https://fred.stlouisfed.org/series/SP500",
+        "licence": "S&P Dow Jones Indices copyright, via FRED: reproduction of the S&P 500 in any form is prohibited without S&P's prior written permission",
+        "terms_status": "restricted",
+        "via": "FRED"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "dgs",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Treasury constant-maturity yields, daily (H.15)",
+        "url": "https://fred.stlouisfed.org/categories/115",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "sp500",
+        "label": "S&P 500 daily close (SP500)",
+        "source": "spglobal",
+        "dataset": "sp500-index",
+        "series_id": "SP500",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "treasury",
+        "label": "Treasury constant-maturity yields, 2yr, 5yr, 7yr and 10yr (DGS*)",
+        "source": "fred",
+        "dataset": "dgs",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      }
+    ],
+    "methodology": [
+      "A risk-off day is a day the S&P 500 fell at least 1%. For each calendar year, the table shows how many there were, the average S&P fall, and \u2014 for the yield tenor you pick \u2014 the average change in that yield in basis points and the share of those days it fell. A yield that falls is a bond price that rises: the share is the hedge working. 100% means bonds rallied on every bad stock day.",
+      "The fund column is the estimated price move of an intermediate Treasury fund on those days: \u22124.9 \u00d7 the change in the 7-year yield, where 4.9 years is the average duration of Vanguard's VGIT (3- to 10-year Treasuries) and the 7-year yield stands in for the fund's own. It is an approximation, not the fund's actual return.",
+      "The correlation column is the year's correlation between the S&P's daily return and the daily change in the 10-year yield, over all sessions, not only bad days. Positive means stocks and yields fall together, so bond prices rise on bad stock days (the hedge works); negative means bond prices fall with stocks. Published stock\u2013bond correlations usually use bond returns, which reverses the sign."
+    ],
+    "notes": [
+      "The first calendar year in the data starts partway through, where FRED's ten-year window begins, and is labelled with its first date. The current year is labelled 'to date'.",
+      "The 2- and 5-year yields are offered because a real growth scare pulls rate-cut expectations forward, and those maturities are where the cuts are priced: the hedge can survive at the short end while failing at the long end.",
+      "Unpublished. FRED's SP500 is S&P Dow Jones Indices data, and S&P refused free permission to display index values on 2026-09-15 (catalog/sources/spglobal.json). This chart shows figures computed from those closes rather than the closes themselves, but the site's rule is that everything derived from S&P prices inherits the refusal, so it builds locally only (`scripts/dev.sh`).",
+      "FRED's SP500 covers only a rolling ten years, so no history before that exists here. The yields are FRED's H.15 constant-maturity series.",
+      "A day counts only if both the S&P and the Treasury yield report: the bond market is shut on some days stocks trade, so a return is measured between consecutive common dates."
+    ]
+  },
+  "as_of": {
+    "fetched_at": "2026-09-18T21:44:47Z",
+    "last_observation": "2026-09-17",
+    "period_label": "17 Sep 2026",
+    "first_observation": "2016-09-20",
+    "observation_count": 2494,
+    "inputs": {
+      "sp500": {
+        "last_observation": "2026-09-17",
+        "period_label": "17 Sep 2026",
+        "due_by": "2026-09-21"
+      },
+      "treasury": {
+        "last_observation": "2026-09-17",
+        "period_label": "17 Sep 2026",
+        "due_by": "2026-09-21"
+      }
+    },
+    "due_by": "2026-09-21"
+  },
+  "tenors": [
+    "2yr",
+    "5yr",
+    "7yr",
+    "10yr"
+  ],
+  "threshold_pct": -1.0,
+  "fund": {
+    "duration_years": 4.9,
+    "tenor": "7yr"
+  },
+  "rows": [
+    {
+      "id": "2016",
+      "label": "2016 (from 2016-09-20)",
+      "sessions": 70,
+      "days": 0,
+      "correlation_10yr": 0.16,
+      "avg_sp_fall_pct": null,
+      "fund_move_pct": null,
+      "by_tenor": {}
+    },
+    {
+      "id": "2017",
+      "label": "2017",
+      "sessions": 250,
+      "days": 4,
+      "correlation_10yr": 0.37,
+      "avg_sp_fall_pct": -1.51,
+      "fund_move_pct": 0.24,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": -1.8,
+          "share_fell_pct": 75
+        },
+        "5yr": {
+          "avg_change_bp": -5.0,
+          "share_fell_pct": 100
+        },
+        "7yr": {
+          "avg_change_bp": -5.0,
+          "share_fell_pct": 100
+        },
+        "10yr": {
+          "avg_change_bp": -5.8,
+          "share_fell_pct": 100
+        }
+      }
+    },
+    {
+      "id": "2018",
+      "label": "2018",
+      "sessions": 249,
+      "days": 32,
+      "correlation_10yr": 0.35,
+      "avg_sp_fall_pct": -2.05,
+      "fund_move_pct": 0.15,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": -2.7,
+          "share_fell_pct": 81
+        },
+        "5yr": {
+          "avg_change_bp": -3.0,
+          "share_fell_pct": 72
+        },
+        "7yr": {
+          "avg_change_bp": -3.1,
+          "share_fell_pct": 69
+        },
+        "10yr": {
+          "avg_change_bp": -2.8,
+          "share_fell_pct": 69
+        }
+      }
+    },
+    {
+      "id": "2019",
+      "label": "2019",
+      "sessions": 250,
+      "days": 15,
+      "correlation_10yr": 0.51,
+      "avg_sp_fall_pct": -1.85,
+      "fund_move_pct": 0.35,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": -7.3,
+          "share_fell_pct": 93
+        },
+        "5yr": {
+          "avg_change_bp": -7.1,
+          "share_fell_pct": 93
+        },
+        "7yr": {
+          "avg_change_bp": -7.2,
+          "share_fell_pct": 100
+        },
+        "10yr": {
+          "avg_change_bp": -7.1,
+          "share_fell_pct": 100
+        }
+      }
+    },
+    {
+      "id": "2020",
+      "label": "2020",
+      "sessions": 251,
+      "days": 45,
+      "correlation_10yr": 0.48,
+      "avg_sp_fall_pct": -2.95,
+      "fund_move_pct": 0.2,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": -2.4,
+          "share_fell_pct": 47
+        },
+        "5yr": {
+          "avg_change_bp": -3.3,
+          "share_fell_pct": 67
+        },
+        "7yr": {
+          "avg_change_bp": -4.0,
+          "share_fell_pct": 76
+        },
+        "10yr": {
+          "avg_change_bp": -4.5,
+          "share_fell_pct": 73
+        }
+      }
+    },
+    {
+      "id": "2021",
+      "label": "2021",
+      "sessions": 250,
+      "days": 21,
+      "correlation_10yr": 0.11,
+      "avg_sp_fall_pct": -1.59,
+      "fund_move_pct": -0.02,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": -0.1,
+          "share_fell_pct": 29
+        },
+        "5yr": {
+          "avg_change_bp": 0.7,
+          "share_fell_pct": 43
+        },
+        "7yr": {
+          "avg_change_bp": 0.4,
+          "share_fell_pct": 48
+        },
+        "10yr": {
+          "avg_change_bp": 0.0,
+          "share_fell_pct": 38
+        }
+      }
+    },
+    {
+      "id": "2022",
+      "label": "2022",
+      "sessions": 249,
+      "days": 64,
+      "correlation_10yr": -0.18,
+      "avg_sp_fall_pct": -1.93,
+      "fund_move_pct": -0.13,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": 3.2,
+          "share_fell_pct": 28
+        },
+        "5yr": {
+          "avg_change_bp": 3.0,
+          "share_fell_pct": 31
+        },
+        "7yr": {
+          "avg_change_bp": 2.7,
+          "share_fell_pct": 33
+        },
+        "10yr": {
+          "avg_change_bp": 2.0,
+          "share_fell_pct": 33
+        }
+      }
+    },
+    {
+      "id": "2023",
+      "label": "2023",
+      "sessions": 249,
+      "days": 28,
+      "correlation_10yr": -0.07,
+      "avg_sp_fall_pct": -1.37,
+      "fund_move_pct": 0.08,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": -4.0,
+          "share_fell_pct": 54
+        },
+        "5yr": {
+          "avg_change_bp": -2.6,
+          "share_fell_pct": 43
+        },
+        "7yr": {
+          "avg_change_bp": -1.7,
+          "share_fell_pct": 43
+        },
+        "10yr": {
+          "avg_change_bp": -0.9,
+          "share_fell_pct": 46
+        }
+      }
+    },
+    {
+      "id": "2024",
+      "label": "2024",
+      "sessions": 250,
+      "days": 19,
+      "correlation_10yr": -0.07,
+      "avg_sp_fall_pct": -1.66,
+      "fund_move_pct": 0.07,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": -2.5,
+          "share_fell_pct": 63
+        },
+        "5yr": {
+          "avg_change_bp": -1.8,
+          "share_fell_pct": 63
+        },
+        "7yr": {
+          "avg_change_bp": -1.5,
+          "share_fell_pct": 63
+        },
+        "10yr": {
+          "avg_change_bp": -1.3,
+          "share_fell_pct": 63
+        }
+      }
+    },
+    {
+      "id": "2025",
+      "label": "2025",
+      "sessions": 248,
+      "days": 29,
+      "correlation_10yr": 0.13,
+      "avg_sp_fall_pct": -1.92,
+      "fund_move_pct": 0.1,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": -3.8,
+          "share_fell_pct": 66
+        },
+        "5yr": {
+          "avg_change_bp": -2.7,
+          "share_fell_pct": 59
+        },
+        "7yr": {
+          "avg_change_bp": -2.0,
+          "share_fell_pct": 52
+        },
+        "10yr": {
+          "avg_change_bp": -1.2,
+          "share_fell_pct": 52
+        }
+      }
+    },
+    {
+      "id": "2026",
+      "label": "2026 to date",
+      "sessions": 178,
+      "days": 18,
+      "correlation_10yr": -0.43,
+      "avg_sp_fall_pct": -1.5,
+      "fund_move_pct": -0.17,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": 2.5,
+          "share_fell_pct": 39
+        },
+        "5yr": {
+          "avg_change_bp": 3.4,
+          "share_fell_pct": 28
+        },
+        "7yr": {
+          "avg_change_bp": 3.5,
+          "share_fell_pct": 28
+        },
+        "10yr": {
+          "avg_change_bp": 3.2,
+          "share_fell_pct": 28
+        }
+      }
+    },
+    {
+      "id": "last120",
+      "label": "Last 120 sessions",
+      "sessions": 120,
+      "days": 9,
+      "correlation_10yr": -0.52,
+      "avg_sp_fall_pct": -1.51,
+      "fund_move_pct": -0.22,
+      "by_tenor": {
+        "2yr": {
+          "avg_change_bp": 2.7,
+          "share_fell_pct": 33
+        },
+        "5yr": {
+          "avg_change_bp": 4.3,
+          "share_fell_pct": 22
+        },
+        "7yr": {
+          "avg_change_bp": 4.4,
+          "share_fell_pct": 22
+        },
+        "10yr": {
+          "avg_change_bp": 4.1,
+          "share_fell_pct": 22
+        }
+      }
+    }
+  ]
+}

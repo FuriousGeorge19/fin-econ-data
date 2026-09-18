@@ -1,0 +1,79 @@
+{
+  "id": "stock_bond_correlation",
+  "title": "Stock–Bond Correlation: Rolling 120 Sessions",
+  "short_title": "Stock–Bond Correlation",
+  "kind": "timeseries",
+  "units": "Correlation",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's SP500 and H.15 yields are not revised after publication.",
+  "source_line": "FRED SP500, DGS*",
+  "sources": [
+    {
+      "slug": "spglobal",
+      "dataset": "sp500-index",
+      "url": "https://fred.stlouisfed.org/series/SP500"
+    },
+    {
+      "slug": "fred",
+      "dataset": "dgs",
+      "url": "https://fred.stlouisfed.org/categories/115"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sp500",
+      "label": "S&P 500 daily close (SP500)",
+      "source": "spglobal",
+      "dataset": "sp500-index",
+      "series_id": "SP500",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "treasury",
+      "label": "Treasury constant-maturity yields, 10yr (DGS*)",
+      "source": "fred",
+      "dataset": "dgs",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "Each point is the correlation, over the trailing 120 trading sessions, between the S&P 500's daily percentage return and the daily change in the 10-year Treasury yield.",
+    "Sign convention: this compares stock returns with yield changes, and yields move opposite to bond prices. POSITIVE means stocks and yields fall together, so bond prices rise on bad stock days: the hedge is working. NEGATIVE means bond prices fall along with stocks: no hedge. Most published stock–bond correlation charts use bond returns instead, so their sign is the reverse (negative = hedge working)."
+  ],
+  "notes": [
+    "Above zero is the hedge working; below zero is not. The zero line is drawn.",
+    "Unpublished. FRED's SP500 is S&P Dow Jones Indices data, and S&P refused free permission to display index values on 2026-09-15 (catalog/sources/spglobal.json). This chart shows figures computed from those closes rather than the closes themselves, but the site's rule is that everything derived from S&P prices inherits the refusal, so it builds locally only (`scripts/dev.sh`).",
+    "FRED's SP500 covers only a rolling ten years, so no history before that exists here. The yields are FRED's H.15 constant-maturity series.",
+    "A day counts only if both the S&P and the Treasury yield report: the bond market is shut on some days stocks trade, so a return is measured between consecutive common dates."
+  ],
+  "presentation": {
+    "sections": [
+      "markets"
+    ],
+    "publish": false,
+    "order": 21,
+    "summary": "Rolling correlation of daily S&P 500 returns with daily 10-year yield changes. Positive = bonds are hedging stocks.",
+    "chart": {
+      "type": "timeseries",
+      "y": {
+        "format": ".2f"
+      },
+      "presets": [
+        "1Y",
+        "5Y",
+        "All"
+      ],
+      "recessions": true,
+      "zeroline": true
+    },
+    "stats": true,
+    "table": {
+      "kind": "recent",
+      "rows": 10
+    }
+  }
+}

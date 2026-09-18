@@ -1,0 +1,69 @@
+{
+  "id": "risk_off_days",
+  "title": "Is the Bond Hedge Working? Bad Stock Days by Year",
+  "short_title": "Risk-Off Days",
+  "kind": "curve",
+  "units": "Percent",
+  "cadence": "daily",
+  "publication_lag_business_days": 1,
+  "revisions": "none",
+  "revision_note": "FRED's SP500 and H.15 yields are not revised after publication.",
+  "source_line": "FRED SP500, DGS*",
+  "sources": [
+    {
+      "slug": "spglobal",
+      "dataset": "sp500-index",
+      "url": "https://fred.stlouisfed.org/series/SP500"
+    },
+    {
+      "slug": "fred",
+      "dataset": "dgs",
+      "url": "https://fred.stlouisfed.org/categories/115"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sp500",
+      "label": "S&P 500 daily close (SP500)",
+      "source": "spglobal",
+      "dataset": "sp500-index",
+      "series_id": "SP500",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    },
+    {
+      "id": "treasury",
+      "label": "Treasury constant-maturity yields, 2yr, 5yr, 7yr and 10yr (DGS*)",
+      "source": "fred",
+      "dataset": "dgs",
+      "cadence": "daily",
+      "publication_lag_business_days": 1
+    }
+  ],
+  "methodology": [
+    "A risk-off day is a day the S&P 500 fell at least 1%. For each calendar year, the table shows how many there were, the average S&P fall, and — for the yield tenor you pick — the average change in that yield in basis points and the share of those days it fell. A yield that falls is a bond price that rises: the share is the hedge working. 100% means bonds rallied on every bad stock day.",
+    "The fund column is the estimated price move of an intermediate Treasury fund on those days: −4.9 × the change in the 7-year yield, where 4.9 years is the average duration of Vanguard's VGIT (3- to 10-year Treasuries) and the 7-year yield stands in for the fund's own. It is an approximation, not the fund's actual return.",
+    "The correlation column is the year's correlation between the S&P's daily return and the daily change in the 10-year yield, over all sessions, not only bad days. Positive means stocks and yields fall together, so bond prices rise on bad stock days (the hedge works); negative means bond prices fall with stocks. Published stock–bond correlations usually use bond returns, which reverses the sign."
+  ],
+  "notes": [
+    "The first calendar year in the data starts partway through, where FRED's ten-year window begins, and is labelled with its first date. The current year is labelled 'to date'.",
+    "The 2- and 5-year yields are offered because a real growth scare pulls rate-cut expectations forward, and those maturities are where the cuts are priced: the hedge can survive at the short end while failing at the long end.",
+    "Unpublished. FRED's SP500 is S&P Dow Jones Indices data, and S&P refused free permission to display index values on 2026-09-15 (catalog/sources/spglobal.json). This chart shows figures computed from those closes rather than the closes themselves, but the site's rule is that everything derived from S&P prices inherits the refusal, so it builds locally only (`scripts/dev.sh`).",
+    "FRED's SP500 covers only a rolling ten years, so no history before that exists here. The yields are FRED's H.15 constant-maturity series.",
+    "A day counts only if both the S&P and the Treasury yield report: the bond market is shut on some days stocks trade, so a return is measured between consecutive common dates."
+  ],
+  "presentation": {
+    "sections": [
+      "markets"
+    ],
+    "publish": false,
+    "order": 20,
+    "summary": "For each year: how often the S&P 500 fell 1% or more, and what Treasury yields did on those days.",
+    "chart": {
+      "type": "risk_off_table"
+    },
+    "stats": false,
+    "table": false,
+    "size": "full"
+  }
+}

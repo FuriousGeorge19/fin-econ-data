@@ -1,0 +1,335 @@
+{
+  "meta": {
+    "id": "drawdown_curve_shift",
+    "title": "What Yields Did During Stock Drawdowns",
+    "short_title": "Drawdown Curve Shift",
+    "kind": "curve",
+    "units": "Basis points",
+    "cadence": "daily",
+    "publication_lag_business_days": 1,
+    "revisions": "none",
+    "revision_note": "FRED's SP500 and H.15 yields are not revised after publication.",
+    "source_line": "FRED SP500, DGS*",
+    "sources": [
+      {
+        "slug": "spglobal",
+        "short_name": "S&P Global",
+        "dataset": "sp500-index",
+        "name": "S&P Global (S&P Dow Jones Indices)",
+        "dataset_name": "S&P 500 index level, daily",
+        "url": "https://fred.stlouisfed.org/series/SP500",
+        "licence": "S&P Dow Jones Indices copyright, via FRED: reproduction of the S&P 500 in any form is prohibited without S&P's prior written permission",
+        "terms_status": "restricted",
+        "via": "FRED"
+      },
+      {
+        "slug": "fred",
+        "short_name": "FRED",
+        "dataset": "dgs",
+        "name": "Federal Reserve Bank of St. Louis (FRED)",
+        "dataset_name": "Treasury constant-maturity yields, daily (H.15)",
+        "url": "https://fred.stlouisfed.org/categories/115",
+        "licence": "Public domain (U.S. government data) via FRED; attribution to FRED and the original source requested",
+        "terms_status": "verified"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "sp500",
+        "label": "S&P 500 daily close (SP500)",
+        "source": "spglobal",
+        "dataset": "sp500-index",
+        "series_id": "SP500",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      },
+      {
+        "id": "treasury",
+        "label": "Treasury constant-maturity yields, 3mo\u201330yr (DGS*)",
+        "source": "fred",
+        "dataset": "dgs",
+        "cadence": "daily",
+        "publication_lag_business_days": 1
+      }
+    ],
+    "methodology": [
+      "Each window runs from an S&P 500 peak to the lowest close before it regained that peak (or to the latest close, if it has not). For the window you pick, the bars show how each Treasury yield changed between those two dates, in basis points. A bar below zero is a yield that fell, a bond price that rose: the hedge working. A bar above zero is a bond that lost money while stocks fell.",
+      "Only falls of at least 5% peak to trough are listed. A tenor with no reading on either date is left out of that window rather than estimated."
+    ],
+    "notes": [
+      "A window marked ongoing has not yet regained its peak, so its trough is the lowest close so far and may move.",
+      "Unpublished. FRED's SP500 is S&P Dow Jones Indices data, and S&P refused free permission to display index values on 2026-09-15 (catalog/sources/spglobal.json). This chart shows figures computed from those closes rather than the closes themselves, but the site's rule is that everything derived from S&P prices inherits the refusal, so it builds locally only (`scripts/dev.sh`).",
+      "FRED's SP500 covers only a rolling ten years, so no history before that exists here. The yields are FRED's H.15 constant-maturity series.",
+      "A day counts only if both the S&P and the Treasury yield report: the bond market is shut on some days stocks trade, so a return is measured between consecutive common dates."
+    ]
+  },
+  "as_of": {
+    "fetched_at": "2026-09-18T21:45:06Z",
+    "last_observation": "2026-09-17",
+    "period_label": "17 Sep 2026",
+    "first_observation": "2016-09-19",
+    "observation_count": 13,
+    "inputs": {
+      "sp500": {
+        "last_observation": "2026-09-17",
+        "period_label": "17 Sep 2026",
+        "due_by": "2026-09-21"
+      },
+      "treasury": {
+        "last_observation": "2026-09-17",
+        "period_label": "17 Sep 2026",
+        "due_by": "2026-09-21"
+      }
+    },
+    "due_by": "2026-09-21"
+  },
+  "tenors": [
+    "3mo",
+    "6mo",
+    "1yr",
+    "2yr",
+    "3yr",
+    "5yr",
+    "7yr",
+    "10yr",
+    "20yr",
+    "30yr"
+  ],
+  "min_drawdown_pct": 5.0,
+  "windows": [
+    {
+      "peak_date": "2026-01-27",
+      "trough_date": "2026-03-30",
+      "sp_change_pct": -9.1,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": 4,
+        "6mo": 12,
+        "1yr": 21,
+        "2yr": 29,
+        "3yr": 20,
+        "5yr": 16,
+        "7yr": 13,
+        "10yr": 11,
+        "20yr": 13,
+        "30yr": 8
+      }
+    },
+    {
+      "peak_date": "2025-10-28",
+      "trough_date": "2025-11-20",
+      "sp_change_pct": -5.1,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": 5,
+        "6mo": 7,
+        "1yr": 6,
+        "2yr": 8,
+        "3yr": 6,
+        "5yr": 8,
+        "7yr": 10,
+        "10yr": 11,
+        "20yr": 15,
+        "30yr": 18
+      }
+    },
+    {
+      "peak_date": "2025-02-19",
+      "trough_date": "2025-04-08",
+      "sp_change_pct": -18.9,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": -3,
+        "6mo": -20,
+        "1yr": -39,
+        "2yr": -57,
+        "3yr": -59,
+        "5yr": -49,
+        "7yr": -41,
+        "10yr": -27,
+        "20yr": -3,
+        "30yr": -5
+      }
+    },
+    {
+      "peak_date": "2024-07-16",
+      "trough_date": "2024-08-05",
+      "sp_change_pct": -8.5,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": -8,
+        "6mo": -32,
+        "1yr": -51,
+        "2yr": -54,
+        "3yr": -50,
+        "5yr": -47,
+        "7yr": -45,
+        "10yr": -39,
+        "20yr": -32,
+        "30yr": -32
+      }
+    },
+    {
+      "peak_date": "2024-03-28",
+      "trough_date": "2024-04-19",
+      "sp_change_pct": -5.5,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": -1,
+        "6mo": 1,
+        "1yr": 14,
+        "2yr": 38,
+        "3yr": 41,
+        "5yr": 45,
+        "7yr": 45,
+        "10yr": 42,
+        "20yr": 38,
+        "30yr": 38
+      }
+    },
+    {
+      "peak_date": "2022-01-03",
+      "trough_date": "2022-10-12",
+      "sp_change_pct": -25.4,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": 362,
+        "6mo": 394,
+        "1yr": 388,
+        "2yr": 350,
+        "3yr": 325,
+        "5yr": 275,
+        "7yr": 248,
+        "10yr": 228,
+        "20yr": 213,
+        "30yr": 189
+      }
+    },
+    {
+      "peak_date": "2021-09-02",
+      "trough_date": "2021-10-04",
+      "sp_change_pct": -5.2,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": -1,
+        "6mo": 0,
+        "1yr": 2,
+        "2yr": 7,
+        "3yr": 10,
+        "5yr": 17,
+        "7yr": 20,
+        "10yr": 20,
+        "20yr": 16,
+        "30yr": 15
+      }
+    },
+    {
+      "peak_date": "2020-09-02",
+      "trough_date": "2020-09-23",
+      "sp_change_pct": -9.6,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": -1,
+        "6mo": -1,
+        "1yr": 0,
+        "2yr": 0,
+        "3yr": -1,
+        "5yr": 2,
+        "7yr": 1,
+        "10yr": 2,
+        "20yr": 5,
+        "30yr": 4
+      }
+    },
+    {
+      "peak_date": "2020-02-19",
+      "trough_date": "2020-03-23",
+      "sp_change_pct": -33.9,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": -156,
+        "6mo": -148,
+        "1yr": -130,
+        "2yr": -114,
+        "3yr": -108,
+        "5yr": -103,
+        "7yr": -87,
+        "10yr": -80,
+        "20yr": -74,
+        "30yr": -68
+      }
+    },
+    {
+      "peak_date": "2019-07-26",
+      "trough_date": "2019-08-14",
+      "sp_change_pct": -6.1,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": -16,
+        "6mo": -18,
+        "1yr": -21,
+        "2yr": -28,
+        "3yr": -30,
+        "5yr": -34,
+        "7yr": -40,
+        "10yr": -49,
+        "20yr": -54,
+        "30yr": -56
+      }
+    },
+    {
+      "peak_date": "2019-04-30",
+      "trough_date": "2019-06-03",
+      "sp_change_pct": -6.8,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": -8,
+        "6mo": -15,
+        "1yr": -28,
+        "2yr": -45,
+        "3yr": -45,
+        "5yr": -45,
+        "7yr": -44,
+        "10yr": -44,
+        "20yr": -41,
+        "30yr": -40
+      }
+    },
+    {
+      "peak_date": "2018-09-20",
+      "trough_date": "2018-12-24",
+      "sp_change_pct": -19.8,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": 28,
+        "6mo": 15,
+        "1yr": 3,
+        "2yr": -26,
+        "3yr": -33,
+        "5yr": -38,
+        "7yr": -37,
+        "10yr": -33,
+        "20yr": -27,
+        "30yr": -21
+      }
+    },
+    {
+      "peak_date": "2018-01-26",
+      "trough_date": "2018-02-08",
+      "sp_change_pct": -10.2,
+      "ongoing": false,
+      "changes_bp": {
+        "3mo": 14,
+        "6mo": 9,
+        "1yr": 11,
+        "2yr": 0,
+        "3yr": 8,
+        "5yr": 10,
+        "7yr": 16,
+        "10yr": 19,
+        "20yr": 24,
+        "30yr": 23
+      }
+    }
+  ]
+}

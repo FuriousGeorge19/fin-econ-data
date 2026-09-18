@@ -447,6 +447,9 @@ LICENCE_RESTRICTED = {
     "sp500_earnings_yield": "the inverse of a P/E built from S&P's columns",
     "sp500_dividend_yield": "S&P's dividends over S&P's price",
     "equity_risk_premium": "its equity leg is 1/CAPE, so it inherits the CAPE bar",
+    "risk_off_days": "counts and averages computed from FRED's SP500 daily closes (S&P DJI's data)",
+    "stock_bond_correlation": "a correlation computed from FRED's SP500 daily closes (S&P DJI's data)",
+    "drawdown_curve_shift": "windows found in FRED's SP500 daily closes (S&P DJI's data)",
 }
 
 
