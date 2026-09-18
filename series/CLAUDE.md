@@ -35,8 +35,9 @@ the workflow's seed step all derive from it. Schema authority is `tests/test_ser
   `summary`, `chart`. Optional: `stats`, `table` (`{kind: recent | changes, rows, windows}`),
   `publish`, `data`, `size`.
 - `chart.type` names a module in `site/js/charts/` (`timeseries`, `curve`, `tenors`,
-  `sp500_pe`, `yields_table`). Options: `y {suffix, format}`, `presets` (`1M 6M 1Y 5Y All`
-  grammar), `recessions`, `zeroline`, `overlays`, `custom_date`, `traces`, and for `tenors`
+  `sp500_pe`, `yields_table`, `duration_calc`, `decomposition`, `risk_off_table`,
+  `drawdown_shift`). Options: `y {suffix, format}`, `presets` (`1M 6M 1Y 5Y All`
+  grammar), `recessions`, `zeroline`, `overlays` (`1w`/`1m`/`5y` grammar, plus `ytd`), `custom_date`, `traces`, and for `tenors`
   `tenors`/`default_tenors`/`stat_tenors`. The payload shapes `timeseries` accepts are in
   `site/js/charts/timeseries.js`'s header comment.
 - **`publish: false`** keeps a series off the public site. `build_site.py` derives chart

@@ -42,7 +42,8 @@ for path in sorted(glob.glob(os.path.join(sys.argv[1], "series", "*.json"))):
     with open(path) as fh:
         descriptor = json.load(fh)
     presentation = descriptor.get("presentation") or {}
-    if presentation.get("publish") is not False:
+    # A view (presentation.data) has no data file of its own to download.
+    if presentation.get("publish") is not False and not presentation.get("data"):
         print(descriptor["id"])
 PY
 )

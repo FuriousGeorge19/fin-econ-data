@@ -16,6 +16,22 @@ the live truth is `series/*.json`, `catalog/sources/*.json`, the tests, and the 
 
 ## Sessions
 
+- **2026-09-18**: S11e: items 12-19 of the 19 Aug handoff (`94c1f79`, `f679db8`, `a2ac6fe`).
+  12: the curve table shows whole bp and gains a YTD column (`ytd` overlay). 13: a
+  custom-date bp table under the curve chart (`render()` owns it; `table()` cannot see the
+  picked date). 18: "Percentile of History" and "Highest/Lowest Since" tiles on every
+  `timeseries` stats row. 19: `duration_calc`, a view over `yields_table`. 14:
+  `rate_decomposition` + `decomposition` chart (nominal = real + breakeven in bp, 5Y-30Y,
+  1w/1m/YTD/1y). 15-17: `risk_off_days`, `stock_bond_correlation`, `drawdown_curve_shift`
+  from FRED `SP500` + `DGS*`; handoff figures reproduce (2022 correlation -0.18; 2026 yield
+  fell on 28% of bad days; 27 Jan-30 Mar 2026 drawdown -9.1%, 2yr +29 bp, 10yr +11 bp).
+  Decision (Claude, not yet confirmed by the user): 15-17 are `publish: false` and in
+  `LICENCE_RESTRICTED`, since S&P's refusal covers what is derived from its prices.
+  Not verified in a browser (extension disconnected): the DOM parts of 12-13 and every new
+  chart module were only syntax-checked and their data logic tested. `dev.sh --live` no
+  longer 404s on views. The catalogue tests' hard-coded used-by lists became subset checks.
+  Details: the S11e handoff.
+
 - **2026-09-18**: S11-docs: `CLAUDE.md` split (`1246f23`). The 1,362-line root (748 of them
   this changelog) became a ≤200-line root plus five nested files that load only when their
   directory is read (`series/`, `scripts/`, `site/js/`, `catalog/`, `tests/`), this

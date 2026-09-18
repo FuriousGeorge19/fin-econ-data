@@ -23,6 +23,10 @@ code. The shared helpers:
   reference, id colliding with a type name, or a bad view. `--include-unpublished`.
 - `dev.sh [port]` — build with `--include-unpublished`, warn per stale series, serve on
   `127.0.0.1:8899`. `--live` pulls the published series' data down first. No network otherwise.
+- `stock_bond.py` — shared computation for `risk_off_days`, `stock_bond_correlation` and
+  `drawdown_curve_shift` (FRED `SP500` + `DGS*`, paired on common dates). Each has its own
+  thin `fetch_<id>.py`. The sign convention (correlation of stock returns with yield
+  *changes*: positive = the bond hedge works) is printed on the chart and in its docstring.
 - `build_earnings_overrides.py` — manual fallback only, not in the pipeline since S9b; its
   trigger (Shiller's earnings column stops updating) is Session Plan Phase 5.
 

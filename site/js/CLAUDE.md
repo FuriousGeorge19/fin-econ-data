@@ -23,7 +23,9 @@ enforced by `tests/test_build_site.py` (`test_no_colour_literal_in_site_js`,
   (HTML preset buttons → `Plotly.relayout`), `lib/dates.js` (UTC-only date math),
   `lib/export.js`.
 - `charts/<type>.js` — one module per chart type: `timeseries`, `curve`, `tenors`,
-  `sp500_pe`, `yields_table`.
+  `sp500_pe`, `yields_table`, `duration_calc`, `decomposition`, `risk_off_table`,
+  `drawdown_shift`. The last four draw HTML (`chart--html`) or a bar chart with a row of
+  buttons in `ctx.slots.controls`; none has a Plotly time axis.
 
 ## Rules for a chart type
 
@@ -33,6 +35,11 @@ enforced by `tests/test_build_site.py` (`test_no_colour_literal_in_site_js`,
   charts sit on `/rates/`). Interactive state lives in `render()`'s closure; redraw with
   `Plotly.react`, not a fresh `newPlot`. Controls mount into `ctx.slots.controls`.
 - No `document.getElementById`; use `el` and `ctx.slots`.
+- `table()` cannot see a control's live value (the `curve` custom date). Something that
+  depends on one is drawn by `render()` as a sibling of `el` and removed in `destroy()`
+  (`curve.js`'s `.yc-custom-table`); Plotly never touches siblings.
+- `timeseries.js`'s `stats()` ends with two history tiles for every series (percentile of
+  all history; highest/lowest since). Not configurable per series.
 - Colours only from `ctx.theme`; no hex/rgb literal anywhere under `site/js`.
 - Never set `margin`, legend position, `rangeslider` or `height` (see above).
 - Precompute hover text into a `text` array and use a `%{text}` template. Plotly's
