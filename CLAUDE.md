@@ -602,6 +602,13 @@ FRED_API_KEY=xxxxxxxxxxxxxx pytest
   `pytest -m "not staleness"` 360 green (was 259: +45 agent tests, +1 verifier canary,
   +55 from the two suites that parametrize over `series_meta.ids()`);
   `STALENESS_SOURCE=local pytest -m staleness` 14 green; `catalog.py check` clean.
+  **Deployed the same session** (`gh workflow run "Update Data"`, run `35293184848`,
+  green on every step): all five chart pages, `/economy/`, `/rates/`, `/markets/` and the
+  curated home page serve live; the four `sp500_*` charts still 404, as they should. Two
+  deploy notes — the new chart pages took up to ~3 minutes to stop returning 404 after the
+  run went green (the GitHub Pages CDN lag S7 hit and S11a didn't; data files served
+  immediately, pages trailed), and the run logs five `could not restore <id>.json from
+  gh-pages` warnings, expected for brand-new series with no copy on `gh-pages` yet.
   Verified live in the browser (Claude in Chrome, `127.0.0.1:8899`): all five chart pages
   plus the `/economy/` and `/rates/` grids, zero console messages anywhere, no horizontal
   overflow, and `tips_curve`'s plotted traces read back from `_fullData` matching the data
