@@ -30,6 +30,8 @@ the live truth is `series/*.json`, `catalog/sources/*.json`, the tests, and the 
   Not verified in a browser (extension disconnected): the DOM parts of 12-13 and every new
   chart module were only syntax-checked and their data logic tested. `dev.sh --live` no
   longer 404s on views. The catalogue tests' hard-coded used-by lists became subset checks.
+  Fixed after your review of the risk-off table (`afbfea9`): its correlation column now follows
+  the tenor button; the fund column stays on the 7yr and is labelled so.
   Details: the S11e handoff.
 
 - **2026-09-18**: S11-docs: `CLAUDE.md` split (`1246f23`). The 1,362-line root (748 of them
