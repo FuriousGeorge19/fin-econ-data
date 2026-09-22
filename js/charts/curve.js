@@ -9,8 +9,10 @@ import { addDaysUTC, addMonthsUTC, addYearsUTC, nearestOnOrBefore, formatDateLon
 import { fmtChange } from '../lib/theme.js';
 import { baseLayout, PLOT_CONFIG } from '../lib/plotly-layout.js';
 
-// Grammar: <n><w|m|y> counting back from the latest date, e.g. "1w", "5y".
+// Grammar: <n><w|m|y> counting back from the latest date, e.g. "1w", "5y";
+// or "ytd", the last observation on or before 31 Dec of the prior year.
 function periodParts(period) {
+    if (period === 'ytd') return { n: 0, unit: 'ytd' };
     const m = /^(\d+)([wmy])$/.exec(period);
     if (!m) throw new Error(`unknown overlay period: ${period}`);
     return { n: Number(m[1]), unit: m[2] };
@@ -18,6 +20,7 @@ function periodParts(period) {
 
 function targetDateFor(period, latestDate) {
     const { n, unit } = periodParts(period);
+    if (unit === 'ytd') return `${Number(latestDate.slice(0, 4)) - 1}-12-31`;
     if (unit === 'w') return addDaysUTC(latestDate, -n * 7);
     if (unit === 'm') return addMonthsUTC(latestDate, -n);
     return addYearsUTC(latestDate, -n);
@@ -25,6 +28,7 @@ function targetDateFor(period, latestDate) {
 
 function overlayLabel(period) {
     const { n, unit } = periodParts(period);
+    if (unit === 'ytd') return 'Year to Date';
     const noun = { w: 'Week', m: 'Month', y: 'Year' }[unit];
     return `${n} ${noun}${n === 1 ? '' : 's'} Ago`;
 }
@@ -45,8 +49,14 @@ function overlayColor(theme, period) {
 
 function changeColumnLabel(period, compDateISO) {
     const { n, unit } = periodParts(period);
-    const noun = { w: 'Week', m: 'Month', y: 'Year' }[unit];
-    return `${n}-${noun} Change (vs ${formatDateLong(compDateISO)})`;
+    const what = unit === 'ytd' ? 'YTD' : `${n}-${{ w: 'Week', m: 'Month', y: 'Year' }[unit]}`;
+    return `${what} Change, bp (vs ${formatDateLong(compDateISO)})`;
+}
+
+// Whole basis points: the yields are published to two decimals, so a
+// difference is always a whole number of bp (rounding only removes float noise).
+function bpChange(diffPct, theme) {
+    return fmtChange(Math.round(diffPct * 100), theme, { decimals: 0, suffix: ' bp' });
 }
 
 function formatDateLabel(dateISO) {
@@ -94,6 +104,39 @@ export function render(el, ctx) {
     const active = new Set(overlays.length ? [overlays[0]] : []);
     let dateInput = null;
 
+    // The custom date's change table (roadmap item 13) sits under the chart.
+    // table() cannot see the picked date, so render() owns this one; it is a
+    // sibling of `el`, which Plotly.react never touches.
+    const customTable = document.createElement('div');
+    customTable.className = 'yc-custom-table';
+    customTable.hidden = true;
+    el.after(customTable);
+
+    function drawCustomTable() {
+        if (!dateInput || !dateInput.value) {
+            customTable.hidden = true;
+            customTable.innerHTML = '';
+            return;
+        }
+        const compDate = nearestOnOrBefore(dates, dateInput.value) || dates[0];
+        const comp = data.observations[compDate] || {};
+        const latest = data.observations[latestDate];
+        const head = `<tr><th>Tenor</th><th>${formatDateLong(latestDate)}</th>`
+            + `<th>${formatDateLong(compDate)}</th><th>Change, bp</th></tr>`;
+        const body = data.tenors
+            .filter(t => latest[t] !== undefined)
+            .map(t => {
+                if (comp[t] === undefined) {
+                    return `<tr><td>${t}</td><td>${latest[t].toFixed(2)}${suffix}</td><td>—</td><td>—</td></tr>`;
+                }
+                const ch = bpChange(latest[t] - comp[t], theme);
+                return `<tr><td>${t}</td><td>${latest[t].toFixed(2)}${suffix}</td>`
+                    + `<td>${comp[t].toFixed(2)}${suffix}</td><td style="color: ${ch.color}">${ch.text}</td></tr>`;
+            }).join('');
+        customTable.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+        customTable.hidden = false;
+    }
+
     function buildTraces() {
         const traces = [];
         const current = buildCurveTrace(
@@ -139,6 +182,7 @@ export function render(el, ctx) {
 
     function draw() {
         Plotly.react(el, buildTraces(), buildLayout(), PLOT_CONFIG(`${ctx.id}_${ctx.as_of.last_observation}`));
+        drawCustomTable();
     }
 
     // A "yc-controls" wrapper (existing class, carried over specifically for
@@ -188,7 +232,7 @@ export function render(el, ctx) {
 
     Plotly.newPlot(el, buildTraces(), buildLayout(), PLOT_CONFIG(`${ctx.id}_${ctx.as_of.last_observation}`));
 
-    return { destroy() { Plotly.purge(el); } };
+    return { destroy() { customTable.remove(); Plotly.purge(el); } };
 }
 
 // Pure: uses the CONFIGURED overlays (ctx.presentation.chart.overlays), not
@@ -217,7 +261,7 @@ export function table(ctx) {
             const cells = [{ text: t }, { text: `${val.toFixed(2)}${suffix}` }];
             comparisons.forEach(c => {
                 const prev = c.obs[t];
-                cells.push(prev === undefined ? { text: '—' } : fmtChange(val - prev, theme, { decimals: 2, suffix }));
+                cells.push(prev === undefined ? { text: '—' } : bpChange(val - prev, theme));
             });
             return cells;
         });
