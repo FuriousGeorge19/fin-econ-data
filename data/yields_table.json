@@ -122,29 +122,29 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-25T01:27:31Z",
-    "last_observation": "2026-09-23",
-    "period_label": "23 Sep 2026",
+    "fetched_at": "2026-09-26T01:31:28Z",
+    "last_observation": "2026-09-24",
+    "period_label": "24 Sep 2026",
     "inputs": {
       "fedfunds": {
-        "last_observation": "2026-09-23",
-        "period_label": "23 Sep 2026",
-        "due_by": "2026-09-25"
+        "last_observation": "2026-09-24",
+        "period_label": "24 Sep 2026",
+        "due_by": "2026-09-28"
       },
       "sofr": {
-        "last_observation": "2026-09-23",
-        "period_label": "23 Sep 2026",
-        "due_by": "2026-09-25"
+        "last_observation": "2026-09-24",
+        "period_label": "24 Sep 2026",
+        "due_by": "2026-09-28"
       },
       "treasury": {
-        "last_observation": "2026-09-23",
-        "period_label": "23 Sep 2026",
-        "due_by": "2026-09-25"
+        "last_observation": "2026-09-24",
+        "period_label": "24 Sep 2026",
+        "due_by": "2026-09-28"
       },
       "tips": {
-        "last_observation": "2026-09-23",
-        "period_label": "23 Sep 2026",
-        "due_by": "2026-09-25"
+        "last_observation": "2026-09-24",
+        "period_label": "24 Sep 2026",
+        "due_by": "2026-09-28"
       },
       "hqm": {
         "last_observation": "2026-08-01",
@@ -152,7 +152,7 @@
         "due_by": "2026-10-06"
       }
     },
-    "due_by": "2026-09-25"
+    "due_by": "2026-09-28"
   },
   "columns": [
     {
@@ -216,11 +216,11 @@
       "id": "fedfunds",
       "input": "fedfunds",
       "label": "Effective federal funds rate",
-      "as_of": "2026-09-23",
+      "as_of": "2026-09-24",
       "cells": {
         "ON": {
           "value": 3.88,
-          "date": "2026-09-23",
+          "date": "2026-09-24",
           "series_id": "DFF"
         }
       }
@@ -229,11 +229,11 @@
       "id": "sofr",
       "input": "sofr",
       "label": "SOFR (overnight repo)",
-      "as_of": "2026-09-23",
+      "as_of": "2026-09-24",
       "cells": {
         "ON": {
-          "value": 3.87,
-          "date": "2026-09-23",
+          "value": 3.88,
+          "date": "2026-09-24",
           "series_id": "SOFR"
         }
       }
@@ -242,56 +242,56 @@
       "id": "treasury",
       "input": "treasury",
       "label": "US Treasury",
-      "as_of": "2026-09-23",
+      "as_of": "2026-09-24",
       "cells": {
         "3M": {
-          "value": 4.19,
-          "date": "2026-09-23",
+          "value": 4.24,
+          "date": "2026-09-24",
           "series_id": "DGS3MO"
         },
         "6M": {
-          "value": 4.31,
-          "date": "2026-09-23",
+          "value": 4.34,
+          "date": "2026-09-24",
           "series_id": "DGS6MO"
         },
         "1Y": {
-          "value": 4.49,
-          "date": "2026-09-23",
+          "value": 4.51,
+          "date": "2026-09-24",
           "series_id": "DGS1"
         },
         "2Y": {
-          "value": 4.85,
-          "date": "2026-09-23",
+          "value": 4.87,
+          "date": "2026-09-24",
           "series_id": "DGS2"
         },
         "3Y": {
-          "value": 4.97,
-          "date": "2026-09-23",
+          "value": 4.99,
+          "date": "2026-09-24",
           "series_id": "DGS3"
         },
         "5Y": {
-          "value": 4.99,
-          "date": "2026-09-23",
+          "value": 5.03,
+          "date": "2026-09-24",
           "series_id": "DGS5"
         },
         "7Y": {
-          "value": 5.05,
-          "date": "2026-09-23",
+          "value": 5.1,
+          "date": "2026-09-24",
           "series_id": "DGS7"
         },
         "10Y": {
-          "value": 5.11,
-          "date": "2026-09-23",
+          "value": 5.18,
+          "date": "2026-09-24",
           "series_id": "DGS10"
         },
         "20Y": {
-          "value": 5.45,
-          "date": "2026-09-23",
+          "value": 5.53,
+          "date": "2026-09-24",
           "series_id": "DGS20"
         },
         "30Y": {
-          "value": 5.4,
-          "date": "2026-09-23",
+          "value": 5.47,
+          "date": "2026-09-24",
           "series_id": "DGS30"
         }
       }
@@ -300,31 +300,31 @@
       "id": "tips",
       "input": "tips",
       "label": "TIPS real yield",
-      "as_of": "2026-09-23",
+      "as_of": "2026-09-24",
       "cells": {
         "5Y": {
-          "value": 2.65,
-          "date": "2026-09-23",
+          "value": 2.7,
+          "date": "2026-09-24",
           "series_id": "DFII5"
         },
         "7Y": {
-          "value": 2.7,
-          "date": "2026-09-23",
+          "value": 2.77,
+          "date": "2026-09-24",
           "series_id": "DFII7"
         },
         "10Y": {
-          "value": 2.76,
-          "date": "2026-09-23",
+          "value": 2.85,
+          "date": "2026-09-24",
           "series_id": "DFII10"
         },
         "20Y": {
-          "value": 2.99,
-          "date": "2026-09-23",
+          "value": 3.08,
+          "date": "2026-09-24",
           "series_id": "DFII20"
         },
         "30Y": {
-          "value": 3.14,
-          "date": "2026-09-23",
+          "value": 3.21,
+          "date": "2026-09-24",
           "series_id": "DFII30"
         }
       }
