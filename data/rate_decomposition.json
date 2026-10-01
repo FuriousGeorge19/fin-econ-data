@@ -63,22 +63,22 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-09-30T02:04:18Z",
-    "last_observation": "2026-09-28",
-    "period_label": "28 Sep 2026",
+    "fetched_at": "2026-10-01T02:05:42Z",
+    "last_observation": "2026-09-29",
+    "period_label": "29 Sep 2026",
     "inputs": {
       "nominal": {
-        "last_observation": "2026-09-28",
-        "period_label": "28 Sep 2026",
-        "due_by": "2026-09-30"
+        "last_observation": "2026-09-29",
+        "period_label": "29 Sep 2026",
+        "due_by": "2026-10-01"
       },
       "real": {
-        "last_observation": "2026-09-28",
-        "period_label": "28 Sep 2026",
-        "due_by": "2026-09-30"
+        "last_observation": "2026-09-29",
+        "period_label": "29 Sep 2026",
+        "due_by": "2026-10-01"
       }
     },
-    "due_by": "2026-09-30"
+    "due_by": "2026-10-01"
   },
   "tenors": [
     "5Y",
@@ -110,32 +110,32 @@
     }
   },
   "latest": {
-    "date": "2026-09-28",
+    "date": "2026-09-29",
     "levels": {
       "5Y": {
         "nominal": 5.06,
-        "real": 2.73,
-        "breakeven": 2.33
-      },
-      "7Y": {
-        "nominal": 5.15,
-        "real": 2.8,
-        "breakeven": 2.35
-      },
-      "10Y": {
-        "nominal": 5.24,
-        "real": 2.9,
+        "real": 2.72,
         "breakeven": 2.34
       },
+      "7Y": {
+        "nominal": 5.16,
+        "real": 2.8,
+        "breakeven": 2.36
+      },
+      "10Y": {
+        "nominal": 5.26,
+        "real": 2.91,
+        "breakeven": 2.35
+      },
       "20Y": {
-        "nominal": 5.6,
-        "real": 3.14,
-        "breakeven": 2.46
+        "nominal": 5.64,
+        "real": 3.15,
+        "breakeven": 2.49
       },
       "30Y": {
-        "nominal": 5.56,
-        "real": 3.28,
-        "breakeven": 2.28
+        "nominal": 5.59,
+        "real": 3.29,
+        "breakeven": 2.3
       }
     }
   },
@@ -143,32 +143,32 @@
     {
       "id": "1w",
       "label": "1 week",
-      "ref_date": "2026-09-21",
+      "ref_date": "2026-09-22",
       "changes": {
         "5Y": {
           "nominal_bp": 23,
-          "real_bp": 23,
-          "breakeven_bp": 0
+          "real_bp": 21,
+          "breakeven_bp": 2
         },
         "7Y": {
-          "nominal_bp": 26,
-          "real_bp": 25,
-          "breakeven_bp": 1
+          "nominal_bp": 27,
+          "real_bp": 24,
+          "breakeven_bp": 3
         },
         "10Y": {
-          "nominal_bp": 28,
+          "nominal_bp": 30,
           "real_bp": 28,
-          "breakeven_bp": 0
+          "breakeven_bp": 2
         },
         "20Y": {
-          "nominal_bp": 27,
-          "real_bp": 28,
-          "breakeven_bp": -1
+          "nominal_bp": 31,
+          "real_bp": 27,
+          "breakeven_bp": 4
         },
         "30Y": {
-          "nominal_bp": 27,
-          "real_bp": 26,
-          "breakeven_bp": 1
+          "nominal_bp": 30,
+          "real_bp": 25,
+          "breakeven_bp": 5
         }
       }
     },
@@ -179,28 +179,28 @@
       "changes": {
         "5Y": {
           "nominal_bp": 58,
-          "real_bp": 55,
-          "breakeven_bp": 3
+          "real_bp": 54,
+          "breakeven_bp": 4
         },
         "7Y": {
-          "nominal_bp": 56,
+          "nominal_bp": 57,
           "real_bp": 51,
-          "breakeven_bp": 5
+          "breakeven_bp": 6
         },
         "10Y": {
-          "nominal_bp": 51,
-          "real_bp": 48,
-          "breakeven_bp": 3
+          "nominal_bp": 53,
+          "real_bp": 49,
+          "breakeven_bp": 4
         },
         "20Y": {
-          "nominal_bp": 39,
-          "real_bp": 38,
-          "breakeven_bp": 1
+          "nominal_bp": 43,
+          "real_bp": 39,
+          "breakeven_bp": 4
         },
         "30Y": {
-          "nominal_bp": 34,
-          "real_bp": 32,
-          "breakeven_bp": 2
+          "nominal_bp": 37,
+          "real_bp": 33,
+          "breakeven_bp": 4
         }
       }
     },
@@ -211,60 +211,60 @@
       "changes": {
         "5Y": {
           "nominal_bp": 133,
-          "real_bp": 126,
-          "breakeven_bp": 7
+          "real_bp": 125,
+          "breakeven_bp": 8
         },
         "7Y": {
-          "nominal_bp": 121,
+          "nominal_bp": 122,
           "real_bp": 111,
-          "breakeven_bp": 10
+          "breakeven_bp": 11
         },
         "10Y": {
-          "nominal_bp": 106,
-          "real_bp": 97,
-          "breakeven_bp": 9
+          "nominal_bp": 108,
+          "real_bp": 98,
+          "breakeven_bp": 10
         },
         "20Y": {
-          "nominal_bp": 81,
-          "real_bp": 75,
-          "breakeven_bp": 6
+          "nominal_bp": 85,
+          "real_bp": 76,
+          "breakeven_bp": 9
         },
         "30Y": {
-          "nominal_bp": 72,
-          "real_bp": 66,
-          "breakeven_bp": 6
+          "nominal_bp": 75,
+          "real_bp": 67,
+          "breakeven_bp": 8
         }
       }
     },
     {
       "id": "1y",
       "label": "1 year",
-      "ref_date": "2025-09-26",
+      "ref_date": "2025-09-29",
       "changes": {
         "5Y": {
-          "nominal_bp": 130,
+          "nominal_bp": 132,
           "real_bp": 139,
-          "breakeven_bp": -9
+          "breakeven_bp": -7
         },
         "7Y": {
-          "nominal_bp": 119,
-          "real_bp": 123,
-          "breakeven_bp": -4
+          "nominal_bp": 124,
+          "real_bp": 124,
+          "breakeven_bp": 0
         },
         "10Y": {
-          "nominal_bp": 104,
-          "real_bp": 108,
-          "breakeven_bp": -4
+          "nominal_bp": 111,
+          "real_bp": 111,
+          "breakeven_bp": 0
         },
         "20Y": {
-          "nominal_bp": 86,
-          "real_bp": 87,
-          "breakeven_bp": -1
+          "nominal_bp": 95,
+          "real_bp": 91,
+          "breakeven_bp": 4
         },
         "30Y": {
-          "nominal_bp": 79,
-          "real_bp": 77,
-          "breakeven_bp": 2
+          "nominal_bp": 88,
+          "real_bp": 82,
+          "breakeven_bp": 6
         }
       }
     }
