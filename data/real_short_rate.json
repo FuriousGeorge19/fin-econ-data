@@ -67,16 +67,16 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-10-01T02:05:42Z",
+    "fetched_at": "2026-10-02T02:11:33Z",
     "last_observation": "2026-08-01",
     "period_label": "Aug 2026",
     "first_observation": "1948-01-01",
     "observation_count": 943,
     "inputs": {
       "tb3ms": {
-        "last_observation": "2026-08-01",
-        "period_label": "Aug 2026",
-        "due_by": "2026-10-01"
+        "last_observation": "2026-09-01",
+        "period_label": "Sep 2026",
+        "due_by": "2026-11-02"
       },
       "cpi": {
         "last_observation": "2026-08-01",
@@ -84,7 +84,7 @@
         "due_by": "2026-10-14"
       }
     },
-    "due_by": "2026-10-01"
+    "due_by": "2026-10-14"
   },
   "observations": [
     {

@@ -53,11 +53,11 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-10-01T02:05:58Z",
-    "last_observation": "2026-08-01",
-    "period_label": "Aug 2026",
+    "fetched_at": "2026-10-02T02:11:42Z",
+    "last_observation": "2026-09-01",
+    "period_label": "Sep 2026",
     "latest_value": 0.0,
-    "due_by": "2026-10-07"
+    "due_by": "2026-11-06"
   },
   "recessions": [
     {

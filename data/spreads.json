@@ -42,24 +42,24 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-10-01T02:05:53Z",
-    "last_observation": "2026-09-29",
-    "period_label": "29 Sep 2026",
-    "due_by": "2026-10-01",
+    "fetched_at": "2026-10-02T02:11:39Z",
+    "last_observation": "2026-09-30",
+    "period_label": "30 Sep 2026",
+    "due_by": "2026-10-02",
     "series": {
       "10y2y": {
-        "last_observation": "2026-09-29",
-        "period_label": "29 Sep 2026",
-        "due_by": "2026-10-01",
+        "last_observation": "2026-09-30",
+        "period_label": "30 Sep 2026",
+        "due_by": "2026-10-02",
         "first_observation": "1976-06-01",
-        "observation_count": 12579
+        "observation_count": 12580
       },
       "10y3m": {
-        "last_observation": "2026-09-29",
-        "period_label": "29 Sep 2026",
-        "due_by": "2026-10-01",
+        "last_observation": "2026-09-30",
+        "period_label": "30 Sep 2026",
+        "due_by": "2026-10-02",
         "first_observation": "1981-09-01",
-        "observation_count": 11269
+        "observation_count": 11270
       }
     }
   },
@@ -50382,6 +50382,10 @@
         {
           "date": "2026-09-29",
           "value": 0.37
+        },
+        {
+          "date": "2026-09-30",
+          "value": 0.41
         }
       ]
     },
@@ -95463,6 +95467,10 @@
         {
           "date": "2026-09-29",
           "value": 1.01
+        },
+        {
+          "date": "2026-09-30",
+          "value": 1.09
         }
       ]
     }
