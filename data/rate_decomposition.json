@@ -63,22 +63,22 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-10-14T01:51:54Z",
-    "last_observation": "2026-10-09",
-    "period_label": "9 Oct 2026",
+    "fetched_at": "2026-10-15T01:26:03Z",
+    "last_observation": "2026-10-13",
+    "period_label": "13 Oct 2026",
     "inputs": {
       "nominal": {
-        "last_observation": "2026-10-09",
-        "period_label": "9 Oct 2026",
-        "due_by": "2026-10-14"
+        "last_observation": "2026-10-13",
+        "period_label": "13 Oct 2026",
+        "due_by": "2026-10-15"
       },
       "real": {
-        "last_observation": "2026-10-09",
-        "period_label": "9 Oct 2026",
-        "due_by": "2026-10-14"
+        "last_observation": "2026-10-13",
+        "period_label": "13 Oct 2026",
+        "due_by": "2026-10-15"
       }
     },
-    "due_by": "2026-10-14"
+    "due_by": "2026-10-15"
   },
   "tenors": [
     "5Y",
@@ -110,31 +110,31 @@
     }
   },
   "latest": {
-    "date": "2026-10-09",
+    "date": "2026-10-13",
     "levels": {
       "5Y": {
-        "nominal": 5.02,
-        "real": 2.68,
-        "breakeven": 2.34
+        "nominal": 5.0,
+        "real": 2.67,
+        "breakeven": 2.33
       },
       "7Y": {
-        "nominal": 5.13,
-        "real": 2.79,
+        "nominal": 5.11,
+        "real": 2.77,
         "breakeven": 2.34
       },
       "10Y": {
-        "nominal": 5.24,
-        "real": 2.91,
+        "nominal": 5.21,
+        "real": 2.88,
         "breakeven": 2.33
       },
       "20Y": {
-        "nominal": 5.65,
-        "real": 3.17,
-        "breakeven": 2.48
+        "nominal": 5.6,
+        "real": 3.13,
+        "breakeven": 2.47
       },
       "30Y": {
-        "nominal": 5.6,
-        "real": 3.32,
+        "nominal": 5.56,
+        "real": 3.28,
         "breakeven": 2.28
       }
     }
@@ -143,31 +143,31 @@
     {
       "id": "1w",
       "label": "1 week",
-      "ref_date": "2026-10-02",
+      "ref_date": "2026-10-06",
       "changes": {
         "5Y": {
-          "nominal_bp": -4,
-          "real_bp": -1,
-          "breakeven_bp": -3
+          "nominal_bp": -3,
+          "real_bp": 1,
+          "breakeven_bp": -4
         },
         "7Y": {
           "nominal_bp": -4,
-          "real_bp": -1,
-          "breakeven_bp": -3
+          "real_bp": 0,
+          "breakeven_bp": -4
         },
         "10Y": {
-          "nominal_bp": -4,
-          "real_bp": -1,
+          "nominal_bp": -6,
+          "real_bp": -3,
           "breakeven_bp": -3
         },
         "20Y": {
-          "nominal_bp": -2,
-          "real_bp": -2,
-          "breakeven_bp": 0
+          "nominal_bp": -8,
+          "real_bp": -6,
+          "breakeven_bp": -2
         },
         "30Y": {
-          "nominal_bp": -3,
-          "real_bp": -2,
+          "nominal_bp": -8,
+          "real_bp": -7,
           "breakeven_bp": -1
         }
       }
@@ -175,32 +175,32 @@
     {
       "id": "1m",
       "label": "1 month",
-      "ref_date": "2026-09-09",
+      "ref_date": "2026-09-11",
       "changes": {
         "5Y": {
-          "nominal_bp": 41,
-          "real_bp": 48,
+          "nominal_bp": 22,
+          "real_bp": 29,
           "breakeven_bp": -7
         },
         "7Y": {
-          "nominal_bp": 42,
-          "real_bp": 47,
+          "nominal_bp": 24,
+          "real_bp": 29,
           "breakeven_bp": -5
         },
         "10Y": {
-          "nominal_bp": 41,
-          "real_bp": 45,
-          "breakeven_bp": -4
+          "nominal_bp": 25,
+          "real_bp": 28,
+          "breakeven_bp": -3
         },
         "20Y": {
-          "nominal_bp": 37,
-          "real_bp": 38,
-          "breakeven_bp": -1
+          "nominal_bp": 22,
+          "real_bp": 24,
+          "breakeven_bp": -2
         },
         "30Y": {
-          "nominal_bp": 32,
-          "real_bp": 34,
-          "breakeven_bp": -2
+          "nominal_bp": 21,
+          "real_bp": 21,
+          "breakeven_bp": 0
         }
       }
     },
@@ -210,28 +210,28 @@
       "ref_date": "2025-12-31",
       "changes": {
         "5Y": {
-          "nominal_bp": 129,
-          "real_bp": 121,
-          "breakeven_bp": 8
+          "nominal_bp": 127,
+          "real_bp": 120,
+          "breakeven_bp": 7
         },
         "7Y": {
-          "nominal_bp": 119,
-          "real_bp": 110,
+          "nominal_bp": 117,
+          "real_bp": 108,
           "breakeven_bp": 9
         },
         "10Y": {
-          "nominal_bp": 106,
-          "real_bp": 98,
+          "nominal_bp": 103,
+          "real_bp": 95,
           "breakeven_bp": 8
         },
         "20Y": {
-          "nominal_bp": 86,
-          "real_bp": 78,
-          "breakeven_bp": 8
+          "nominal_bp": 81,
+          "real_bp": 74,
+          "breakeven_bp": 7
         },
         "30Y": {
-          "nominal_bp": 76,
-          "real_bp": 70,
+          "nominal_bp": 72,
+          "real_bp": 66,
           "breakeven_bp": 6
         }
       }
@@ -239,32 +239,32 @@
     {
       "id": "1y",
       "label": "1 year",
-      "ref_date": "2025-10-09",
+      "ref_date": "2025-10-10",
       "changes": {
         "5Y": {
-          "nominal_bp": 128,
-          "real_bp": 133,
-          "breakeven_bp": -5
+          "nominal_bp": 135,
+          "real_bp": 137,
+          "breakeven_bp": -2
         },
         "7Y": {
-          "nominal_bp": 121,
-          "real_bp": 122,
-          "breakeven_bp": -1
+          "nominal_bp": 128,
+          "real_bp": 125,
+          "breakeven_bp": 3
         },
         "10Y": {
-          "nominal_bp": 110,
-          "real_bp": 111,
-          "breakeven_bp": -1
+          "nominal_bp": 116,
+          "real_bp": 113,
+          "breakeven_bp": 3
         },
         "20Y": {
-          "nominal_bp": 95,
-          "real_bp": 93,
-          "breakeven_bp": 2
+          "nominal_bp": 100,
+          "real_bp": 95,
+          "breakeven_bp": 5
         },
         "30Y": {
-          "nominal_bp": 88,
-          "real_bp": 85,
-          "breakeven_bp": 3
+          "nominal_bp": 93,
+          "real_bp": 87,
+          "breakeven_bp": 6
         }
       }
     }
