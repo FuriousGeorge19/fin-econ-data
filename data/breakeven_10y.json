@@ -44,12 +44,12 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-10-29T02:23:24Z",
-    "last_observation": "2026-10-28",
-    "period_label": "28 Oct 2026",
+    "fetched_at": "2026-10-30T02:34:08Z",
+    "last_observation": "2026-10-29",
+    "period_label": "29 Oct 2026",
     "first_observation": "2003-01-02",
-    "observation_count": 5960,
-    "due_by": "2026-10-29"
+    "observation_count": 5961,
+    "due_by": "2026-10-30"
   },
   "observations": [
     {
@@ -23891,6 +23891,10 @@
     {
       "date": "2026-10-28",
       "value": 2.38
+    },
+    {
+      "date": "2026-10-29",
+      "value": 2.35
     }
   ]
 }
