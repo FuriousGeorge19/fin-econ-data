@@ -67,7 +67,7 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-11-10T04:36:15Z",
+    "fetched_at": "2026-11-11T02:45:04Z",
     "last_observation": "2026-09-01",
     "period_label": "Sep 2026",
     "first_observation": "1948-01-01",
@@ -79,12 +79,12 @@
         "due_by": "2026-12-01"
       },
       "cpi": {
-        "last_observation": "2026-09-01",
-        "period_label": "Sep 2026",
-        "due_by": "2026-11-13"
+        "last_observation": "2026-10-01",
+        "period_label": "Oct 2026",
+        "due_by": "2026-12-11"
       }
     },
-    "due_by": "2026-11-13"
+    "due_by": "2026-12-01"
   },
   "observations": [
     {
