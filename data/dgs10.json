@@ -42,18 +42,14 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-11-25T05:24:04Z",
-    "last_observation": "2026-11-23",
-    "period_label": "23 Nov 2026",
-    "first_observation": "2017-03-28",
+    "fetched_at": "2026-11-26T04:58:27Z",
+    "last_observation": "2026-11-24",
+    "period_label": "24 Nov 2026",
+    "first_observation": "2017-03-29",
     "observation_count": 2415,
-    "due_by": "2026-11-25"
+    "due_by": "2026-11-27"
   },
   "observations": [
-    {
-      "date": "2017-03-28",
-      "value": 2.42
-    },
     {
       "date": "2017-03-29",
       "value": 2.39
@@ -9709,6 +9705,10 @@
     {
       "date": "2026-11-23",
       "value": 4.92
+    },
+    {
+      "date": "2026-11-24",
+      "value": 4.91
     }
   ]
 }

@@ -44,47 +44,47 @@
     ]
   },
   "as_of": {
-    "fetched_at": "2026-11-25T05:24:29Z",
-    "last_observation": "2026-11-23",
-    "period_label": "23 Nov 2026",
+    "fetched_at": "2026-11-26T04:58:46Z",
+    "last_observation": "2026-11-24",
+    "period_label": "24 Nov 2026",
     "first_observation": "2003-01-02",
-    "observation_count": 5977,
-    "due_by": "2026-11-25",
+    "observation_count": 5978,
+    "due_by": "2026-11-27",
     "series": {
       "5yr": {
-        "last_observation": "2026-11-23",
-        "period_label": "23 Nov 2026",
-        "due_by": "2026-11-25",
+        "last_observation": "2026-11-24",
+        "period_label": "24 Nov 2026",
+        "due_by": "2026-11-27",
         "first_observation": "2003-01-02",
-        "observation_count": 5977
+        "observation_count": 5978
       },
       "7yr": {
-        "last_observation": "2026-11-23",
-        "period_label": "23 Nov 2026",
-        "due_by": "2026-11-25",
+        "last_observation": "2026-11-24",
+        "period_label": "24 Nov 2026",
+        "due_by": "2026-11-27",
         "first_observation": "2003-01-02",
-        "observation_count": 5977
+        "observation_count": 5978
       },
       "10yr": {
-        "last_observation": "2026-11-23",
-        "period_label": "23 Nov 2026",
-        "due_by": "2026-11-25",
+        "last_observation": "2026-11-24",
+        "period_label": "24 Nov 2026",
+        "due_by": "2026-11-27",
         "first_observation": "2003-01-02",
-        "observation_count": 5977
+        "observation_count": 5978
       },
       "20yr": {
-        "last_observation": "2026-11-23",
-        "period_label": "23 Nov 2026",
-        "due_by": "2026-11-25",
+        "last_observation": "2026-11-24",
+        "period_label": "24 Nov 2026",
+        "due_by": "2026-11-27",
         "first_observation": "2004-07-27",
-        "observation_count": 5586
+        "observation_count": 5587
       },
       "30yr": {
-        "last_observation": "2026-11-23",
-        "period_label": "23 Nov 2026",
-        "due_by": "2026-11-25",
+        "last_observation": "2026-11-24",
+        "period_label": "24 Nov 2026",
+        "due_by": "2026-11-27",
         "first_observation": "2010-02-22",
-        "observation_count": 4192
+        "observation_count": 4193
       }
     }
   },
@@ -39765,6 +39765,13 @@
       "10yr": 2.79,
       "20yr": 3.04,
       "30yr": 3.17
+    },
+    "2026-11-24": {
+      "5yr": 2.58,
+      "7yr": 2.67,
+      "10yr": 2.79,
+      "20yr": 3.05,
+      "30yr": 3.19
     }
   }
 }
